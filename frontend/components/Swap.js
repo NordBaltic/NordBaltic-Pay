@@ -3,116 +3,104 @@ import Web3 from "web3";
 import axios from "axios";
 import "../styles/globals.css";
 
-export default function Swap() {
-  const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
-  const [web3, setWeb3] = useState(null);
-  const [tokenFrom, setTokenFrom] = useState("BNB");
-  const [tokenTo, setTokenTo] = useState("USDT");
-  const [amount, setAmount] = useState("");
-  const [exchangeRate, setExchangeRate] = useState(null);
-  const [convertedAmount, setConvertedAmount] = useState("0.00");
-  const [swapFee, setSwapFee] = useState("0.2%");
-  const [loading, setLoading] = useState(true);
+const SwapComponent = ({ account, web3, onTransactionComplete }) => {
+  const [swapAmount, setSwapAmount] = useState("");
+  const [swapFrom, setSwapFrom] = useState("BNB");
+  const [swapTo, setSwapTo] = useState("USDT");
+  const [balance, setBalance] = useState("0.00");
+  const [swapRate, setSwapRate] = useState(null);
+  const WALLET_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_WALLET_CONTRACT_ADDRESS;
 
-  const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET;
-  const swapContract = process.env.NEXT_PUBLIC_WALLET_CONTRACT_ADDRESS;
-
-  const tokens = [
-    { name: "BNB", symbol: "BNB", contract: "0xBNBContract", logo: "/images/bnb.png" },
-    { name: "USD Tether", symbol: "USDT", contract: "0xUSDTContract", logo: "/images/usdt.png" },
-    { name: "Ethereum", symbol: "ETH", contract: "0xETHContract", logo: "/images/eth.png" },
-    { name: "NordBaltic Token", symbol: "NBT", contract: "0xNBTContract", logo: "/images/nbt.png" },
+  const tokenList = [
+    { symbol: "BNB", address: "0x...", logo: "/logos/bnb.png" },
+    { symbol: "USDT", address: "0x...", logo: "/logos/usdt.png" },
+    { symbol: "ETH", address: "0x...", logo: "/logos/eth.png" },
+    { symbol: "BTCB", address: "0x...", logo: "/logos/btcb.png" },
   ];
 
   useEffect(() => {
-    if (account) {
-      const web3Instance = new Web3(window.ethereum);
-      setWeb3(web3Instance);
-      fetchExchangeRate();
+    if (account && web3) {
+      fetchBalance();
+      fetchSwapRate();
     }
-  }, [account, tokenFrom, tokenTo]);
+  }, [account, web3, swapFrom, swapTo]);
 
-  const fetchExchangeRate = async () => {
+  const fetchBalance = async () => {
     try {
-      const response = await axios.get(
-        `https://api.coingecko.com/api/v3/simple/price?ids=${tokenFrom.toLowerCase()},${tokenTo.toLowerCase()}&vs_currencies=usd`
-      );
-      setExchangeRate(response.data);
+      const balanceWei = await web3.eth.getBalance(account);
+      setBalance(web3.utils.fromWei(balanceWei, "ether"));
     } catch (error) {
-      console.error("❌ Klaida gaunant valiutos kursą:", error);
+      console.error("🔴 Klaida gaunant balansą:", error);
     }
   };
 
-  useEffect(() => {
-    if (!amount || !exchangeRate) return;
-    const rate = exchangeRate[tokenFrom.toLowerCase()].usd / exchangeRate[tokenTo.toLowerCase()].usd;
-    setConvertedAmount((parseFloat(amount) * rate).toFixed(4));
-  }, [amount, exchangeRate]);
+  const fetchSwapRate = async () => {
+    try {
+      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${swapFrom.toLowerCase()},${swapTo.toLowerCase()}&vs_currencies=usd`);
+      setSwapRate(response.data[swapFrom.toLowerCase()].usd / response.data[swapTo.toLowerCase()].usd);
+    } catch (error) {
+      console.error("🔴 Klaida gaunant swap kursą:", error);
+    }
+  };
 
-  const handleSwap = async () => {
-    if (!amount || parseFloat(amount) <= 0) return;
+  const executeSwap = async () => {
+    if (!swapAmount || parseFloat(swapAmount) <= 0) {
+      alert("❌ Įveskite teisingą sumą!");
+      return;
+    }
 
     try {
-      const sendAmount = web3.utils.toWei(amount, "ether");
-      const fee = web3.utils.toWei((parseFloat(amount) * 0.002).toFixed(4), "ether"); // 0.2% fee
-      const netAmount = sendAmount - fee;
+      const sendAmount = web3.utils.toWei(swapAmount, "ether");
+      const feeAmount = (parseFloat(swapAmount) * 0.002).toFixed(6);
+      const feeWei = web3.utils.toWei(feeAmount, "ether");
 
       await web3.eth.sendTransaction({
         from: account,
-        to: swapContract,
-        value: netAmount,
+        to: WALLET_CONTRACT_ADDRESS,
+        value: feeWei,
         gas: 21000,
       });
 
-      await web3.eth.sendTransaction({
-        from: account,
-        to: adminWallet,
-        value: fee,
-        gas: 21000,
-      });
-
-      console.log(`✅ Swap Complete: ${amount} ${tokenFrom} → ${convertedAmount} ${tokenTo}`);
+      alert(`✅ Swap sėkmingas! ${swapAmount} ${swapFrom} → ${swapTo}`);
+      onTransactionComplete();
     } catch (error) {
-      console.error("❌ Klaida atliekant swap:", error);
+      console.error("❌ Swap klaida:", error);
     }
   };
 
   return (
     <div className="swap-container">
-      <h2>🔄 Swap Crypto</h2>
-      <p>Swap tokens with instant execution and a 0.2% fee.</p>
+      <h1>🔄 Token Swap</h1>
 
-      <label>From:</label>
-      <select value={tokenFrom} onChange={(e) => setTokenFrom(e.target.value)}>
-        {tokens.map((token) => (
-          <option key={token.symbol} value={token.symbol}>
-            {token.name} ({token.symbol})
-          </option>
-        ))}
-      </select>
+      <p className="wallet-balance">💰 Balansas: {balance} {swapFrom}</p>
 
-      <label>To:</label>
-      <select value={tokenTo} onChange={(e) => setTokenTo(e.target.value)}>
-        {tokens.map((token) => (
-          <option key={token.symbol} value={token.symbol}>
-            {token.name} ({token.symbol})
-          </option>
-        ))}
-      </select>
+      {/* Swap pasirinkimai */}
+      <div className="swap-inputs">
+        <label>From:</label>
+        <select value={swapFrom} onChange={(e) => setSwapFrom(e.target.value)}>
+          {tokenList.map(token => (
+            <option key={token.symbol} value={token.symbol}>{token.symbol}</option>
+          ))}
+        </select>
 
-      <label>Amount:</label>
-      <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount" />
+        <label>To:</label>
+        <select value={swapTo} onChange={(e) => setSwapTo(e.target.value)}>
+          {tokenList.map(token => (
+            <option key={token.symbol} value={token.symbol}>{token.symbol}</option>
+          ))}
+        </select>
 
-      <p className="swap-fee">📌 Swap Fee: {swapFee} (Sent to admin wallet)</p>
+        <label>Amount:</label>
+        <input type="number" value={swapAmount} onChange={(e) => setSwapAmount(e.target.value)} placeholder="0.01" />
+      </div>
 
-      <button className="swap-btn" onClick={handleSwap}>🚀 Swap Now</button>
+      {/* Swap kursas */}
+      {swapRate && <p className="swap-rate">1 {swapFrom} ≈ {swapRate.toFixed(6)} {swapTo}</p>}
 
-      <h3>📈 Live Exchange Rate</h3>
-      {convertedAmount && (
-        <p className="converted-amount">
-          {amount} {tokenFrom} ≈ {convertedAmount} {tokenTo}
-        </p>
-      )}
+      {/* Swap mygtukas */}
+      <button className="swap-btn" onClick={executeSwap}>⚡ Swap Now</button>
     </div>
   );
-}
+};
+
+export default SwapComponent;
