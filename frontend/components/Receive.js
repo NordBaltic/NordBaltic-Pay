@@ -4,13 +4,9 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 import QRCode from "qrcode.react"; // ✅ QR kodų palaikymas
 import "../styles/globals.css";
 
-export default function Send() {
+export default function Receive() {
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
-  const [recipient, setRecipient] = useState("");
-  const [amount, setAmount] = useState("");
-  const [fee, setFee] = useState("0.002 BNB");
-  const [status, setStatus] = useState("");
   const [currency, setCurrency] = useState("EUR"); // ✅ Numatytasis EUR
   const [convertedAmount, setConvertedAmount] = useState(null);
 
@@ -59,41 +55,19 @@ export default function Send() {
   };
 
   useEffect(() => {
-    if (!amount) return;
+    if (!account) return;
     const convert = async () => {
       const rate = await fetchConversionRate();
       if (rate) {
-        setConvertedAmount((parseFloat(amount) * rate).toFixed(2));
+        setConvertedAmount((1 * rate).toFixed(2));
       }
     };
     convert();
-  }, [amount, currency]);
-
-  const handleSend = async () => {
-    if (!recipient || !amount) {
-      setStatus("❌ Please enter recipient and amount.");
-      return;
-    }
-
-    try {
-      setStatus("⏳ Processing transaction...");
-      const sendAmount = web3.utils.toWei(amount, "ether");
-      const transaction = await web3.eth.sendTransaction({
-        from: account,
-        to: recipient,
-        value: sendAmount,
-        gas: 21000,
-      });
-      setStatus(`✅ Transaction Successful! TX Hash: ${transaction.transactionHash}`);
-    } catch (error) {
-      console.error("Transaction Failed", error);
-      setStatus("❌ Transaction failed. Please try again.");
-    }
-  };
+  }, [account, currency]);
 
   return (
-    <div className="send-container">
-      <h1 className="send-title">Send Crypto</h1>
+    <div className="receive-container">
+      <h1 className="receive-title">Receive Crypto</h1>
       {!account ? (
         <div className="wallet-buttons">
           <button className="wallet-connect-btn" onClick={connectWalletConnect}>
@@ -106,30 +80,23 @@ export default function Send() {
       ) : (
         <>
           <p className="wallet-address">Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
-          <div className="send-form">
-            <label>Recipient Address</label>
-            <input type="text" value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder="0x..." />
-            
-            {/* ✅ QR kodas adresui */}
-            {recipient && <QRCode value={recipient} size={128} className="qr-code" />}
 
-            <label>Amount (BNB)</label>
-            <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.01" />
-
-            {/* ✅ Pasirinkimas rodyti sumą EUR/USD */}
-            <label>Show in:</label>
-            <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
-              <option value="EUR">EUR</option>
-              <option value="USD">USD</option>
-            </select>
-
-            {/* ✅ Konvertuota suma */}
-            {convertedAmount && <p className="converted-amount">≈ {convertedAmount} {currency}</p>}
-
-            <p className="fee-text">Estimated Fee: {fee} (~{(parseFloat(fee) * convertedAmount).toFixed(2)} {currency})</p>
-            <button className="send-btn" onClick={handleSend}>Send</button>
+          {/* ✅ QR kodas gavimo adresui */}
+          <div className="qr-section">
+            <p>Your Wallet Address:</p>
+            <QRCode value={account} size={180} className="qr-code" />
+            <p className="small-text">Scan the QR code to receive crypto.</p>
           </div>
-          <p className="status-text">{status}</p>
+
+          {/* ✅ Valiutos pasirinkimas */}
+          <label>Show in:</label>
+          <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
+            <option value="EUR">EUR</option>
+            <option value="USD">USD</option>
+          </select>
+
+          {/* ✅ Konvertuota suma */}
+          {convertedAmount && <p className="converted-amount">1 BNB ≈ {convertedAmount} {currency}</p>}
         </>
       )}
     </div>
