@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Web3 from "web3";
 import axios from "axios";
+import { createClient } from "@supabase/supabase-js";
 import Link from "next/link";
 import QRCode from "qrcode.react";
 import { Line } from "react-chartjs-2";
@@ -8,16 +9,23 @@ import { useTheme } from "../context/ThemeContext";
 import "../styles/globals.css";
 import "chart.js/auto";
 
+// 🔥 Supabase setup
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
 export default function Dashboard() {
-  const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
+  const { theme } = useTheme();
+  const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
   const [balance, setBalance] = useState("0.00");
   const [balanceChange, setBalanceChange] = useState({ "24h": 0, "1w": 0, "1m": 0 });
-  const [currency, setCurrency] = useState(localStorage.getItem("currency") || "USD");
+  const [currency, setCurrency] = useState("USD");
   const [convertedBalance, setConvertedBalance] = useState(null);
   const [chartData, setChartData] = useState(null);
   const [timeframe, setTimeframe] = useState("1w");
-  const { theme } = useTheme();
+
+  useEffect(() => {
+    fetchUserAccount();
+  }, []);
 
   useEffect(() => {
     if (account) {
@@ -29,17 +37,52 @@ export default function Dashboard() {
     }
   }, [account, timeframe]);
 
+  // 🔵 Fetch user account from Supabase
+  const fetchUserAccount = async () => {
+    const { data } = await supabase.from("users").select("wallet").single();
+    if (data && data.wallet) {
+      setAccount(data.wallet);
+    }
+  };
+
+  // 🦊 MetaMask login
+  const connectMetaMask = async () => {
+    if (window.ethereum) {
+      try {
+        const web3Instance = new Web3(window.ethereum);
+        setWeb3(web3Instance);
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        const userWallet = accounts[0];
+
+        setAccount(userWallet);
+        await supabase.from("users").upsert({ wallet: userWallet });
+
+        fetchBalance(web3Instance, userWallet);
+        fetchBalanceChange();
+        fetchChartData(timeframe);
+      } catch (error) {
+        console.error("🔴 MetaMask error:", error);
+      }
+    } else {
+      alert("🚨 MetaMask not found!");
+    }
+  };
+
+  // 💰 Fetch balance
   const fetchBalance = async (web3Instance, account) => {
     try {
       const balanceWei = await web3Instance.eth.getBalance(account);
       const balanceEth = web3Instance.utils.fromWei(balanceWei, "ether");
       setBalance(parseFloat(balanceEth).toFixed(4));
       fetchConversionRate(balanceEth);
+      
+      await supabase.from("users").update({ balance: balanceEth }).eq("wallet", account);
     } catch (error) {
       console.error("🔴 Error fetching balance:", error);
     }
   };
 
+  // 📈 Fetch balance changes
   const fetchBalanceChange = async () => {
     try {
       const response = await axios.get(
@@ -56,6 +99,7 @@ export default function Dashboard() {
     }
   };
 
+  // 🔄 Currency conversion
   const fetchConversionRate = async (bnbAmount) => {
     try {
       const response = await axios.get(
@@ -71,6 +115,7 @@ export default function Dashboard() {
     }
   };
 
+  // 📊 Fetch chart data
   const fetchChartData = async (selectedTimeframe) => {
     const days = selectedTimeframe === "24h" ? 1 : selectedTimeframe === "1w" ? 7 : 30;
     try {
@@ -84,8 +129,8 @@ export default function Dashboard() {
           {
             label: "BNB Price",
             data: prices.map((entry) => entry[1]),
-            borderColor: "#4CAF50",
-            backgroundColor: "rgba(76, 175, 80, 0.2)",
+            borderColor: "#FFD700",
+            backgroundColor: "rgba(255, 215, 0, 0.2)",
             fill: true,
             tension: 0.4,
           },
@@ -96,74 +141,34 @@ export default function Dashboard() {
     }
   };
 
-  const connectMetaMask = async () => {
-    if (window.ethereum) {
-      try {
-        const web3Instance = new Web3(window.ethereum);
-        setWeb3(web3Instance);
-        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        setAccount(accounts[0]);
-        localStorage.setItem("walletAccount", accounts[0]);
-        fetchBalance(web3Instance, accounts[0]);
-        fetchBalanceChange();
-        fetchChartData(timeframe);
-      } catch (error) {
-        console.error("🔴 MetaMask error:", error);
-      }
-    } else {
-      alert("🚨 MetaMask not found!");
-    }
-  };
-
   return (
     <div className={`dashboard-container ${theme}`}>
-      <h1 className="dashboard-title">📊 Dashboard</h1>
+      <h1 className="dashboard-title">🚀 NordBaltic Pay Dashboard</h1>
 
       {!account ? (
-        <div className="wallet-buttons">
-          <button className="wallet-connect-btn" onClick={connectMetaMask}>
-            🦊 Connect MetaMask
-          </button>
-        </div>
+        <button className="wallet-connect-btn" onClick={connectMetaMask}>🦊 Connect MetaMask</button>
       ) : (
         <>
           <p className="wallet-address">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
           <p className="wallet-balance">💰 {balance} BNB</p>
+          <QRCode value={account} size={128} />
 
-          {/* Balanso pokytis */}
-          <div className="balance-change">
-            <p>📈 24h: <span className={balanceChange["24h"] > 0 ? "positive" : "negative"}>{balanceChange["24h"]}%</span></p>
-            <p>📈 1w: <span className={balanceChange["1w"] > 0 ? "positive" : "negative"}>{balanceChange["1w"]}%</span></p>
-            <p>📈 1m: <span className={balanceChange["1m"] > 0 ? "positive" : "negative"}>{balanceChange["1m"]}%</span></p>
-          </div>
-
-          {/* Konvertuotas balansas */}
-          <label>Show in:</label>
           <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
             <option value="USD">💵 USD</option>
             <option value="EUR">💶 EUR</option>
           </select>
-          {convertedBalance && <p className="converted-balance">≈ {currency === "USD" ? convertedBalance.usd : convertedBalance.eur} {currency}</p>}
+          {convertedBalance && <p>≈ {currency === "USD" ? convertedBalance.usd : convertedBalance.eur} {currency}</p>}
 
-          {/* 📊 Grafikas */}
           <h3>📊 Balance Chart</h3>
-          <select onChange={(e) => setTimeframe(e.target.value)}>
-            <option value="24h">Last 24h</option>
-            <option value="1w">Last 1 week</option>
-            <option value="1m">Last 1 month</option>
-          </select>
           {chartData && <Line data={chartData} />}
-
-          {/* Funkciniai mygtukai */}
+          
           <div className="dashboard-buttons">
             <Link href="/send"><a>📤 Send</a></Link>
-            <Link href="/receive"><a>📥 Receive</a></Link>
             <Link href="/staking"><a>💸 Stake</a></Link>
             <Link href="/swap"><a>🔄 Swap</a></Link>
-            <Link href="/donations"><a>❤️ Donate</a></Link>
           </div>
         </>
       )}
     </div>
   );
-}
+          }
