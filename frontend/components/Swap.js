@@ -1,4 +1,4 @@
-// 📂 /frontend/components/Swap.js - MAX PREMIUM SWAP SYSTEM
+// 📂 /frontend/components/Swap.js - PREMIUM SWAP SYSTEM WITH MULTI-TOKEN SUPPORT
 import { useState, useEffect } from "react";
 import Web3 from "web3";
 import axios from "axios";
@@ -11,48 +11,49 @@ export default function Swap() {
   const [toToken, setToToken] = useState("USDT");
   const [amount, setAmount] = useState("");
   const [estimatedAmount, setEstimatedAmount] = useState("");
-  const [swapFee, setSwapFee] = useState(0.2); // 0.2% swap fee iš smart contracto
+  const [swapFee, setSwapFee] = useState(0.2);
   const [tokenPrices, setTokenPrices] = useState({});
+  const [tokenList, setTokenList] = useState([]);
   const [tokenLogos, setTokenLogos] = useState({});
-
+  
   const walletContractAddress = process.env.NEXT_PUBLIC_WALLET_CONTRACT_ADDRESS;
 
   useEffect(() => {
     if (account) {
       const web3Instance = new Web3(window.ethereum);
       setWeb3(web3Instance);
-      fetchTokenPrices();
-      fetchTokenLogos();
+      fetchTokenData();
     }
   }, [account]);
 
-  const fetchTokenPrices = async () => {
+  const fetchTokenData = async () => {
     try {
+      const tokenIDs = ["binancecoin", "tether", "usd-coin", "ethereum", "wrapped-bitcoin"];
       const response = await axios.get(
-        `https://api.coingecko.com/api/v3/simple/price?ids=binancecoin,tether&vs_currencies=usd`
+        `https://api.coingecko.com/api/v3/simple/price?ids=${tokenIDs.join(",")}&vs_currencies=usd`
       );
       setTokenPrices({
         BNB: response.data.binancecoin.usd,
         USDT: response.data.tether.usd,
+        USDC: response.data["usd-coin"].usd,
+        ETH: response.data.ethereum.usd,
+        WBTC: response.data["wrapped-bitcoin"].usd,
       });
-    } catch (error) {
-      console.error("🔴 Klaida gaunant tokenų kainas:", error);
-    }
-  };
 
-  const fetchTokenLogos = async () => {
-    try {
-      const response = await axios.get(
-        `https://api.coingecko.com/api/v3/coins/list`
-      );
-      const tokenData = response.data.reduce((acc, token) => {
+      const tokenInfo = await axios.get(`https://api.coingecko.com/api/v3/coins/list`);
+      const logos = tokenInfo.data.reduce((acc, token) => {
         if (token.id === "binancecoin") acc["BNB"] = token.image;
         if (token.id === "tether") acc["USDT"] = token.image;
+        if (token.id === "usd-coin") acc["USDC"] = token.image;
+        if (token.id === "ethereum") acc["ETH"] = token.image;
+        if (token.id === "wrapped-bitcoin") acc["WBTC"] = token.image;
         return acc;
       }, {});
-      setTokenLogos(tokenData);
+      setTokenLogos(logos);
+
+      setTokenList(["BNB", "USDT", "USDC", "ETH", "WBTC"]);
     } catch (error) {
-      console.error("🔴 Klaida gaunant tokenų logotipus:", error);
+      console.error("🔴 Klaida gaunant tokenų duomenis:", error);
     }
   };
 
@@ -113,8 +114,9 @@ export default function Swap() {
         <div className="token-dropdown">
           {tokenLogos[fromToken] && <img src={tokenLogos[fromToken]} alt={fromToken} className="token-logo" />}
           <select value={fromToken} onChange={(e) => setFromToken(e.target.value)}>
-            <option value="BNB">BNB</option>
-            <option value="USDT">USDT</option>
+            {tokenList.map((token) => (
+              <option key={token} value={token}>{token}</option>
+            ))}
           </select>
         </div>
       </div>
@@ -131,8 +133,9 @@ export default function Swap() {
         <div className="token-dropdown">
           {tokenLogos[toToken] && <img src={tokenLogos[toToken]} alt={toToken} className="token-logo" />}
           <select value={toToken} onChange={(e) => setToToken(e.target.value)}>
-            <option value="USDT">USDT</option>
-            <option value="BNB">BNB</option>
+            {tokenList.map((token) => (
+              <option key={token} value={token}>{token}</option>
+            ))}
           </select>
         </div>
       </div>
