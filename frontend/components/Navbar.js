@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import QRCode from "qrcode.react";
-import ThemeSwitcher from "./ThemeSwitcher"; // ✅ Pridedame temos perjungiklį
+import { useTheme } from "../components/ThemeContext";
+import "../styles/globals.css";
 
 export default function Navbar() {
   const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
@@ -11,6 +11,7 @@ export default function Navbar() {
   const [network, setNetwork] = useState("");
   const [balance, setBalance] = useState("0.00");
   const [menuOpen, setMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     if (account) {
@@ -33,7 +34,7 @@ export default function Navbar() {
       const balanceEth = web3Instance.utils.fromWei(balanceWei, "ether");
       setBalance(parseFloat(balanceEth).toFixed(4));
     } catch (error) {
-      console.error("🔴 Klaida gaunant balansą:", error);
+      console.error("Klaida gaunant balansą:", error);
     }
   };
 
@@ -48,7 +49,7 @@ export default function Navbar() {
         detectNetwork(web3Instance);
         fetchBalance(web3Instance, accounts[0]);
       } catch (error) {
-        console.error("🔴 MetaMask klaida:", error);
+        console.error("MetaMask klaida:", error);
       }
     } else {
       alert("🚨 MetaMask nerastas!");
@@ -69,7 +70,7 @@ export default function Navbar() {
       detectNetwork(web3Instance);
       fetchBalance(web3Instance, accounts[0]);
     } catch (error) {
-      console.error("🔴 WalletConnect klaida:", error);
+      console.error("WalletConnect klaida:", error);
     }
   };
 
@@ -89,14 +90,22 @@ export default function Navbar() {
         </Link>
       </div>
 
+      {/* 📌 NAVIGATION MENU */}
       <div className={`menu ${menuOpen ? "open" : ""}`}>
         <Link href="/dashboard"><a>📊 Dashboard</a></Link>
         <Link href="/staking"><a>💸 Staking</a></Link>
         <Link href="/transactions"><a>📜 Transactions</a></Link>
         <Link href="/donations"><a>❤️ Donations</a></Link>
+        <Link href="/swap"><a>🔄 Swap</a></Link>
         <Link href="/admin"><a>🛠️ Admin</a></Link>
       </div>
 
+      {/* 🌙 THEME SWITCHER */}
+      <button className="theme-switcher" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+        {theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}
+      </button>
+
+      {/* 🔗 WALLET CONNECTION */}
       <div className="wallet-section">
         {account ? (
           <div className="wallet-info">
@@ -105,7 +114,6 @@ export default function Navbar() {
             </p>
             <p className="network-status">{network}</p>
             <p className="wallet-balance">💰 {balance} BNB</p>
-            <QRCode value={account} size={60} />
             <button className="wallet-disconnect-btn" onClick={disconnectWallet}>
               ❌ Disconnect
             </button>
@@ -122,9 +130,7 @@ export default function Navbar() {
         )}
       </div>
 
-      {/* ✅ PRIDEDAME TEMOS PERJUNGIMĄ */}
-      <ThemeSwitcher />
-
+      {/* ☰ MOBILE MENU TOGGLE */}
       <div className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
         ☰
       </div>
