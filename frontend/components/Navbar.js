@@ -1,23 +1,43 @@
-import Link from 'next/link';
-import styles from '../styles/theme.css';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useWallet } from "../hooks/useWallet";
 
 export default function Navbar() {
+  const { connectWallet, disconnectWallet, walletAddress } = useWallet();
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <nav className="navbar">
-      <div className="logo">
-        <Link href="/">
-          <img src="/logo.png" alt="NordBaltic Pay" className="logo-img" />
+    <nav className={`navbar ${isScrolled ? "scrolled" : ""}`}>
+      <div className="nav-container">
+        <Link href="/" className="logo">
+          NordBaltic Pay
         </Link>
+        <div className="nav-links">
+          <Link href="/dashboard">Dashboard</Link>
+          <Link href="/staking">Staking</Link>
+          <Link href="/donations">Donate</Link>
+          <Link href="/transactions">Transactions</Link>
+        </div>
+        <div className="wallet-section">
+          {walletAddress ? (
+            <button className="wallet-btn" onClick={disconnectWallet}>
+              {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
+            </button>
+          ) : (
+            <button className="wallet-btn" onClick={connectWallet}>
+              Connect Wallet
+            </button>
+          )}
+        </div>
       </div>
-      <ul className="nav-links">
-        <li><Link href="/">Home</Link></li>
-        <li><Link href="/dashboard">Dashboard</Link></li>
-        <li><Link href="/staking">Staking</Link></li>
-        <li><Link href="/donations">Donations</Link></li>
-        <li><Link href="/receive">Receive</Link></li>
-        <li><Link href="/send">Send</Link></li>
-        <li><Link href="/contact">Contact</Link></li>
-      </ul>
     </nav>
   );
 }
