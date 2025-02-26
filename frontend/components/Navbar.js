@@ -1,8 +1,10 @@
+// 📂 /components/Navbar.js – Ultimate Premium Navbar 🚀
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import { useTheme } from "../components/ThemeContext";
+import QRCode from "qrcode.react";
+import { useTheme } from "./ThemeContext";
 import "../styles/globals.css";
 
 export default function Navbar() {
@@ -10,6 +12,8 @@ export default function Navbar() {
   const [web3, setWeb3] = useState(null);
   const [network, setNetwork] = useState("");
   const [balance, setBalance] = useState("0.00");
+  const [convertedBalance, setConvertedBalance] = useState(null);
+  const [currency, setCurrency] = useState("USD");
   const [menuOpen, setMenuOpen] = useState(false);
   const { theme, setTheme } = useTheme();
 
@@ -33,8 +37,24 @@ export default function Navbar() {
       const balanceWei = await web3Instance.eth.getBalance(account);
       const balanceEth = web3Instance.utils.fromWei(balanceWei, "ether");
       setBalance(parseFloat(balanceEth).toFixed(4));
+      fetchConversionRate(balanceEth);
     } catch (error) {
-      console.error("Klaida gaunant balansą:", error);
+      console.error("🔴 Klaida gaunant balansą:", error);
+    }
+  };
+
+  const fetchConversionRate = async (bnbAmount) => {
+    try {
+      const response = await fetch(
+        `https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`
+      );
+      const data = await response.json();
+      setConvertedBalance({
+        usd: (bnbAmount * data.binancecoin.usd).toFixed(2),
+        eur: (bnbAmount * data.binancecoin.eur).toFixed(2),
+      });
+    } catch (error) {
+      console.error("🔴 Klaida gaunant valiutų kursus:", error);
     }
   };
 
@@ -49,7 +69,7 @@ export default function Navbar() {
         detectNetwork(web3Instance);
         fetchBalance(web3Instance, accounts[0]);
       } catch (error) {
-        console.error("MetaMask klaida:", error);
+        console.error("🔴 MetaMask klaida:", error);
       }
     } else {
       alert("🚨 MetaMask nerastas!");
@@ -70,7 +90,7 @@ export default function Navbar() {
       detectNetwork(web3Instance);
       fetchBalance(web3Instance, accounts[0]);
     } catch (error) {
-      console.error("WalletConnect klaida:", error);
+      console.error("🔴 WalletConnect klaida:", error);
     }
   };
 
@@ -95,15 +115,10 @@ export default function Navbar() {
         <Link href="/dashboard"><a>📊 Dashboard</a></Link>
         <Link href="/staking"><a>💸 Staking</a></Link>
         <Link href="/transactions"><a>📜 Transactions</a></Link>
-        <Link href="/donations"><a>❤️ Donations</a></Link>
         <Link href="/swap"><a>🔄 Swap</a></Link>
+        <Link href="/donations"><a>❤️ Donations</a></Link>
         <Link href="/admin"><a>🛠️ Admin</a></Link>
       </div>
-
-      {/* 🌙 THEME SWITCHER */}
-      <button className="theme-switcher" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-        {theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}
-      </button>
 
       {/* 🔗 WALLET CONNECTION */}
       <div className="wallet-section">
@@ -114,6 +129,16 @@ export default function Navbar() {
             </p>
             <p className="network-status">{network}</p>
             <p className="wallet-balance">💰 {balance} BNB</p>
+            {convertedBalance && (
+              <p className="converted-balance">
+                ≈ {currency === "USD" ? convertedBalance.usd : convertedBalance.eur} {currency}
+              </p>
+            )}
+            <select onChange={(e) => setCurrency(e.target.value)} value={currency}>
+              <option value="USD">💵 USD</option>
+              <option value="EUR">💶 EUR</option>
+            </select>
+            <QRCode value={account} size={50} />
             <button className="wallet-disconnect-btn" onClick={disconnectWallet}>
               ❌ Disconnect
             </button>
@@ -129,6 +154,11 @@ export default function Navbar() {
           </div>
         )}
       </div>
+
+      {/* 🌙 THEME SWITCHER */}
+      <button className="theme-switcher" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+        {theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}
+      </button>
 
       {/* ☰ MOBILE MENU TOGGLE */}
       <div className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
