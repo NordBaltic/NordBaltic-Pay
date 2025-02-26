@@ -1,30 +1,43 @@
-/* 🔥 RESET IR BAZINIAI STILIAI */
+/* 🔥 RESET IR BENDRIEJI STILIAI */
 :root {
   --primary-color: #4CAF50;
   --secondary-color: #2E7D32;
+  --accent-color: #FFC107;
   --bg-dark: #0A1F44;
   --bg-light: #F5F5F5;
   --text-dark: #FFFFFF;
   --text-light: #000000;
-  --border-radius: 8px;
-  --shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  --card-bg-dark: rgba(255, 255, 255, 0.05);
+  --card-bg-light: rgba(0, 0, 0, 0.05);
+  --border-radius: 10px;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --transition: all 0.3s ease-in-out;
 }
 
+/* 🌙 DARK MODE */
 [data-theme="dark"] {
   --bg-color: var(--bg-dark);
   --text-color: var(--text-dark);
+  --card-bg: var(--card-bg-dark);
+  --card-border: rgba(255, 255, 255, 0.1);
 }
 
+/* ☀️ LIGHT MODE */
 [data-theme="light"] {
   --bg-color: var(--bg-light);
   --text-color: var(--text-light);
+  --card-bg: var(--card-bg-light);
+  --card-border: rgba(0, 0, 0, 0.1);
 }
 
+/* 🌟 BENDRI STILIAI */
 body {
   font-family: 'Inter', sans-serif;
-  background-color: var(--bg-color);
+  background: var(--bg-color);
   color: var(--text-color);
-  transition: background 0.3s, color 0.3s;
+  transition: var(--transition);
+  margin: 0;
+  padding: 0;
 }
 
 h1, h2, h3, h4 {
@@ -37,14 +50,14 @@ button {
   font-size: 16px;
   cursor: pointer;
   border-radius: var(--border-radius);
-  transition: all 0.3s ease;
+  transition: var(--transition);
 }
 
 button:hover {
   filter: brightness(1.2);
 }
 
-/* 🔥 NAVBAR */
+/* 🏦 NAVBAR */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -52,6 +65,7 @@ button:hover {
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   padding: 15px 20px;
   box-shadow: var(--shadow);
+  border-radius: var(--border-radius);
 }
 
 .navbar a {
@@ -59,37 +73,45 @@ button:hover {
   text-decoration: none;
   font-size: 18px;
   font-weight: bold;
+  transition: var(--transition);
 }
 
-.navbar .menu {
-  display: flex;
-  gap: 15px;
+.navbar a:hover {
+  opacity: 0.8;
 }
 
-.navbar .menu a {
-  padding: 10px 15px;
+.navbar .theme-switcher {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  padding: 12px;
   border-radius: var(--border-radius);
-  transition: all 0.3s ease;
+  cursor: pointer;
+  font-size: 18px;
+  transition: var(--transition);
 }
 
-.navbar .menu a:hover {
-  background: rgba(255, 255, 255, 0.2);
+.navbar .theme-switcher:hover {
+  background: var(--accent-color);
+  color: var(--bg-color);
 }
 
-/* 🔥 DASHBOARD */
+/* 📊 DASHBOARD */
 .dashboard-container {
   max-width: 900px;
   margin: auto;
   padding: 20px;
-  background: var(--bg-color);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
+  transition: var(--transition);
 }
 
 .dashboard-title {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: bold;
   text-align: center;
+  margin-bottom: 20px;
 }
 
 .wallet-balance {
@@ -110,7 +132,7 @@ button:hover {
   color: #F44336;
 }
 
-/* 🔥 TRANSAKCIJŲ LENTELĖ */
+/* 📜 TRANSAKCIJŲ LENTELĖ */
 .transaction-history {
   width: 100%;
   border-collapse: collapse;
@@ -120,7 +142,7 @@ button:hover {
 .transaction-history th, .transaction-history td {
   padding: 12px;
   text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--card-border);
 }
 
 .transaction-history th {
@@ -129,38 +151,15 @@ button:hover {
 }
 
 .transaction-history tr:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--card-bg);
 }
 
-/* 🔥 ANALYTICS */
-.analytics-container {
-  max-width: 800px;
-  margin: auto;
-  padding: 20px;
-  background: var(--bg-color);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-}
-
-.market-info p {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.positive {
-  color: #4CAF50;
-}
-
-.negative {
-  color: #F44336;
-}
-
-/* 🔥 ADMIN PANEL */
+/* ⚡ ADMIN PANEL */
 .admin-container {
   max-width: 850px;
   margin: auto;
   padding: 20px;
-  background: var(--bg-color);
+  background: var(--card-bg);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
 }
@@ -180,7 +179,7 @@ button:hover {
 .admin-container th, .admin-container td {
   padding: 12px;
   text-align: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--card-border);
 }
 
 .admin-container th {
@@ -189,27 +188,15 @@ button:hover {
 }
 
 .admin-container tr:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--card-bg);
 }
 
-.admin-container button {
-  padding: 8px 12px;
-  font-size: 14px;
-  cursor: pointer;
-  border-radius: var(--border-radius);
-  transition: all 0.3s ease;
-}
-
-.admin-container button:hover {
-  filter: brightness(1.2);
-}
-
-/* 🔥 SETTINGS */
+/* ⚙️ SETTINGS */
 .settings-container {
   max-width: 600px;
   margin: auto;
   padding: 20px;
-  background: var(--bg-color);
+  background: var(--card-bg);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
 }
@@ -227,8 +214,17 @@ button:hover {
   padding: 8px;
   border-radius: var(--border-radius);
   font-size: 16px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--card-bg);
   color: var(--text-color);
+}
+
+/* 📉 CHARTS */
+.chart-container {
+  background: var(--card-bg);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  margin-top: 20px;
 }
 
 /* 🔥 FOOTER */
@@ -237,10 +233,12 @@ button:hover {
   padding: 20px;
   background: var(--primary-color);
   color: white;
+  font-size: 16px;
+  font-weight: bold;
   margin-top: 20px;
 }
 
-/* 🔥 RESPONSIVE */
+/* 🛠 RESPONSIVE */
 @media (max-width: 768px) {
   .navbar .menu {
     flex-direction: column;
@@ -249,5 +247,10 @@ button:hover {
   .transaction-history th, .transaction-history td,
   .admin-container th, .admin-container td {
     font-size: 14px;
+  }
+
+  .dashboard-container, .admin-container, .settings-container {
+    width: 90%;
+    padding: 15px;
   }
 }
