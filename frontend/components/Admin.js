@@ -1,21 +1,15 @@
 import { useState, useEffect } from "react";
 import Web3 from "web3";
 import axios from "axios";
+import Security from "./Security"; // ✅ Integruojame saugumo valdymą
 import "../styles/globals.css";
 
-const Admin = () => {
+export default function Admin() {
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
-  const [swapFee, setSwapFee] = useState("");
-  const [sendFee, setSendFee] = useState("");
-  const [donationFee, setDonationFee] = useState("");
-  const [stakingDepositFee, setStakingDepositFee] = useState("");
-  const [stakingWithdrawFee, setStakingWithdrawFee] = useState("");
-  const [adminWallet, setAdminWallet] = useState(process.env.NEXT_PUBLIC_ADMIN_WALLET);
-  const [stakeWallet, setStakeWallet] = useState(process.env.NEXT_PUBLIC_STAKE_WALLET);
-  const [donationWallet, setDonationWallet] = useState(process.env.NEXT_PUBLIC_DONATION_WALLET);
-  const [bannedUsers, setBannedUsers] = useState([]);
-  const [frozenBalances, setFrozenBalances] = useState([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [fees, setFees] = useState({ swap: 0.2, send: 3, donation: 3 });
+  const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
     const loadAccount = async () => {
@@ -25,8 +19,13 @@ const Admin = () => {
           setWeb3(web3Instance);
           const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
           setAccount(accounts[0]);
+
+          const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET.toLowerCase();
+          setIsAdmin(accounts[0].toLowerCase() === adminWallet);
+
+          fetchSettings();
         } catch (error) {
-          console.error("MetaMask connection error:", error);
+          console.error("🔴 MetaMask connection error:", error);
         }
       }
     };
@@ -34,95 +33,71 @@ const Admin = () => {
     loadAccount();
   }, []);
 
-  const isAdmin = account && account.toLowerCase() === adminWallet.toLowerCase();
-
-  // 🔹 Ban/Unban
-  const banUser = (userAddress) => {
-    if (!isAdmin) return alert("❌ Access denied!");
-    setBannedUsers([...bannedUsers, userAddress.toLowerCase()]);
-  };
-
-  const unbanUser = (userAddress) => {
-    if (!isAdmin) return alert("❌ Access denied!");
-    setBannedUsers(bannedUsers.filter(addr => addr !== userAddress.toLowerCase()));
-  };
-
-  // 🔹 Freeze/Unfreeze Funds
-  const freezeFunds = (userAddress) => {
-    if (!isAdmin) return alert("❌ Access denied!");
-    setFrozenBalances([...frozenBalances, userAddress.toLowerCase()]);
-  };
-
-  const unfreezeFunds = (userAddress) => {
-    if (!isAdmin) return alert("❌ Access denied!");
-    setFrozenBalances(frozenBalances.filter(addr => addr !== userAddress.toLowerCase()));
-  };
-
-  // 🔹 Update Fees
-  const updateFee = async (type, value) => {
-    if (!isAdmin) return alert("❌ Access denied!");
-    switch (type) {
-      case "swap": setSwapFee(value); break;
-      case "send": setSendFee(value); break;
-      case "donation": setDonationFee(value); break;
-      case "stakingDeposit": setStakingDepositFee(value); break;
-      case "stakingWithdraw": setStakingWithdrawFee(value); break;
-      default: break;
+  const fetchSettings = async () => {
+    try {
+      const response = await axios.get("/api/admin/settings"); // 🔹 Pakeisti su realiu API
+      setFees(response.data.fees);
+    } catch (error) {
+      console.error("❌ Error fetching admin settings:", error);
     }
-    alert(`✅ ${type} Fee Updated to ${value}%`);
   };
+
+  const updateFees = async (feeType, value) => {
+    try {
+      await axios.post("/api/admin/updateFees", { feeType, value }); // 🔹 API sujungimas
+      setStatusMessage(`✅ Updated ${feeType} fee to ${value}%`);
+      fetchSettings();
+    } catch (error) {
+      console.error("❌ Error updating fees:", error);
+      setStatusMessage("❌ Update failed.");
+    }
+  };
+
+  if (!isAdmin) {
+    return (
+      <div className="admin-container">
+        <h1>🚨 Access Denied</h1>
+        <p>🔒 You are not authorized to view this page.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-container">
-      <h1>🛡️ Admin Panel</h1>
-      <p className="admin-status">🔑 {isAdmin ? "Admin Access ✅" : "Restricted Access ❌"}</p>
+      <h1>🔧 Admin Panel</h1>
+      <p className="admin-status">Welcome, <strong>{account}</strong></p>
 
-      {/* Fees Management */}
-      <div className="admin-section">
+      {/* 🔹 Mokesčių valdymas */}
+      <div className="settings-section">
         <h2>⚙️ Fees Management</h2>
-        <label>Swap Fee (%):</label>
-        <input type="number" value={swapFee} onChange={(e) => updateFee("swap", e.target.value)} />
-        
-        <label>Send Fee (%):</label>
-        <input type="number" value={sendFee} onChange={(e) => updateFee("send", e.target.value)} />
+        <div className="fees-control">
+          <label>Swap Fee (%)</label>
+          <input
+            type="number"
+            value={fees.swap}
+            onChange={(e) => updateFees("swap", e.target.value)}
+          />
 
-        <label>Donation Fee (%):</label>
-        <input type="number" value={donationFee} onChange={(e) => updateFee("donation", e.target.value)} />
+          <label>Send Fee (%)</label>
+          <input
+            type="number"
+            value={fees.send}
+            onChange={(e) => updateFees("send", e.target.value)}
+          />
 
-        <label>Staking Deposit Fee (%):</label>
-        <input type="number" value={stakingDepositFee} onChange={(e) => updateFee("stakingDeposit", e.target.value)} />
-
-        <label>Staking Withdraw Fee (%):</label>
-        <input type="number" value={stakingWithdrawFee} onChange={(e) => updateFee("stakingWithdraw", e.target.value)} />
+          <label>Donation Fee (%)</label>
+          <input
+            type="number"
+            value={fees.donation}
+            onChange={(e) => updateFees("donation", e.target.value)}
+          />
+        </div>
       </div>
 
-      {/* BAN / UNBAN */}
-      <div className="admin-section">
-        <h2>🚨 Ban / Unban Users</h2>
-        <input type="text" placeholder="Enter wallet address" id="banAddress" />
-        <button onClick={() => banUser(document.getElementById("banAddress").value)}>Ban</button>
-        <button onClick={() => unbanUser(document.getElementById("banAddress").value)}>Unban</button>
-        <ul>
-          {bannedUsers.map((user) => (
-            <li key={user}>🚫 {user}</li>
-          ))}
-        </ul>
-      </div>
+      {/* 🔹 Vartotojų valdymas */}
+      <Security />
 
-      {/* FREEZE / UNFREEZE */}
-      <div className="admin-section">
-        <h2>❄️ Freeze / Unfreeze Funds</h2>
-        <input type="text" placeholder="Enter wallet address" id="freezeAddress" />
-        <button onClick={() => freezeFunds(document.getElementById("freezeAddress").value)}>Freeze</button>
-        <button onClick={() => unfreezeFunds(document.getElementById("freezeAddress").value)}>Unfreeze</button>
-        <ul>
-          {frozenBalances.map((user) => (
-            <li key={user}>❄️ {user}</li>
-          ))}
-        </ul>
-      </div>
+      {statusMessage && <p className="status-message">{statusMessage}</p>}
     </div>
   );
-};
-
-export default Admin;
+}
