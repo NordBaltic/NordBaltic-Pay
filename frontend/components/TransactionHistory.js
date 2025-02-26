@@ -9,9 +9,23 @@ import QRCode from "qrcode.react";
 export default function TransactionHistory() {
   const [transactions, setTransactions] = useState([]);
   const [web3, setWeb3] = useState(null);
-  const [account, setAccount] = useState(null);
+  const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [network, setNetwork] = useState("");
+
+  useEffect(() => {
+    if (account) {
+      const web3Instance = new Web3(window.ethereum);
+      setWeb3(web3Instance);
+      detectNetwork(web3Instance);
+    }
+  }, [account]);
+
+  const detectNetwork = async (web3Instance) => {
+    const netId = await web3Instance.eth.net.getId();
+    setNetwork(netId === 56 ? "BSC Mainnet" : "Unsupported Network");
+  };
 
   useEffect(() => {
     if (!account) return;
@@ -38,7 +52,6 @@ export default function TransactionHistory() {
     return () => clearInterval(interval);
   }, [account]);
 
-  // Prisijungimo funkcijos
   const connectMetaMask = async () => {
     if (window.ethereum) {
       try {
@@ -46,6 +59,8 @@ export default function TransactionHistory() {
         setWeb3(web3Instance);
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
         setAccount(accounts[0]);
+        localStorage.setItem("walletAccount", accounts[0]); // 🔥 IŠSAUGO PRISIJUNGIMĄ
+        detectNetwork(web3Instance);
       } catch (error) {
         console.error("MetaMask klaida:", error);
       }
@@ -65,15 +80,23 @@ export default function TransactionHistory() {
       setWeb3(web3Instance);
       const accounts = await web3Instance.eth.getAccounts();
       setAccount(accounts[0]);
+      localStorage.setItem("walletAccount", accounts[0]); // 🔥 IŠSAUGO PRISIJUNGIMĄ
+      detectNetwork(web3Instance);
     } catch (error) {
       console.error("WalletConnect klaida:", error);
     }
+  };
+
+  const disconnectWallet = () => {
+    setAccount(null);
+    localStorage.removeItem("walletAccount"); // 🔥 ATJUNGIA IR IŠVALO PRISIJUNGIMĄ
   };
 
   return (
     <div className="transaction-history">
       <div className="navbar">
         <h2>📜 Transaction History</h2>
+        <p className="network-status">🌐 {network}</p>
         <div className="menu">
           <button className="menu-button" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             ☰
@@ -90,7 +113,6 @@ export default function TransactionHistory() {
         </div>
       </div>
 
-      {/* Prisijungimo logika */}
       {!account ? (
         <div className="wallet-buttons">
           <button className="wallet-connect-btn" onClick={connectMetaMask}>
@@ -101,37 +123,50 @@ export default function TransactionHistory() {
           </button>
         </div>
       ) : (
-        <p className="wallet-address">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
+        <div>
+          <p className="wallet-address">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
+          <button className="wallet-disconnect-btn" onClick={disconnectWallet}>
+            Disconnect
+          </button>
+        </div>
       )}
 
-      {/* Tranzakcijų sąrašas */}
       {isLoading ? (
         <p>Loading transactions...</p>
       ) : transactions.length > 0 ? (
-        <div className="transaction-list">
-          {transactions.map((tx) => {
-            const status = tx.isError === "0" ? "✅ Completed" : "❌ Failed";
-            return (
-              <div key={tx.hash} className={`transaction ${tx.isError === "0" ? "success" : "failed"}`}>
-                <div className="transaction-details">
-                  <p><strong>Tx Hash:</strong> {tx.hash.substring(0, 10)}...{" "}
+        <table className="transaction-table">
+          <thead>
+            <tr>
+              <th>Tx Hash</th>
+              <th>From</th>
+              <th>To</th>
+              <th>Value (BNB)</th>
+              <th>Date</th>
+              <th>Status</th>
+              <th>🔍</th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((tx) => {
+              const status = tx.isError === "0" ? "✅ Completed" : "❌ Failed";
+              return (
+                <tr key={tx.hash} className={tx.isError === "0" ? "success" : "failed"}>
+                  <td>{tx.hash.substring(0, 10)}...</td>
+                  <td>{tx.from.substring(0, 6)}...{tx.from.slice(-4)}</td>
+                  <td>{tx.to.substring(0, 6)}...{tx.to.slice(-4)}</td>
+                  <td>{(parseFloat(tx.value) / 10 ** 18).toFixed(4)}</td>
+                  <td>{new Date(tx.timeStamp * 1000).toLocaleString()}</td>
+                  <td>{status}</td>
+                  <td>
                     <a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank" rel="noopener noreferrer">
-                      🔍 View on BSCScan
+                      🔍 View
                     </a>
-                  </p>
-                  <p><strong>From:</strong> {tx.from.substring(0, 6)}...{tx.from.slice(-4)}</p>
-                  <p><strong>To:</strong> {tx.to.substring(0, 6)}...{tx.to.slice(-4)}</p>
-                  <p><strong>Value:</strong> {parseFloat(tx.value) / 10 ** 18} BNB</p>
-                  <p><strong>Date:</strong> {new Date(tx.timeStamp * 1000).toLocaleString()}</p>
-                  <p><strong>Status:</strong> {status}</p>
-                </div>
-                <div className="qr-code">
-                  <QRCode value={`https://bscscan.com/tx/${tx.hash}`} size={60} />
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       ) : (
         <p>No transactions found.</p>
       )}
