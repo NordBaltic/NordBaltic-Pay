@@ -6,10 +6,10 @@ import "../styles/globals.css";
 const Security = () => {
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
-  const [bannedUsers, setBannedUsers] = useState([]);
-  const [frozenBalances, setFrozenBalances] = useState([]);
-  const [logs, setLogs] = useState([]);
-  const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET;
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userList, setUserList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
     const loadAccount = async () => {
@@ -19,97 +19,124 @@ const Security = () => {
           setWeb3(web3Instance);
           const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
           setAccount(accounts[0]);
+
+          const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET.toLowerCase();
+          setIsAdmin(accounts[0].toLowerCase() === adminWallet);
+
+          fetchUsers();
         } catch (error) {
-          console.error("MetaMask connection error:", error);
+          console.error("🔴 MetaMask connection error:", error);
         }
       }
+      setLoading(false);
     };
 
     loadAccount();
   }, []);
 
-  const isAdmin = account && account.toLowerCase() === adminWallet.toLowerCase();
-
-  // 📌 Ban vartotoją
-  const banUser = (userAddress) => {
-    if (!isAdmin) return alert("❌ Access denied!");
-    if (!Web3.utils.isAddress(userAddress)) return alert("❌ Invalid address!");
-
-    setBannedUsers([...bannedUsers, userAddress.toLowerCase()]);
-    logAction(`🚨 Banned user: ${userAddress}`);
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get("/api/users"); // 🔹 Pakeisti su realiu API
+      setUserList(response.data);
+    } catch (error) {
+      console.error("❌ Error fetching users:", error);
+    }
   };
 
-  // 📌 Unban vartotoją
-  const unbanUser = (userAddress) => {
-    if (!isAdmin) return alert("❌ Access denied!");
-    
-    setBannedUsers(bannedUsers.filter(addr => addr !== userAddress.toLowerCase()));
-    logAction(`✅ Unbanned user: ${userAddress}`);
+  const handleBanUnban = async (userAddress, isBanned) => {
+    try {
+      await axios.post("/api/admin/ban", { userAddress, isBanned }); // 🔹 API sujungimas
+      setStatusMessage(`✅ User ${isBanned ? "banned" : "unbanned"} successfully.`);
+      fetchUsers();
+    } catch (error) {
+      console.error("❌ Error updating user status:", error);
+      setStatusMessage("❌ Error processing request.");
+    }
   };
 
-  // 📌 Freeze lėšas
-  const freezeFunds = (userAddress) => {
-    if (!isAdmin) return alert("❌ Access denied!");
-    
-    setFrozenBalances([...frozenBalances, userAddress.toLowerCase()]);
-    logAction(`❄️ Funds frozen for: ${userAddress}`);
+  const handleFreezeUnfreeze = async (userAddress, isFrozen) => {
+    try {
+      await axios.post("/api/admin/freeze", { userAddress, isFrozen }); // 🔹 API sujungimas
+      setStatusMessage(`✅ Funds ${isFrozen ? "frozen" : "unfrozen"} successfully.`);
+      fetchUsers();
+    } catch (error) {
+      console.error("❌ Error updating funds status:", error);
+      setStatusMessage("❌ Error processing request.");
+    }
   };
 
-  // 📌 Unfreeze lėšas
-  const unfreezeFunds = (userAddress) => {
-    if (!isAdmin) return alert("❌ Access denied!");
-    
-    setFrozenBalances(frozenBalances.filter(addr => addr !== userAddress.toLowerCase()));
-    logAction(`🔥 Funds unfrozen for: ${userAddress}`);
+  const handleRefund = async (userAddress, amount) => {
+    try {
+      await axios.post("/api/admin/refund", { userAddress, amount }); // 🔹 API sujungimas
+      setStatusMessage(`✅ Refunded ${amount} BNB to ${userAddress}`);
+      fetchUsers();
+    } catch (error) {
+      console.error("❌ Error processing refund:", error);
+      setStatusMessage("❌ Refund failed.");
+    }
   };
 
-  // 📌 Logų saugojimas
-  const logAction = (message) => {
-    const newLogs = [...logs, `[${new Date().toLocaleString()}] ${message}`];
-    setLogs(newLogs);
-    localStorage.setItem("security_logs", JSON.stringify(newLogs));
-  };
+  if (loading) return <p className="loading">🔄 Loading security panel...</p>;
+
+  if (!isAdmin) {
+    return (
+      <div className="security-container">
+        <h1>🚨 Access Denied</h1>
+        <p>🔒 You are not authorized to view this page.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="security-container">
-      <h1>🛡️ Security Panel</h1>
-      <p className="admin-status">🔑 {isAdmin ? "Admin Access ✅" : "Restricted Access ❌"}</p>
+      <h1>🛡️ Security & User Management</h1>
+      <p className="admin-status">Welcome, <strong>{account}</strong></p>
 
-      {/* BAN / UNBAN */}
-      <div className="security-section">
-        <h2>🚨 Ban / Unban Users</h2>
-        <input type="text" placeholder="Enter wallet address" id="banAddress" />
-        <button onClick={() => banUser(document.getElementById("banAddress").value)}>Ban</button>
-        <button onClick={() => unbanUser(document.getElementById("banAddress").value)}>Unban</button>
-        <ul>
-          {bannedUsers.map((user) => (
-            <li key={user}>🚫 {user}</li>
+      <table className="user-table">
+        <thead>
+          <tr>
+            <th>User Address</th>
+            <th>Status</th>
+            <th>Ban/Unban</th>
+            <th>Freeze/Unfreeze</th>
+            <th>Refund</th>
+          </tr>
+        </thead>
+        <tbody>
+          {userList.map((user) => (
+            <tr key={user.address}>
+              <td>{user.address}</td>
+              <td>{user.isBanned ? "🚫 Banned" : "✅ Active"}</td>
+              <td>
+                <button
+                  className={user.isBanned ? "unban-btn" : "ban-btn"}
+                  onClick={() => handleBanUnban(user.address, !user.isBanned)}
+                >
+                  {user.isBanned ? "Unban" : "Ban"}
+                </button>
+              </td>
+              <td>
+                <button
+                  className={user.isFrozen ? "unfreeze-btn" : "freeze-btn"}
+                  onClick={() => handleFreezeUnfreeze(user.address, !user.isFrozen)}
+                >
+                  {user.isFrozen ? "Unfreeze" : "Freeze"}
+                </button>
+              </td>
+              <td>
+                <button
+                  className="refund-btn"
+                  onClick={() => handleRefund(user.address, 0.1)} // 🔹 Pakeisti su realiu įvedimu
+                >
+                  💸 Refund
+                </button>
+              </td>
+            </tr>
           ))}
-        </ul>
-      </div>
+        </tbody>
+      </table>
 
-      {/* FREEZE / UNFREEZE */}
-      <div className="security-section">
-        <h2>❄️ Freeze / Unfreeze Funds</h2>
-        <input type="text" placeholder="Enter wallet address" id="freezeAddress" />
-        <button onClick={() => freezeFunds(document.getElementById("freezeAddress").value)}>Freeze</button>
-        <button onClick={() => unfreezeFunds(document.getElementById("freezeAddress").value)}>Unfreeze</button>
-        <ul>
-          {frozenBalances.map((user) => (
-            <li key={user}>❄️ {user}</li>
-          ))}
-        </ul>
-      </div>
-
-      {/* SECURITY LOGS */}
-      <div className="security-section">
-        <h2>📜 Security Logs</h2>
-        <ul>
-          {logs.map((log, index) => (
-            <li key={index}>{log}</li>
-          ))}
-        </ul>
-      </div>
+      {statusMessage && <p className="status-message">{statusMessage}</p>}
     </div>
   );
 };
