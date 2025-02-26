@@ -1,35 +1,19 @@
-import { useState, useEffect, createContext, useContext } from "react";
+import { useTheme } from "../context/ThemeContext";
+import { FaSun, FaMoon } from "react-icons/fa"; // Importuojame ikonėles
+import "../styles/globals.css"; // Užtikriname, kad CSS bus naudojamas
 
-// Sukuriame Theme Context
-const ThemeContext = createContext();
-
-export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-
-  return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-};
-
-export const useTheme = () => useContext(ThemeContext);
-
-// PREMIUM UI THEME SWITCHER COMPONENT
 const ThemeSwitcher = () => {
   const { theme, setTheme } = useTheme();
 
   return (
     <button 
-      className="theme-toggle" 
+      className={`theme-toggle ${theme}`} 
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
     >
-      {theme === "dark" ? "☀️" : "🌙"}
+      {theme === "dark" ? <FaSun size={20} /> : <FaMoon size={20} />}
+      <span className="theme-text">
+        {theme === "dark" ? "Light Mode" : "Dark Mode"}
+      </span>
     </button>
   );
 };
