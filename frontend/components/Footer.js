@@ -1,16 +1,20 @@
+// 📂 /frontend/components/Footer.js
 import Link from 'next/link';
-import '../styles/globals.css';
 
 export default function Footer() {
   return (
     <footer className="footer">
-      <div className="footer-container">
-        <p className="footer-text">© 2025 NordBaltic Pay. All rights reserved.</p>
-        <ul className="footer-links">
-          <li><Link href="/privacy">Privacy Policy</Link></li>
-          <li><Link href="/terms">Terms of Service</Link></li>
-          <li><Link href="/contact">Contact Us</Link></li>
-        </ul>
+      <div className="container">
+        <p className="copyright">© {new Date().getFullYear()} NordBaltic Pay. All rights reserved.</p>
+        <nav className="footer-nav">
+          <Link href="/privacy">Privacy Policy</Link>
+          <Link href="/terms">Terms of Service</Link>
+          <Link href="/contact">Contact</Link>
+        </nav>
+        <div className="social-links">
+          <a href="https://twitter.com/NordBalticPay" target="_blank" rel="noopener noreferrer">Twitter</a>
+          <a href="https://linkedin.com/company/NordBalticPay" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+        </div>
       </div>
     </footer>
   );
