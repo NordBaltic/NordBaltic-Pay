@@ -1,22 +1,23 @@
 import Link from 'next/link';
-import WalletConnectButton from './WalletConnectButton';
+import styles from '../styles/theme.css';
 
 export default function Navbar() {
   return (
     <nav className="navbar">
-      <div className="navbar-container">
-        <Link href="/" className="navbar-logo">
-          <img src="/logo.png" alt="NordBaltic Pay Logo" className="navbar-logo-img" />
+      <div className="logo">
+        <Link href="/">
+          <img src="/logo.png" alt="NordBaltic Pay" className="logo-img" />
         </Link>
-        <ul className="navbar-menu">
-          <li><Link href="/dashboard">Dashboard</Link></li>
-          <li><Link href="/staking">Staking</Link></li>
-          <li><Link href="/donations">Donations</Link></li>
-          <li><Link href="/transactions">Transactions</Link></li>
-          <li><Link href="/admin">Admin</Link></li>
-        </ul>
-        <WalletConnectButton />
       </div>
+      <ul className="nav-links">
+        <li><Link href="/">Home</Link></li>
+        <li><Link href="/dashboard">Dashboard</Link></li>
+        <li><Link href="/staking">Staking</Link></li>
+        <li><Link href="/donations">Donations</Link></li>
+        <li><Link href="/receive">Receive</Link></li>
+        <li><Link href="/send">Send</Link></li>
+        <li><Link href="/contact">Contact</Link></li>
+      </ul>
     </nav>
   );
 }
