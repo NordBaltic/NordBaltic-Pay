@@ -6,15 +6,15 @@ import "../styles/globals.css";
 export default function AdminSecurity() {
   const [account, setAccount] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [userList, setUserList] = useState([]);
-  const [logs, setLogs] = useState([]);
+  const [isFTWMode, setIsFTWMode] = useState(false);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [serverStatus, setServerStatus] = useState("Checking...");
   const [nodeStatus, setNodeStatus] = useState("Checking...");
   const [systemHealth, setSystemHealth] = useState({ uptime: "Loading...", load: "Loading..." });
-  const [statusMessage, setStatusMessage] = useState("");
+  const [logs, setLogs] = useState([]);
+  const [recentLogins, setRecentLogins] = useState([]);
+  const [bannedUsers, setBannedUsers] = useState([]);
   const [newBanAddress, setNewBanAddress] = useState("");
-  const [newRefundData, setNewRefundData] = useState({ address: "", amount: "" });
 
   useEffect(() => {
     const loadAccount = async () => {
@@ -25,9 +25,10 @@ export default function AdminSecurity() {
           setAccount(accounts[0]);
 
           const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET.toLowerCase();
-          setIsAdmin(accounts[0].toLowerCase() === adminWallet);
-
-          fetchSecurityData();
+          if (accounts[0].toLowerCase() === adminWallet) {
+            setIsAdmin(true);
+            fetchSecurityData();
+          }
         } catch (error) {
           console.error("🔴 MetaMask connection error:", error);
         }
@@ -40,44 +41,25 @@ export default function AdminSecurity() {
   const fetchSecurityData = async () => {
     try {
       const response = await axios.get("/api/admin/security");
-      setUserList(response.data.bannedUsers);
-      setLogs(response.data.logs);
+      setIsFTWMode(response.data.isFTWMode);
       setIs2FAEnabled(response.data.is2FAEnabled);
       setServerStatus(response.data.serverStatus);
       setNodeStatus(response.data.nodeStatus);
       setSystemHealth(response.data.systemHealth);
+      setLogs(response.data.logs);
+      setRecentLogins(response.data.recentLogins);
+      setBannedUsers(response.data.bannedUsers);
     } catch (error) {
       console.error("⚠️ Security data fetch error:", error);
     }
   };
 
-  const handleBanUnban = async (userAddress, isBanned) => {
+  const toggleFTWMode = async () => {
     try {
-      await axios.post("/api/admin/ban", { userAddress, isBanned });
-      setStatusMessage(`✅ User ${isBanned ? "banned" : "unbanned"} successfully.`);
-      fetchSecurityData();
+      await axios.post("/api/admin/toggle-ftw");
+      setIsFTWMode(!isFTWMode);
     } catch (error) {
-      console.error("❌ Error updating user status:", error);
-    }
-  };
-
-  const handleFreezeUnfreeze = async (userAddress, isFrozen) => {
-    try {
-      await axios.post("/api/admin/freeze", { userAddress, isFrozen });
-      setStatusMessage(`✅ Funds ${isFrozen ? "frozen" : "unfrozen"} successfully.`);
-      fetchSecurityData();
-    } catch (error) {
-      console.error("❌ Error updating funds status:", error);
-    }
-  };
-
-  const handleRefund = async (userAddress, amount) => {
-    try {
-      await axios.post("/api/admin/refund", { userAddress, amount });
-      setStatusMessage(`✅ Refunded ${amount} BNB to ${userAddress}`);
-      fetchSecurityData();
-    } catch (error) {
-      console.error("❌ Refund failed:", error);
+      console.error("⚠️ FTW Mode toggle error:", error);
     }
   };
 
@@ -86,7 +68,16 @@ export default function AdminSecurity() {
       await axios.post("/api/admin/toggle-2fa");
       setIs2FAEnabled(!is2FAEnabled);
     } catch (error) {
-      console.error("🔒 2FA toggle error:", error);
+      console.error("⚠️ 2FA toggle error:", error);
+    }
+  };
+
+  const handleBanUnban = async (userAddress, isBanned) => {
+    try {
+      await axios.post("/api/admin/ban", { userAddress, isBanned });
+      fetchSecurityData();
+    } catch (error) {
+      console.error("❌ Error updating user status:", error);
     }
   };
 
@@ -100,9 +91,28 @@ export default function AdminSecurity() {
   }
 
   return (
-    <div className="admin-security">
+    <div className="admin-security glass-card">
       <h2>🛡️ Security & System Health</h2>
       <p className="admin-status">Welcome, <strong>{account}</strong></p>
+
+      {/* 🔥 FTW & 2FA CONTROL */}
+      <div className="security-controls">
+        <div className="status-card">
+          <h3>🔥 FTW Mode</h3>
+          <p>Status: {isFTWMode ? "🟢 Enabled" : "🔴 Disabled"}</p>
+          <button className={`toggle-ftw ${isFTWMode ? "active" : ""}`} onClick={toggleFTWMode}>
+            {isFTWMode ? "🛑 Disable FTW Mode" : "✅ Enable FTW Mode"}
+          </button>
+        </div>
+
+        <div className="status-card">
+          <h3>🔐 2FA Authentication</h3>
+          <p>Status: {is2FAEnabled ? "🟢 Enabled" : "🔴 Disabled"}</p>
+          <button className={`toggle-2fa ${is2FAEnabled ? "active" : ""}`} onClick={toggle2FA}>
+            {is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}
+          </button>
+        </div>
+      </div>
 
       {/* 📡 Serverių būklė */}
       <div className="system-status">
@@ -111,14 +121,6 @@ export default function AdminSecurity() {
         <p>📊 Load: {systemHealth.load}</p>
         <p>🔗 Node Status: {nodeStatus}</p>
         <p>🟢 Server Status: {serverStatus}</p>
-      </div>
-
-      {/* 🔐 2FA Valdymas */}
-      <div className="section">
-        <h3>🔐 2FA Authentication</h3>
-        <button className="toggle-2fa" onClick={toggle2FA}>
-          {is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}
-        </button>
       </div>
 
       {/* 🚫 Ban/Unban Naudotojai */}
@@ -132,37 +134,27 @@ export default function AdminSecurity() {
         />
         <button onClick={() => handleBanUnban(newBanAddress, true)}>Ban User</button>
         <button onClick={() => handleBanUnban(newBanAddress, false)}>Unban User</button>
+
+        <h4>🚨 Banned Users</h4>
+        <ul>
+          {bannedUsers.map((user) => (
+            <li key={user.address}>
+              {user.address} - {user.isBanned ? "❌ Banned" : "✅ Active"}
+            </li>
+          ))}
+        </ul>
       </div>
 
-      {/* ❄️ Freeze/Unfreeze Lėšos */}
+      {/* 👤 Paskutiniai prisijungimai */}
       <div className="section">
-        <h3>❄️ Freeze/Unfreeze Funds</h3>
-        {userList.map((user) => (
-          <div key={user.address} className="user-item">
-            <p>{user.address} - {user.isFrozen ? "❄️ Frozen" : "✅ Active"}</p>
-            <button onClick={() => handleFreezeUnfreeze(user.address, !user.isFrozen)}>
-              {user.isFrozen ? "Unfreeze" : "Freeze"}
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* 💸 Refund Lėšos */}
-      <div className="section">
-        <h3>💸 Refund Funds</h3>
-        <input
-          type="text"
-          placeholder="Wallet Address"
-          value={newRefundData.address}
-          onChange={(e) => setNewRefundData({ ...newRefundData, address: e.target.value })}
-        />
-        <input
-          type="number"
-          placeholder="Amount (BNB)"
-          value={newRefundData.amount}
-          onChange={(e) => setNewRefundData({ ...newRefundData, amount: e.target.value })}
-        />
-        <button onClick={() => handleRefund(newRefundData.address, newRefundData.amount)}>Refund</button>
+        <h3>👤 Recent Logins</h3>
+        <ul>
+          {recentLogins.map((login) => (
+            <li key={login.wallet}>
+              {login.wallet} - {new Date(login.timestamp).toLocaleString()}
+            </li>
+          ))}
+        </ul>
       </div>
 
       {/* 📜 Security Logs */}
@@ -174,8 +166,6 @@ export default function AdminSecurity() {
           ))}
         </ul>
       </div>
-
-      {statusMessage && <p className="status-message">{statusMessage}</p>}
     </div>
   );
-      }
+}
