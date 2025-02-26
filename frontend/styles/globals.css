@@ -159,6 +159,46 @@ body {
   text-decoration: underline;
 }
 
+/* === RECEIVE FUNKCIJOS STILIAI === */
+.receive-container {
+  background: #111;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.2);
+  text-align: center;
+  margin-top: 20px;
+}
+
+.receive-container h2 {
+  color: #FFD700;
+  font-size: 22px;
+}
+
+.receive-address {
+  font-size: 18px;
+  font-weight: bold;
+  background: rgba(255, 215, 0, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-top: 10px;
+  cursor: pointer;
+}
+
+.receive-address:hover {
+  background: rgba(255, 215, 0, 0.2);
+}
+
+.qr-container {
+  margin-top: 15px;
+}
+
+.qr-container img {
+  width: 150px;
+  border-radius: 10px;
+  box-shadow: 0px 2px 5px rgba(255, 215, 0, 0.3);
+}
+
 /* === FOOTER STILIAI === */
 .footer {
   background: linear-gradient(90deg, #0A1F44, #111);
