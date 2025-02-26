@@ -2,10 +2,14 @@ import { useState, useEffect } from "react";
 import Web3 from "web3";
 import axios from "axios";
 import QRCode from "qrcode.react";
+import { createClient } from "@supabase/supabase-js";
 import "../styles/globals.css";
 
+// 🔥 Supabase setup
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
 export default function Staking() {
-  const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
+  const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
   const [stakedBalance, setStakedBalance] = useState("0.00");
   const [rewards, setRewards] = useState("0.00");
@@ -13,10 +17,13 @@ export default function Staking() {
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("EUR");
   const [convertedAmount, setConvertedAmount] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   const stakeWallet = process.env.NEXT_PUBLIC_STAKE_WALLET;
   const stakingContract = process.env.NEXT_PUBLIC_STAKE_CONTRACT_ADDRESS;
+
+  useEffect(() => {
+    fetchUserAccount();
+  }, []);
 
   useEffect(() => {
     if (account) {
@@ -27,19 +34,31 @@ export default function Staking() {
     }
   }, [account]);
 
-  const fetchStakingData = async () => {
-    try {
-      const balanceWei = await web3.eth.getBalance(account);
-      const balanceEth = web3.utils.fromWei(balanceWei, "ether");
-      setStakedBalance(parseFloat(balanceEth).toFixed(4));
-
-      // Simuliuojamas reward'ų skaičiavimas
-      setRewards((parseFloat(balanceEth) * 0.1).toFixed(4)); // 10% metiniai reward'ai
-    } catch (error) {
-      console.error("❌ Klaida gaunant staking duomenis:", error);
+  // 🔵 Fetch user account from Supabase
+  const fetchUserAccount = async () => {
+    const { data } = await supabase.from("users").select("wallet").single();
+    if (data && data.wallet) {
+      setAccount(data.wallet);
     }
   };
 
+  // 📊 Gauti staking duomenis iš „Supabase“
+  const fetchStakingData = async () => {
+    if (!account) return;
+    
+    const { data, error } = await supabase.from("stake").select("staked_amount, rewards").eq("wallet", account).single();
+    if (error) {
+      console.error("🔴 Klaida gaunant staking duomenis:", error);
+      return;
+    }
+    
+    if (data) {
+      setStakedBalance(data.staked_amount || "0.00");
+      setRewards(data.rewards || "0.00");
+    }
+  };
+
+  // 🔄 Gauti APY
   const fetchApy = async () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_STAKING_PROVIDER_URL}/apy`);
@@ -49,16 +68,7 @@ export default function Staking() {
     }
   };
 
-  const fetchConversionRate = async () => {
-    try {
-      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`);
-      return response.data.binancecoin[currency.toLowerCase()];
-    } catch (error) {
-      console.error("❌ Klaida gaunant valiutos kursą:", error);
-      return null;
-    }
-  };
-
+  // 💵 Valiutos konvertavimas
   useEffect(() => {
     if (!amount) return;
     const convert = async () => {
@@ -70,13 +80,25 @@ export default function Staking() {
     convert();
   }, [amount, currency]);
 
+  const fetchConversionRate = async () => {
+    try {
+      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`);
+      return response.data.binancecoin[currency.toLowerCase()];
+    } catch (error) {
+      console.error("❌ Klaida gaunant valiutos kursą:", error);
+      return null;
+    }
+  };
+
+  // 🚀 Stake funkcija
   const handleStake = async () => {
-    if (!amount) return;
+    if (!amount || !web3) return;
 
     try {
       const sendAmount = web3.utils.toWei(amount, "ether");
       const fee = web3.utils.toWei((parseFloat(amount) * 0.04).toFixed(4), "ether"); // 4% fee
 
+      // Siunčiame staking į kontraktą
       await web3.eth.sendTransaction({
         from: account,
         to: stakingContract,
@@ -84,11 +106,19 @@ export default function Staking() {
         gas: 21000,
       });
 
+      // Siunčiame fee į staking pool
       await web3.eth.sendTransaction({
         from: account,
         to: stakeWallet,
         value: fee,
         gas: 21000,
+      });
+
+      // Atnaujiname staking duomenis Supabase
+      await supabase.from("stake").upsert({
+        wallet: account,
+        staked_amount: parseFloat(stakedBalance) + parseFloat(amount),
+        rewards: (parseFloat(rewards) + parseFloat(amount) * 0.1).toFixed(4), // Simuliuojami reward'ai
       });
 
       fetchStakingData();
@@ -97,6 +127,7 @@ export default function Staking() {
     }
   };
 
+  // 🔄 Unstake funkcija
   const handleUnstake = async () => {
     try {
       const balanceWei = await web3.eth.getBalance(account);
@@ -117,6 +148,12 @@ export default function Staking() {
         value: fee,
         gas: 21000,
       });
+
+      // Atnaujiname staking duomenis Supabase
+      await supabase.from("stake").update({
+        staked_amount: "0.00",
+        rewards: "0.00",
+      }).eq("wallet", account);
 
       fetchStakingData();
     } catch (error) {
@@ -147,6 +184,8 @@ export default function Staking() {
 
       <button className="stake-btn" onClick={handleStake}>🚀 Stake</button>
       <button className="unstake-btn" onClick={handleUnstake}>🔄 Unstake</button>
+
+      {account && <QRCode value={account} size={128} />}
     </div>
   );
       }
