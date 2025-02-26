@@ -110,6 +110,47 @@ body {
   color: #FFD700;
 }
 
+/* === TRANSACTION HISTORY STILIAI === */
+.transaction-history {
+  background: #111;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.2);
+}
+
+.transaction-history h2 {
+  color: #FFD700;
+  font-size: 20px;
+  text-align: center;
+}
+
+.transaction-history ul {
+  list-style: none;
+  padding: 0;
+}
+
+.transaction-item {
+  background: rgba(255, 215, 0, 0.1);
+  padding: 15px;
+  border-radius: 8px;
+  margin: 10px 0;
+  box-shadow: 0px 2px 5px rgba(255, 215, 0, 0.2);
+}
+
+.transaction-item p {
+  margin: 5px 0;
+}
+
+.transaction-item a {
+  color: #FFD700;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.transaction-item a:hover {
+  text-decoration: underline;
+}
+
 /* === FOOTER STILIAI === */
 .footer {
   background: linear-gradient(90deg, #0A1F44, #111);
