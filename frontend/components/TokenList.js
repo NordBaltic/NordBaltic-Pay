@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import { motion } from "framer-motion";
-
-const TOKEN_LIST = [
-  { name: "BNB", symbol: "BNB", contract: null, decimals: 18 },
-  { name: "USDT", symbol: "USDT", contract: "0x55d398326f99059fF775485246999027B3197955", decimals: 18 },
-  { name: "NordBaltic Staking Token", symbol: "NBT", contract: "your-staking-token-contract", decimals: 18 }
-];
+import tokens from "../utils/tokens.json"; // Sąrašas palaikomų tokenų
 
 export default function TokenList({ provider, walletAddress }) {
   const [balances, setBalances] = useState({});
@@ -19,41 +13,31 @@ export default function TokenList({ provider, walletAddress }) {
 
   const fetchBalances = async () => {
     const newBalances = {};
-
-    for (const token of TOKEN_LIST) {
-      if (token.contract) {
-        const contract = new ethers.Contract(
-          token.contract,
-          ["function balanceOf(address owner) view returns (uint256)"],
-          provider
-        );
+    for (const token of tokens) {
+      try {
+        const contract = new ethers.Contract(token.address, token.abi, provider);
         const balance = await contract.balanceOf(walletAddress);
         newBalances[token.symbol] = ethers.utils.formatUnits(balance, token.decimals);
-      } else {
-        const balance = await provider.getBalance(walletAddress);
-        newBalances[token.symbol] = ethers.utils.formatEther(balance);
+      } catch (error) {
+        console.error(`Failed to fetch balance for ${token.symbol}:`, error);
+        newBalances[token.symbol] = "0";
       }
     }
-
     setBalances(newBalances);
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="bg-primary p-6 rounded-lg shadow-dark"
-    >
-      <h2 className="text-secondary text-xl font-bold mb-4">Your Tokens</h2>
-      <ul>
-        {TOKEN_LIST.map((token) => (
-          <li key={token.symbol} className="flex justify-between text-white py-2 border-b border-secondary">
-            <span>{token.name} ({token.symbol})</span>
-            <span>{balances[token.symbol] || "Loading..."}</span>
+    <div className="token-list-container">
+      <h2 className="title">Your Assets</h2>
+      <ul className="token-list">
+        {tokens.map((token) => (
+          <li key={token.symbol} className="token-item">
+            <img src={token.logo} alt={token.symbol} className="token-logo" />
+            <span className="token-symbol">{token.symbol}</span>
+            <span className="token-balance">{balances[token.symbol] || "0"}</span>
           </li>
         ))}
       </ul>
-    </motion.div>
+    </div>
   );
 }
