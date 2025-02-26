@@ -4,7 +4,18 @@ import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import QRCode from "qrcode.react";
 import { useTheme } from "./ThemeContext";
-import { AppBar, Toolbar, IconButton, Button, Menu, MenuItem, Typography, Box, Select } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  IconButton,
+  Button,
+  Menu,
+  MenuItem,
+  Typography,
+  Box,
+  Select,
+  Divider,
+} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import DarkModeIcon from "@mui/icons-material/NightsStay";
@@ -50,7 +61,9 @@ export default function Navbar() {
 
   const fetchConversionRate = async (bnbAmount) => {
     try {
-      const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`);
+      const response = await fetch(
+        `https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`
+      );
       const data = await response.json();
       setConvertedBalance({
         usd: (bnbAmount * data.binancecoin.usd).toFixed(2),
