@@ -1,142 +1,163 @@
+// 📂 /pages/dashboard.js - MAX PREMIUM DASHBOARD
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import QRCode from "qrcode.react";
 import axios from "axios";
-import Loader from "../components/Loader"; // ✅ Įtrauktas Loader.js
+import Charts from "../components/Charts";
 import "../styles/globals.css";
 
 export default function Dashboard() {
   const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
   const [web3, setWeb3] = useState(null);
   const [bnbBalance, setBnbBalance] = useState("0.00");
-  const [usdBalance, setUsdBalance] = useState("0.00");
-  const [eurBalance, setEurBalance] = useState("0.00");
-  const [currency, setCurrency] = useState("USD");
-  const [loading, setLoading] = useState(true);
+  const [currency, setCurrency] = useState("EUR");
+  const [convertedBalance, setConvertedBalance] = useState(null);
+  const [balanceChange, setBalanceChange] = useState(0);
 
   useEffect(() => {
     if (account) {
       const web3Instance = new Web3(window.ethereum);
       setWeb3(web3Instance);
       fetchBalance(web3Instance, account);
+      fetchBalanceChange();
     }
-  }, [account]);
+  }, [account, currency]);
 
   const fetchBalance = async (web3Instance, account) => {
     try {
       const balanceWei = await web3Instance.eth.getBalance(account);
       const balanceEth = web3Instance.utils.fromWei(balanceWei, "ether");
       setBnbBalance(parseFloat(balanceEth).toFixed(4));
-
-      const rates = await fetchConversionRates();
-      setUsdBalance((balanceEth * rates.usd).toFixed(2));
-      setEurBalance((balanceEth * rates.eur).toFixed(2));
-      setLoading(false);
+      fetchConversionRate(balanceEth);
     } catch (error) {
-      console.error("Klaida gaunant balansą:", error);
-      setLoading(false);
+      console.error("Error fetching balance:", error);
     }
   };
 
-  const fetchConversionRates = async () => {
+  const fetchConversionRate = async (bnbAmount) => {
     try {
-      const response = await axios.get("https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur");
-      return response.data.binancecoin;
+      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=${currency.toLowerCase()}`);
+      setConvertedBalance((bnbAmount * response.data.binancecoin[currency.toLowerCase()]).toFixed(2));
     } catch (error) {
-      console.error("Klaida gaunant valiutos kursą:", error);
-      return { usd: 1, eur: 1 };
+      console.error("Error fetching conversion rate:", error);
     }
   };
 
-  const connectMetaMask = async () => {
-    if (window.ethereum) {
-      try {
-        const web3Instance = new Web3(window.ethereum);
-        setWeb3(web3Instance);
-        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        setAccount(accounts[0]);
-        localStorage.setItem("walletAccount", accounts[0]);
-        fetchBalance(web3Instance, accounts[0]);
-      } catch (error) {
-        console.error("MetaMask klaida:", error);
+  const fetchBalanceChange = async () => {
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_BSCSCAN_API_KEY;
+      const url = `https://api.bscscan.com/api?module=account&action=balancehistory&address=${account}&apikey=${apiKey}`;
+      const response = await axios.get(url);
+      
+      if (response.data.status === "1") {
+        const history = response.data.result;
+        const oldBalance = parseFloat(history[0].balance) / 10 ** 18;
+        const change = ((bnbBalance - oldBalance) / oldBalance) * 100;
+        setBalanceChange(change.toFixed(2));
       }
-    } else {
-      alert("MetaMask nerastas!");
-    }
-  };
-
-  const connectWalletConnect = async () => {
-    try {
-      const provider = new WalletConnectProvider({
-        rpc: { 56: "https://bsc-dataseed.binance.org/" },
-      });
-      await provider.enable();
-      const web3Instance = new Web3(provider);
-      setWeb3(web3Instance);
-      const accounts = await web3Instance.eth.getAccounts();
-      setAccount(accounts[0]);
-      localStorage.setItem("walletAccount", accounts[0]);
-      fetchBalance(web3Instance, accounts[0]);
     } catch (error) {
-      console.error("WalletConnect klaida:", error);
+      console.error("Error fetching balance change:", error);
     }
   };
 
   return (
     <div className="dashboard-container">
-      <h1 className="dashboard-title">📊 Dashboard</h1>
+      <h1>🚀 My Dashboard</h1>
+      <p className="wallet-address">✅ Connected: {account ? `${account.substring(0, 6)}...${account.slice(-4)}` : "Not connected"}</p>
+      <p className="balance-text">💰 Balance: {bnbBalance} BNB (~{convertedBalance} {currency})</p>
+      <p className="balance-change">📊 Change: {balanceChange}%</p>
+      
+      {/* Integruojame balansų grafiką */}
+      <Charts account={account} currency={currency} />
 
-      {loading ? <Loader /> : null}
+      {/* Pagrindiniai veiksmai */}
+      <div className="action-buttons">
+        <button onClick={() => window.location.href = "/send"}>🚀 Send</button>
+        <button onClick={() => window.location.href = "/receive"}>📥 Receive</button>
+        <button onClick={() => window.location.href = "/staking"}>💸 Stake</button>
+        <button onClick={() => window.location.href = "/donations"}>❤️ Donate</button>
+      </div>
+    </div>
+  );
+}// 📂 /pages/dashboard.js - MAX PREMIUM DASHBOARD
+import { useState, useEffect } from "react";
+import Web3 from "web3";
+import WalletConnectProvider from "@walletconnect/web3-provider";
+import axios from "axios";
+import Charts from "../components/Charts";
+import "../styles/globals.css";
 
-      {!account ? (
-        <div className="wallet-buttons">
-          <button className="wallet-connect-btn" onClick={connectWalletConnect}>
-            🔗 Connect WalletConnect
-          </button>
-          <button className="wallet-connect-btn" onClick={connectMetaMask}>
-            🦊 Connect MetaMask
-          </button>
-        </div>
-      ) : (
-        <>
-          <div className="balance-section">
-            <p className="wallet-address">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
-            <p className="balance-text">💰 Balance: {bnbBalance} BNB</p>
-            <p className="balance-text">💵 USD: ${usdBalance} | 💶 EUR: €{eurBalance}</p>
+export default function Dashboard() {
+  const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
+  const [web3, setWeb3] = useState(null);
+  const [bnbBalance, setBnbBalance] = useState("0.00");
+  const [currency, setCurrency] = useState("EUR");
+  const [convertedBalance, setConvertedBalance] = useState(null);
+  const [balanceChange, setBalanceChange] = useState(0);
 
-            {/* ✅ QR kodas vartotojo adresui */}
-            <div className="qr-section">
-              <QRCode value={account} size={150} className="qr-code" />
-              <p className="small-text">Scan QR code to receive funds</p>
-            </div>
+  useEffect(() => {
+    if (account) {
+      const web3Instance = new Web3(window.ethereum);
+      setWeb3(web3Instance);
+      fetchBalance(web3Instance, account);
+      fetchBalanceChange();
+    }
+  }, [account, currency]);
 
-            {/* ✅ Valiutos pasirinkimas */}
-            <label>Show in:</label>
-            <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
-              <option value="USD">💵 USD</option>
-              <option value="EUR">💶 EUR</option>
-            </select>
-          </div>
+  const fetchBalance = async (web3Instance, account) => {
+    try {
+      const balanceWei = await web3Instance.eth.getBalance(account);
+      const balanceEth = web3Instance.utils.fromWei(balanceWei, "ether");
+      setBnbBalance(parseFloat(balanceEth).toFixed(4));
+      fetchConversionRate(balanceEth);
+    } catch (error) {
+      console.error("Error fetching balance:", error);
+    }
+  };
 
-          {/* ✅ Pagrindiniai veiksmai */}
-          <div className="dashboard-actions">
-            <Link href="/send">
-              <a className="action-btn">🚀 Send</a>
-            </Link>
-            <Link href="/receive">
-              <a className="action-btn">📥 Receive</a>
-            </Link>
-            <Link href="/staking">
-              <a className="action-btn">💸 Staking</a>
-            </Link>
-            <Link href="/donations">
-              <a className="action-btn">❤️ Donate</a>
-            </Link>
-          </div>
-        </>
-      )}
+  const fetchConversionRate = async (bnbAmount) => {
+    try {
+      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=${currency.toLowerCase()}`);
+      setConvertedBalance((bnbAmount * response.data.binancecoin[currency.toLowerCase()]).toFixed(2));
+    } catch (error) {
+      console.error("Error fetching conversion rate:", error);
+    }
+  };
+
+  const fetchBalanceChange = async () => {
+    try {
+      const apiKey = process.env.NEXT_PUBLIC_BSCSCAN_API_KEY;
+      const url = `https://api.bscscan.com/api?module=account&action=balancehistory&address=${account}&apikey=${apiKey}`;
+      const response = await axios.get(url);
+      
+      if (response.data.status === "1") {
+        const history = response.data.result;
+        const oldBalance = parseFloat(history[0].balance) / 10 ** 18;
+        const change = ((bnbBalance - oldBalance) / oldBalance) * 100;
+        setBalanceChange(change.toFixed(2));
+      }
+    } catch (error) {
+      console.error("Error fetching balance change:", error);
+    }
+  };
+
+  return (
+    <div className="dashboard-container">
+      <h1>🚀 My Dashboard</h1>
+      <p className="wallet-address">✅ Connected: {account ? `${account.substring(0, 6)}...${account.slice(-4)}` : "Not connected"}</p>
+      <p className="balance-text">💰 Balance: {bnbBalance} BNB (~{convertedBalance} {currency})</p>
+      <p className="balance-change">📊 Change: {balanceChange}%</p>
+      
+      {/* Integruojame balansų grafiką */}
+      <Charts account={account} currency={currency} />
+
+      {/* Pagrindiniai veiksmai */}
+      <div className="action-buttons">
+        <button onClick={() => window.location.href = "/send"}>🚀 Send</button>
+        <button onClick={() => window.location.href = "/receive"}>📥 Receive</button>
+        <button onClick={() => window.location.href = "/staking"}>💸 Stake</button>
+        <button onClick={() => window.location.href = "/donations"}>❤️ Donate</button>
+      </div>
     </div>
   );
 }
