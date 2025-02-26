@@ -1,35 +1,42 @@
 import { useState } from "react";
 import { ethers } from "ethers";
+import QRCode from "qrcode.react";
 import { motion } from "framer-motion";
 
-const DONATION_FUNDS = [
-  {
-    name: "Save the Children",
-    wallet: "0x123456789abcdef123456789abcdef123456789a",
-    description: "Supporting children's education, health, and protection globally.",
-    image: "/save-the-children.png",
-  },
+const ADMIN_WALLET = "0xC7ACc7c830aa381b6A7E7cF8bAA9ddea6E576113"; // Admin mokesčių piniginė
+
+// Labdaros fondai
+const charities = [
   {
     name: "Red Cross",
-    wallet: "0xabcdef123456789abcdef123456789abcdef1234",
-    description: "Providing emergency assistance, disaster relief, and education.",
-    image: "/red-cross.png",
+    address: "0xRedCrossWalletAddress",
+    logo: "/images/redcross.png",
+    description: "Providing emergency assistance, disaster relief, and education."
+  },
+  {
+    name: "Save The Children",
+    address: "0xSaveChildrenWalletAddress",
+    logo: "/images/savethechildren.png",
+    description: "Improving children's lives worldwide through education and healthcare."
   },
   {
     name: "UNICEF",
-    wallet: "0x789abcdef123456789abcdef123456789abcdef12",
-    description: "Helping children worldwide with healthcare, food, and education.",
-    image: "/unicef.png",
-  },
+    address: "0xUnicefWalletAddress",
+    logo: "/images/unicef.png",
+    description: "Helping children worldwide with nutrition, education, and emergency aid."
+  }
 ];
 
-const ADMIN_WALLET = "0xC7ACc7c830aa381b6A7E7cF8bAA9ddea6E576113"; // Admin 2% fee
-
 export default function Donations() {
-  const [selectedFund, setSelectedFund] = useState(DONATION_FUNDS[0]);
+  const [selectedCharity, setSelectedCharity] = useState(charities[0]);
   const [amount, setAmount] = useState("");
 
-  const handleDonation = async () => {
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(selectedCharity.address);
+    alert("Charity wallet address copied!");
+  };
+
+  const handleDonate = async () => {
     if (!window.ethereum) {
       alert("Please connect your wallet!");
       return;
@@ -40,18 +47,18 @@ export default function Donations() {
       const signer = provider.getSigner();
 
       const amountInWei = ethers.utils.parseEther(amount);
-      const feeInWei = amountInWei.mul(2).div(100); // 2% fee
+      const feeInWei = amountInWei.mul(3).div(100); // 3% admin fee
       const finalAmount = amountInWei.sub(feeInWei);
 
-      // Siunčiame auką į pasirinktą fondą
+      // Siunčiame auką be 3% fee
       const tx1 = await signer.sendTransaction({
-        to: selectedFund.wallet,
+        to: selectedCharity.address,
         value: finalAmount,
       });
 
       await tx1.wait();
 
-      // Siunčiame 2% fee į admin wallet
+      // 3% fee siunčiame į admin wallet
       const tx2 = await signer.sendTransaction({
         to: ADMIN_WALLET,
         value: feeInWei,
@@ -59,10 +66,10 @@ export default function Donations() {
 
       await tx2.wait();
 
-      alert(`Ačiū! Paaukojote ${amount} BNB fondui ${selectedFund.name}`);
+      alert(`Aukojimas sėkmingas: ${amount} BNB į ${selectedCharity.name}`);
     } catch (error) {
-      console.error("Donation error:", error);
-      alert("Klaida siunčiant auką. Bandykite dar kartą.");
+      console.error("Klaida aukojant:", error);
+      alert("Klaida. Bandykite dar kartą.");
     }
   };
 
@@ -74,41 +81,44 @@ export default function Donations() {
       className="min-h-screen bg-background-color text-white p-6"
     >
       <div className="text-center mb-8">
-        <h1 className="text-4xl font-bold text-secondary">Donate to Charities</h1>
-        <p className="text-lg opacity-80 mt-2">Make a difference by donating crypto to global charities.</p>
+        <h1 className="text-4xl font-bold text-secondary">Donate to Charity</h1>
+        <p className="text-lg opacity-80 mt-2">Support global causes with crypto donations.</p>
       </div>
 
       <div className="max-w-3xl mx-auto bg-primary p-6 rounded-lg shadow-dark">
         <h2 className="text-xl font-bold text-secondary mb-4">Select Charity</h2>
 
-        <div className="flex space-x-4 overflow-x-auto py-3">
-          {DONATION_FUNDS.map((fund) => (
-            <motion.div
-              key={fund.wallet}
-              className={`p-4 rounded-lg cursor-pointer transition ${
-                selectedFund.wallet === fund.wallet ? "bg-secondary" : "bg-gray-700"
-              }`}
-              whileHover={{ scale: 1.05 }}
-              onClick={() => setSelectedFund(fund)}
+        <div className="flex space-x-4 mb-6">
+          {charities.map((charity, index) => (
+            <button
+              key={index}
+              className={`p-3 rounded-lg ${selectedCharity.name === charity.name ? "bg-secondary" : "bg-gray-700"}`}
+              onClick={() => setSelectedCharity(charity)}
             >
-              <img src={fund.image} alt={fund.name} className="h-16 mx-auto mb-2" />
-              <p className="text-center text-white">{fund.name}</p>
-            </motion.div>
+              <img src={charity.logo} alt={charity.name} className="h-10 w-10 mx-auto" />
+            </button>
           ))}
         </div>
 
-        <p className="text-center mt-4 opacity-80">{selectedFund.description}</p>
+        <h3 className="text-lg text-white">{selectedCharity.description}</h3>
 
-        <div className="mt-6">
+        <QRCode value={selectedCharity.address} size={200} className="mx-auto my-4" />
+
+        <p className="break-all text-lg bg-secondary p-3 rounded">{selectedCharity.address}</p>
+        <button onClick={copyToClipboard} className="mt-3 p-3 bg-secondary text-background-color rounded-lg w-full">
+          Copy Address
+        </button>
+
+        <div className="mt-4">
           <input
             type="number"
             className="w-full p-3 rounded bg-secondary text-background-color"
-            placeholder="Enter amount in BNB"
+            placeholder="Enter amount to donate"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
           />
-          <button onClick={handleDonation} className="w-full mt-3 p-3 bg-secondary text-background-color rounded-lg">
-            Donate Now
+          <button onClick={handleDonate} className="w-full mt-3 p-3 bg-secondary text-background-color rounded-lg">
+            Donate
           </button>
         </div>
       </div>
