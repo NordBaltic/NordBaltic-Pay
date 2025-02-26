@@ -1,6 +1,19 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "../components/ThemeContext";
 import axios from "axios";
+import { motion } from "framer-motion";
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Select,
+  MenuItem,
+  CircularProgress,
+  Snackbar,
+  Alert,
+} from "@mui/material";
 import "../styles/globals.css";
 
 const Settings = () => {
@@ -10,13 +23,13 @@ const Settings = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [autoLogout, setAutoLogout] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     localStorage.setItem("currency", currency);
   }, [currency]);
 
   useEffect(() => {
-    // Fetch current security settings from API
     const fetchSecuritySettings = async () => {
       try {
         const response = await axios.get("/api/security/settings");
@@ -26,6 +39,7 @@ const Settings = () => {
       } catch (error) {
         console.error("⚠️ Error fetching security settings:", error);
       }
+      setLoading(false);
     };
 
     fetchSecuritySettings();
@@ -53,52 +67,77 @@ const Settings = () => {
   };
 
   return (
-    <div className="settings-container">
-      <h1>⚙️ User Settings</h1>
+    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="settings-container p-6 glass-card">
+      {statusMessage && (
+        <Snackbar open autoHideDuration={5000} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+          <Alert severity="success">{statusMessage}</Alert>
+        </Snackbar>
+      )}
 
-      {/* Theme Switcher */}
-      <div className="settings-section">
-        <h3>🌙 Theme</h3>
-        <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="theme-toggle-btn">
-          {theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}
-        </button>
-      </div>
+      <Typography variant="h4" className="text-center mb-6 neon-text">⚙️ User Settings</Typography>
 
-      {/* Currency Selection */}
-      <div className="settings-section">
-        <h3>💰 Currency Preference</h3>
-        <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="currency-select">
-          <option value="EUR">💶 EUR</option>
-          <option value="USD">💵 USD</option>
-        </select>
-      </div>
+      {loading ? (
+        <CircularProgress />
+      ) : (
+        <>
+          {/* Theme Switcher */}
+          <Card className="glass-card mt-4">
+            <CardContent>
+              <Typography variant="h5">🌙 Theme</Typography>
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="theme-toggle-btn mt-2"
+              >
+                {theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}
+              </Button>
+            </CardContent>
+          </Card>
 
-      {/* Security Settings */}
-      <div className="settings-section">
-        <h3>🔒 Security</h3>
-        <button onClick={toggle2FA} className="security-btn">
-          {is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}
-        </button>
-      </div>
+          {/* Currency Selection */}
+          <Card className="glass-card mt-4">
+            <CardContent>
+              <Typography variant="h5">💰 Currency Preference</Typography>
+              <Select fullWidth value={currency} onChange={(e) => setCurrency(e.target.value)} className="mt-2">
+                <MenuItem value="EUR">💶 EUR</MenuItem>
+                <MenuItem value="USD">💵 USD</MenuItem>
+              </Select>
+            </CardContent>
+          </Card>
 
-      {/* Notifications Settings */}
-      <div className="settings-section">
-        <h3>🔔 Notifications</h3>
-        <button onClick={toggleNotifications} className="notification-btn">
-          {notificationsEnabled ? "🔕 Disable Notifications" : "🔔 Enable Notifications"}
-        </button>
-      </div>
+          {/* Security Settings */}
+          <Card className="glass-card mt-4">
+            <CardContent>
+              <Typography variant="h5">🔒 Security</Typography>
+              <Button variant="contained" fullWidth onClick={toggle2FA} className="security-btn mt-2">
+                {is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}
+              </Button>
+            </CardContent>
+          </Card>
 
-      {/* Auto Logout */}
-      <div className="settings-section">
-        <h3>⏳ Auto Logout</h3>
-        <button onClick={toggleAutoLogout} className="auto-logout-btn">
-          {autoLogout ? "🛑 Disable Auto Logout" : "✅ Enable Auto Logout"}
-        </button>
-      </div>
+          {/* Notifications Settings */}
+          <Card className="glass-card mt-4">
+            <CardContent>
+              <Typography variant="h5">🔔 Notifications</Typography>
+              <Button variant="contained" fullWidth onClick={toggleNotifications} className="notification-btn mt-2">
+                {notificationsEnabled ? "🔕 Disable Notifications" : "🔔 Enable Notifications"}
+              </Button>
+            </CardContent>
+          </Card>
 
-      {statusMessage && <p className="status-message">{statusMessage}</p>}
-    </div>
+          {/* Auto Logout */}
+          <Card className="glass-card mt-4">
+            <CardContent>
+              <Typography variant="h5">⏳ Auto Logout</Typography>
+              <Button variant="contained" fullWidth onClick={toggleAutoLogout} className="auto-logout-btn mt-2">
+                {autoLogout ? "🛑 Disable Auto Logout" : "✅ Enable Auto Logout"}
+              </Button>
+            </CardContent>
+          </Card>
+        </>
+      )}
+    </motion.div>
   );
 };
 
