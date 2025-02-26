@@ -6,6 +6,7 @@ import Link from "next/link";
 import QRCode from "qrcode.react";
 import { Line } from "react-chartjs-2";
 import { useTheme } from "../context/ThemeContext";
+import { Card, CardContent, Typography, Button, Grid, Box } from "@mui/material";
 import "../styles/globals.css";
 import "chart.js/auto";
 
@@ -56,7 +57,6 @@ export default function Dashboard() {
       const balanceWei = await web3Instance.eth.getBalance(account);
       const balanceEth = web3Instance.utils.fromWei(balanceWei, "ether");
       setBalance(parseFloat(balanceEth).toFixed(4));
-      
       await supabase.from("users").update({ balance: balanceEth }).eq("wallet", account);
     } catch (error) {
       console.error("🔴 Klaida gaunant balansą:", error);
@@ -79,7 +79,6 @@ export default function Dashboard() {
   // 🏆 Fetch staking rewards
   const fetchStakingRewards = async () => {
     if (!account) return;
-    
     const { data, error } = await supabase.from("stake").select("rewards").eq("wallet", account).single();
     if (data) {
       setStakingRewards(data.rewards || "0.00");
@@ -91,7 +90,6 @@ export default function Dashboard() {
   // 🔄 Fetch last transaction
   const fetchLastTransaction = async () => {
     if (!account) return;
-
     const { data, error } = await supabase.from("transactions").select("*").eq("from", account).order("timestamp", { ascending: false }).limit(1).single();
     if (data) {
       setLastTransaction(data);
@@ -101,42 +99,74 @@ export default function Dashboard() {
   };
 
   return (
-    <div className={`dashboard-container ${theme}`}>
-      <h1 className="dashboard-title">🚀 NordBaltic Pay Dashboard</h1>
+    <Box className={`dashboard-container ${theme} p-6`}>
+      <Typography variant="h4" className="text-center mb-6">🚀 NordBaltic Pay Dashboard</Typography>
 
       {!account ? (
-        <button className="wallet-connect-btn">🦊 Connect MetaMask</button>
+        <Button variant="contained" color="primary" className="w-full">
+          🦊 Connect MetaMask
+        </Button>
       ) : (
         <>
-          <p className="system-status">{systemStatus}</p>
-          <div className="dashboard-card">
-            <p className="wallet-balance">💰 {balance} BNB</p>
-            <p className="staking-rewards">🏆 {stakingRewards} BNB (Staking Rewards)</p>
-            <p className={`balance-change ${balanceChange["24h"] >= 0 ? "positive" : "negative"}`}>
-              24h Change: {balanceChange["24h"]}%
-            </p>
-          </div>
+          <Typography variant="h6" className="text-center mb-4">{systemStatus}</Typography>
 
-          <h3>📊 Balance Chart</h3>
-          {chartData && <Line data={chartData} />}
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <Card className="glass-card">
+                <CardContent>
+                  <Typography variant="h5">💰 Balance</Typography>
+                  <Typography variant="h4">{balance} BNB</Typography>
+                  <Typography variant="body2" color="textSecondary">
+                    24h Change: <span className={balanceChange["24h"] >= 0 ? "positive" : "negative"}>
+                      {balanceChange["24h"]}%
+                    </span>
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
 
-          <div className="dashboard-buttons">
-            <Link href="/send"><a className="button">📤 Send</a></Link>
-            <Link href="/staking"><a className="button">💸 Stake</a></Link>
-            <Link href="/swap"><a className="button">🔄 Swap</a></Link>
-          </div>
+            <Grid item xs={12} md={6}>
+              <Card className="glass-card">
+                <CardContent>
+                  <Typography variant="h5">🏆 Staking Rewards</Typography>
+                  <Typography variant="h4">{stakingRewards} BNB</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+
+          <Box className="chart-container mt-6">
+            <Typography variant="h5" className="mb-4">📊 Balance Chart</Typography>
+            {chartData && <Line data={chartData} />}
+          </Box>
+
+          <Grid container spacing={3} className="mt-6">
+            <Grid item xs={4}>
+              <Link href="/send"><Button variant="contained" fullWidth>📤 Send</Button></Link>
+            </Grid>
+            <Grid item xs={4}>
+              <Link href="/staking"><Button variant="contained" fullWidth>💸 Stake</Button></Link>
+            </Grid>
+            <Grid item xs={4}>
+              <Link href="/swap"><Button variant="contained" fullWidth>🔄 Swap</Button></Link>
+            </Grid>
+          </Grid>
 
           {lastTransaction && (
-            <div className="transaction-card">
-              <h3>🔄 Last Transaction</h3>
-              <p>To: {lastTransaction.to.substring(0, 6)}...{lastTransaction.to.slice(-4)}</p>
-              <p>Amount: {lastTransaction.amount} BNB</p>
-              <p>Status: {lastTransaction.status}</p>
-              <a href={`https://bscscan.com/tx/${lastTransaction.hash}`} target="_blank">🔗 View on BSCScan</a>
-            </div>
+            <Card className="glass-card mt-6">
+              <CardContent>
+                <Typography variant="h5">🔄 Last Transaction</Typography>
+                <Typography>To: {lastTransaction.to.substring(0, 6)}...{lastTransaction.to.slice(-4)}</Typography>
+                <Typography>Amount: {lastTransaction.amount} BNB</Typography>
+                <Typography>Status: {lastTransaction.status}</Typography>
+                <Link href={`https://bscscan.com/tx/${lastTransaction.hash}`} target="_blank">
+                  🔗 View on BSCScan
+                </Link>
+              </CardContent>
+            </Card>
           )}
         </>
       )}
-    </div>
+    </Box>
   );
 }
