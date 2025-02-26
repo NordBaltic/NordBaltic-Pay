@@ -1,49 +1,89 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.0;
 
-contract NordBalticStaking {
-    address public adminWallet = 0xc7acc7c830aa381b6a7e7cf8baa9ddea6e576113;
-    address public stakeWallet = 0x80131a0ec0d5e093964c267aa00d0c6956e064a7;
-    uint256 public stakingFee = 4; // 4% staking fee į stake wallet
-    uint256 public adminFee = 4; // 4% admin fee
+interface IMarinadeStaking {
+    function deposit() external payable;
+    function withdraw(uint256 amount) external;
+}
 
-    mapping(address => uint256) public stakes;
+contract StakingContract {
+    address public admin;
+    address public stakeWallet;
+    address public marinadeStakingContract;
+    uint256 public depositFee = 4; // 4% įnešimo mokestis
+    uint256 public withdrawalFee = 4; // 4% išėmimo mokestis
+
+    mapping(address => uint256) public userStakedAmount;
 
     event Staked(address indexed user, uint256 amount);
     event Unstaked(address indexed user, uint256 amount);
+    event FeesCollected(address indexed stakeWallet, uint256 amount);
+
+    constructor(address _marinadeStakingContract, address _stakeWallet) {
+        admin = msg.sender;
+        marinadeStakingContract = _marinadeStakingContract;
+        stakeWallet = _stakeWallet;
+    }
+
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "Not admin");
+        _;
+    }
 
     function stake() external payable {
-        require(msg.value > 0, "Must send BNB to stake");
+        require(msg.value > 0, "Amount must be greater than 0");
 
-        uint256 feeAmount = (msg.value * stakingFee) / 100;
-        uint256 adminAmount = (msg.value * adminFee) / 100;
-        uint256 netStake = msg.value - feeAmount - adminAmount;
+        // Apskaičiuojami įnešimo mokesčiai
+        uint256 feeAmount = (msg.value * depositFee) / 100;
+        uint256 stakeAmount = msg.value - feeAmount;
 
-        stakes[msg.sender] += netStake;
-
+        // Mokesčiai siunčiami į stake wallet
         payable(stakeWallet).transfer(feeAmount);
-        payable(adminWallet).transfer(adminAmount);
 
-        emit Staked(msg.sender, netStake);
+        // Likutis pervedamas tiesiai į Marinade Finance staking
+        IMarinadeStaking(marinadeStakingContract).deposit{value: stakeAmount}();
+
+        userStakedAmount[msg.sender] += stakeAmount;
+
+        emit FeesCollected(stakeWallet, feeAmount);
+        emit Staked(msg.sender, stakeAmount);
     }
 
-    function unstake(uint256 _amount) external {
-        require(stakes[msg.sender] >= _amount, "Not enough staked");
+    function unstake(uint256 amount) external {
+        require(userStakedAmount[msg.sender] >= amount, "Insufficient balance");
 
-        stakes[msg.sender] -= _amount;
-        payable(msg.sender).transfer(_amount);
+        // Apskaičiuojami išėmimo mokesčiai
+        uint256 feeAmount = (amount * withdrawalFee) / 100;
+        uint256 withdrawAmount = amount - feeAmount;
 
-        emit Unstaked(msg.sender, _amount);
+        // Išimama iš staking
+        IMarinadeStaking(marinadeStakingContract).withdraw(amount);
+
+        // Mokesčiai siunčiami į stake wallet
+        payable(stakeWallet).transfer(feeAmount);
+
+        // Likutis atiduodamas vartotojui
+        payable(msg.sender).transfer(withdrawAmount);
+
+        userStakedAmount[msg.sender] -= amount;
+
+        emit FeesCollected(stakeWallet, feeAmount);
+        emit Unstaked(msg.sender, withdrawAmount);
     }
 
-    function updateStakeWallet(address _newStakeWallet) external {
-        require(msg.sender == adminWallet, "Only admin can update address");
-        stakeWallet = _newStakeWallet;
+    function updateMarinadeContract(address newContract) external onlyAdmin {
+        marinadeStakingContract = newContract;
     }
 
-    function updateStakingFee(uint256 _newFee) external {
-        require(msg.sender == adminWallet, "Only admin can update fee");
-        require(_newFee <= 10, "Fee can't be more than 10%");
-        stakingFee = _newFee;
+    function updateFees(uint256 newDepositFee, uint256 newWithdrawalFee) external onlyAdmin {
+        require(newDepositFee <= 10 && newWithdrawalFee <= 10, "Fees too high!");
+        depositFee = newDepositFee;
+        withdrawalFee = newWithdrawalFee;
     }
+
+    function updateStakeWallet(address newStakeWallet) external onlyAdmin {
+        stakeWallet = newStakeWallet;
+    }
+
+    receive() external payable {} // Priima BNB indėlius
 }
