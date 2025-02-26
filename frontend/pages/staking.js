@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { motion } from "framer-motion";
 
-const STAKING_CONTRACT = "your-staking-contract-address"; // Pakeisti į tikrą Marinade staking kontraktą
+const STAKING_CONTRACT = "your-staking-contract-address"; 
+const ADMIN_WALLET = "0xC7ACc7c830aa381b6A7E7cF8bAA9ddea6E576113"; // Admin fee
 
 export default function Staking() {
   const [walletAddress, setWalletAddress] = useState(null);
@@ -47,8 +48,22 @@ export default function Staking() {
         signer
       );
 
-      const tx = await contract.stake(ethers.utils.parseEther(amount));
-      await tx.wait();
+      const amountInWei = ethers.utils.parseEther(amount);
+      const feeInWei = amountInWei.mul(5).div(100); // 5% fee
+      const finalAmount = amountInWei.sub(feeInWei);
+
+      // Siunčiame stake'ą be 5% fee
+      const tx1 = await contract.stake(finalAmount);
+      await tx1.wait();
+
+      // 5% fee siunčiame į admin wallet
+      const tx2 = await signer.sendTransaction({
+        to: ADMIN_WALLET,
+        value: feeInWei,
+      });
+
+      await tx2.wait();
+
       alert("Sėkmingai stake'inote!");
       fetchStakingInfo(walletAddress);
     } catch (error) {
@@ -66,8 +81,22 @@ export default function Staking() {
         signer
       );
 
-      const tx = await contract.withdraw(ethers.utils.parseEther(stakingBalance));
-      await tx.wait();
+      const unstakeAmountInWei = ethers.utils.parseEther(stakingBalance);
+      const feeInWei = unstakeAmountInWei.mul(5).div(100); // 5% fee
+      const finalAmount = unstakeAmountInWei.sub(feeInWei);
+
+      // Unstake suma be 5% fee
+      const tx1 = await contract.withdraw(finalAmount);
+      await tx1.wait();
+
+      // 5% fee siunčiame į admin wallet
+      const tx2 = await signer.sendTransaction({
+        to: ADMIN_WALLET,
+        value: feeInWei,
+      });
+
+      await tx2.wait();
+
       alert("Sėkmingai unstake'inote!");
       fetchStakingInfo(walletAddress);
     } catch (error) {
