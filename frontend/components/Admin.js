@@ -3,15 +3,14 @@ import Web3 from "web3";
 import axios from "axios";
 import "../styles/globals.css";
 
-const Admin = () => {
+export default function AdminControls() {
   const [account, setAccount] = useState(null);
-  const [web3, setWeb3] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [fees, setFees] = useState({ send: 3, swap: 0.2, stake: 4, donation: 3 });
+  const [newFees, setNewFees] = useState({ send: "", swap: "", stake: "", donation: "" });
   const [userList, setUserList] = useState([]);
   const [logs, setLogs] = useState([]);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
-  const [newBanAddress, setNewBanAddress] = useState("");
-  const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
@@ -19,7 +18,6 @@ const Admin = () => {
       if (window.ethereum) {
         try {
           const web3Instance = new Web3(window.ethereum);
-          setWeb3(web3Instance);
           const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
           setAccount(accounts[0]);
 
@@ -31,7 +29,6 @@ const Admin = () => {
           console.error("🔴 MetaMask connection error:", error);
         }
       }
-      setLoading(false);
     };
 
     loadAccount();
@@ -39,12 +36,11 @@ const Admin = () => {
 
   const fetchAdminData = async () => {
     try {
-      const response = await axios.get("/api/admin", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
-      });
+      const response = await axios.get("/api/admin");
       setUserList(response.data.bannedUsers);
       setLogs(response.data.logs);
       setIs2FAEnabled(response.data.is2FAEnabled);
+      setFees(response.data.fees);
     } catch (error) {
       console.error("⚠️ Admin data fetch error:", error);
     }
@@ -57,7 +53,6 @@ const Admin = () => {
       fetchAdminData();
     } catch (error) {
       console.error("❌ Error updating user status:", error);
-      setStatusMessage("❌ Error processing request.");
     }
   };
 
@@ -68,7 +63,6 @@ const Admin = () => {
       fetchAdminData();
     } catch (error) {
       console.error("❌ Error updating funds status:", error);
-      setStatusMessage("❌ Error processing request.");
     }
   };
 
@@ -78,112 +72,92 @@ const Admin = () => {
       setStatusMessage(`✅ Refunded ${amount} BNB to ${userAddress}`);
       fetchAdminData();
     } catch (error) {
-      console.error("❌ Error processing refund:", error);
-      setStatusMessage("❌ Refund failed.");
+      console.error("❌ Refund failed:", error);
     }
   };
 
   const toggle2FA = async () => {
     try {
-      await axios.post(
-        "/api/admin/toggle-2fa",
-        {},
-        { headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` } }
-      );
+      await axios.post("/api/admin/toggle-2fa");
       setIs2FAEnabled(!is2FAEnabled);
     } catch (error) {
       console.error("🔒 2FA toggle error:", error);
     }
   };
 
-  if (loading) return <p className="loading">🔄 Loading admin panel...</p>;
+  const updateFee = async (type) => {
+    if (!newFees[type]) return;
+
+    try {
+      await axios.post("/api/admin/updateFee", { type, value: parseFloat(newFees[type]) });
+      setStatusMessage(`✅ ${type.toUpperCase()} Fee Updated to ${newFees[type]}%`);
+      fetchAdminData();
+    } catch (error) {
+      console.error("❌ Error updating fee:", error);
+    }
+  };
 
   if (!isAdmin) {
     return (
-      <div className="admin-container">
-        <h1>🚨 Access Denied</h1>
-        <p>🔒 You are not authorized to view this page.</p>
+      <div className="admin-controls">
+        <h2>🚨 Access Denied</h2>
+        <p>🔒 You are not authorized to view this section.</p>
       </div>
     );
   }
 
   return (
-    <div className="admin-container">
-      <h1>👑 Admin Panel</h1>
+    <div className="admin-controls">
+      <h2>⚙️ Admin Controls</h2>
       <p className="admin-status">Welcome, <strong>{account}</strong></p>
 
-      {/* 2FA Valdymas */}
-      <h3>🔐 2FA Authentication</h3>
-      <button onClick={toggle2FA}>
-        {is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}
-      </button>
+      {/* 🔐 2FA Valdymas */}
+      <div className="section">
+        <h3>🔐 2FA Authentication</h3>
+        <button className="toggle-2fa" onClick={toggle2FA}>
+          {is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}
+        </button>
+      </div>
 
-      {/* Ban/Unban */}
-      <h3>🚫 Ban Users</h3>
-      <input
-        type="text"
-        placeholder="Enter wallet address..."
-        value={newBanAddress}
-        onChange={(e) => setNewBanAddress(e.target.value)}
-      />
-      <button onClick={() => handleBanUnban(newBanAddress, true)}>Ban User</button>
-
-      {/* User Table */}
-      <table className="user-table">
-        <thead>
-          <tr>
-            <th>User Address</th>
-            <th>Status</th>
-            <th>Ban/Unban</th>
-            <th>Freeze/Unfreeze</th>
-            <th>Refund</th>
-          </tr>
-        </thead>
-        <tbody>
-          {userList.map((user) => (
-            <tr key={user.address}>
-              <td>{user.address}</td>
-              <td>{user.isBanned ? "🚫 Banned" : "✅ Active"}</td>
-              <td>
-                <button
-                  className={user.isBanned ? "unban-btn" : "ban-btn"}
-                  onClick={() => handleBanUnban(user.address, !user.isBanned)}
-                >
-                  {user.isBanned ? "Unban" : "Ban"}
-                </button>
-              </td>
-              <td>
-                <button
-                  className={user.isFrozen ? "unfreeze-btn" : "freeze-btn"}
-                  onClick={() => handleFreezeUnfreeze(user.address, !user.isFrozen)}
-                >
-                  {user.isFrozen ? "Unfreeze" : "Freeze"}
-                </button>
-              </td>
-              <td>
-                <button
-                  className="refund-btn"
-                  onClick={() => handleRefund(user.address, 0.1)}
-                >
-                  💸 Refund
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {/* Security Logs */}
-      <h3>📜 Security Logs</h3>
-      <ul>
-        {logs.map((log, index) => (
-          <li key={index}>{log}</li>
+      {/* 💰 Mokesčių Valdymas */}
+      <div className="fee-controls">
+        <h3>💰 Fee Management</h3>
+        {Object.keys(fees).map((type) => (
+          <div key={type} className="fee-item">
+            <label>{type.toUpperCase()} Fee: {fees[type]}%</label>
+            <input
+              type="number"
+              placeholder={`New ${type} Fee`}
+              value={newFees[type]}
+              onChange={(e) => setNewFees({ ...newFees, [type]: e.target.value })}
+            />
+            <button className="update-btn" onClick={() => updateFee(type)}>Update</button>
+          </div>
         ))}
-      </ul>
+      </div>
+
+      {/* 🚫 Ban/Unban Naudotojai */}
+      <div className="section">
+        <h3>🚫 Ban Users</h3>
+        <input
+          type="text"
+          placeholder="Enter wallet address..."
+          onChange={(e) => setNewFees(e.target.value)}
+        />
+        <button onClick={() => handleBanUnban(newFees, true)}>Ban User</button>
+      </div>
+
+      {/* 📜 Security Logs */}
+      <div className="section">
+        <h3>📜 Security Logs</h3>
+        <ul>
+          {logs.map((log, index) => (
+            <li key={index}>{log}</li>
+          ))}
+        </ul>
+      </div>
 
       {statusMessage && <p className="status-message">{statusMessage}</p>}
     </div>
   );
-};
-
-export default Admin;
+      }
