@@ -9,8 +9,9 @@
   --text-light: #0A1F44;
   --card-bg-dark: rgba(255, 255, 255, 0.1);
   --card-bg-light: rgba(0, 0, 0, 0.05);
-  --border-radius: 16px;
-  --shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  --border-radius: 18px;
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  --button-glow: 0 0 15px rgba(255, 215, 0, 0.8);
   --transition: all 0.3s ease-in-out;
 }
 
@@ -20,7 +21,7 @@
   --text-color: var(--text-dark);
   --card-bg: var(--card-bg-dark);
   --card-border: rgba(255, 255, 255, 0.15);
-  --button-glow: 0 0 15px rgba(255, 215, 0, 0.8);
+  --button-glow: 0 0 20px rgba(255, 215, 0, 1);
 }
 
 /* ☀️ LIGHT MODE */
@@ -32,7 +33,7 @@
   --button-glow: 0 0 12px rgba(41, 182, 246, 0.7);
 }
 
-/* 🔄 GRADIENT BACKGROUND ANIMATION */
+/* 🔄 ANIMATED GRADIENT BACKGROUND */
 @keyframes gradientBG {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -58,7 +59,7 @@ body {
   padding: 0;
 }
 
-/* 🏦 NAVIGATION BAR */
+/* 🏦 NAVBAR */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -81,6 +82,7 @@ body {
 
 .navbar a:hover {
   background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.05);
 }
 
 /* 🌙 THEME SWITCHER */
@@ -101,28 +103,43 @@ body {
 .theme-switcher:hover {
   background: var(--accent-color);
   color: var(--bg-color);
-  transform: scale(1.05);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+  transform: scale(1.08);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* 📊 DASHBOARD */
 .dashboard-container {
-  max-width: 1000px;
+  max-width: 1100px;
   margin: auto;
   padding: 24px;
   background: var(--card-bg);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
   transition: var(--transition);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
 }
 
-/* 💎 LUXURY BUTTONS */
+/* 💎 GLASSMORPHISM EFFECT */
+.glass-card {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(14px);
+  border-radius: var(--border-radius);
+  padding: 22px;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.glass-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 15px 30px rgba(255, 215, 0, 0.35);
+}
+
+/* 💎 NEUMORPHIC BUTTONS */
 button {
   background: var(--primary-color);
   color: white;
   font-size: 16px;
-  padding: 12px 20px;
+  padding: 12px 22px;
   border-radius: var(--border-radius);
   border: none;
   cursor: pointer;
@@ -133,10 +150,11 @@ button {
 button:hover {
   background: var(--accent-color);
   box-shadow: var(--shadow);
+  transform: scale(1.07);
 }
 
 button:active {
-  transform: scale(0.98);
+  transform: scale(0.96);
 }
 
 /* 📜 TRANSACTION HISTORY */
@@ -149,7 +167,7 @@ button:active {
 }
 
 .transaction-history th, .transaction-history td {
-  padding: 14px;
+  padding: 16px;
   text-align: center;
   border-bottom: 1px solid var(--card-border);
 }
@@ -161,15 +179,15 @@ button:active {
 }
 
 .transaction-history tr:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
   transition: var(--transition);
 }
 
 /* 🔥 MODAL STYLES */
 .modal {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
-  padding: 24px;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(12px);
+  padding: 26px;
   border-radius: var(--border-radius);
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -181,9 +199,9 @@ button:active {
 
 /* 💠 LOADING ANIMATION */
 @keyframes glowing {
-  0% { box-shadow: 0 0 10px var(--primary-color); }
-  50% { box-shadow: 0 0 20px var(--primary-color); }
-  100% { box-shadow: 0 0 10px var(--primary-color); }
+  0% { box-shadow: 0 0 12px var(--primary-color); }
+  50% { box-shadow: 0 0 24px var(--primary-color); }
+  100% { box-shadow: 0 0 12px var(--primary-color); }
 }
 
 .loading {
@@ -193,10 +211,10 @@ button:active {
 /* 💡 FOOTER */
 .footer {
   text-align: center;
-  padding: 24px;
+  padding: 26px;
   background: var(--primary-color);
   color: white;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
   margin-top: 20px;
   border-radius: var(--border-radius);
@@ -209,11 +227,11 @@ button:active {
   }
 
   .transaction-history th, .transaction-history td {
-    font-size: 14px;
+    font-size: 15px;
   }
 
   .dashboard-container, .admin-container {
-    width: 90%;
-    padding: 18px;
+    width: 92%;
+    padding: 20px;
   }
 }
