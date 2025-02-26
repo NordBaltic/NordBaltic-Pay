@@ -1,128 +1,104 @@
 import { useState, useEffect } from "react";
-import Web3 from "web3";
+import { useTheme } from "../components/ThemeContext";
 import axios from "axios";
 import "../styles/globals.css";
-import { motion } from "framer-motion"; // Animacijos
 
 const Settings = () => {
-  const [account, setAccount] = useState(null);
-  const [web3, setWeb3] = useState(null);
-  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
-  const [language, setLanguage] = useState(localStorage.getItem("language") || "EN");
+  const { theme, setTheme } = useTheme();
+  const [currency, setCurrency] = useState(localStorage.getItem("currency") || "EUR");
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
-  const [loginHistory, setLoginHistory] = useState([]);
-  const [notifications, setNotifications] = useState({
-    email: true,
-    sms: false,
-    push: true,
-  });
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [autoLogout, setAutoLogout] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
-    const loadAccount = async () => {
-      if (window.ethereum) {
-        try {
-          const web3Instance = new Web3(window.ethereum);
-          setWeb3(web3Instance);
-          const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-          setAccount(accounts[0]);
+    localStorage.setItem("currency", currency);
+  }, [currency]);
 
-          fetchUserSettings();
-        } catch (error) {
-          console.error("🔴 MetaMask connection error:", error);
-        }
+  useEffect(() => {
+    // Fetch current security settings from API
+    const fetchSecuritySettings = async () => {
+      try {
+        const response = await axios.get("/api/security/settings");
+        setIs2FAEnabled(response.data.is2FAEnabled);
+        setNotificationsEnabled(response.data.notificationsEnabled);
+        setAutoLogout(response.data.autoLogout);
+      } catch (error) {
+        console.error("⚠️ Error fetching security settings:", error);
       }
     };
 
-    loadAccount();
+    fetchSecuritySettings();
   }, []);
 
-  const fetchUserSettings = async () => {
+  const toggle2FA = async () => {
     try {
-      const response = await axios.get("/api/settings");
-      setIs2FAEnabled(response.data.is2FAEnabled);
-      setLoginHistory(response.data.loginHistory);
-      setNotifications(response.data.notifications);
-    } catch (error) {
-      console.error("❌ Error fetching user settings:", error);
-    }
-  };
-
-  const handleThemeChange = () => {
-    const newTheme = theme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
-    localStorage.setItem("theme", newTheme);
-    document.body.className = newTheme;
-  };
-
-  const handleLanguageChange = (e) => {
-    const newLanguage = e.target.value;
-    setLanguage(newLanguage);
-    localStorage.setItem("language", newLanguage);
-  };
-
-  const handle2FAToggle = async () => {
-    try {
-      await axios.post("/api/settings/toggle-2fa");
+      await axios.post("/api/security/toggle-2fa", { enable: !is2FAEnabled });
       setIs2FAEnabled(!is2FAEnabled);
+      setStatusMessage(`✅ 2FA ${is2FAEnabled ? "disabled" : "enabled"} successfully.`);
     } catch (error) {
-      console.error("🔒 2FA toggle error:", error);
+      console.error("❌ Error toggling 2FA:", error);
+      setStatusMessage("❌ 2FA update failed.");
     }
   };
 
-  const handleNotificationChange = (type) => {
-    setNotifications((prev) => ({ ...prev, [type]: !prev[type] }));
+  const toggleNotifications = async () => {
+    setNotificationsEnabled(!notificationsEnabled);
+    setStatusMessage(`✅ Notifications ${notificationsEnabled ? "disabled" : "enabled"}.`);
+  };
+
+  const toggleAutoLogout = async () => {
+    setAutoLogout(!autoLogout);
+    setStatusMessage(`✅ Auto Logout ${autoLogout ? "disabled" : "enabled"}.`);
   };
 
   return (
-    <motion.div className="settings-container" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <h1>⚙️ Settings</h1>
-      <p className="user-account">👤 Connected: {account}</p>
+    <div className="settings-container">
+      <h1>⚙️ User Settings</h1>
 
-      {/* Tema */}
-      <h3>🎨 Theme</h3>
-      <button onClick={handleThemeChange}>
-        {theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}
-      </button>
+      {/* Theme Switcher */}
+      <div className="settings-section">
+        <h3>🌙 Theme</h3>
+        <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="theme-toggle-btn">
+          {theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}
+        </button>
+      </div>
 
-      {/* Kalba */}
-      <h3>🌍 Language</h3>
-      <select value={language} onChange={handleLanguageChange}>
-        <option value="EN">🇬🇧 English</option>
-        <option value="LT">🇱🇹 Lietuvių</option>
-        <option value="DE">🇩🇪 Deutsch</option>
-        <option value="FR">🇫🇷 Français</option>
-        <option value="ES">🇪🇸 Español</option>
-      </select>
+      {/* Currency Selection */}
+      <div className="settings-section">
+        <h3>💰 Currency Preference</h3>
+        <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="currency-select">
+          <option value="EUR">💶 EUR</option>
+          <option value="USD">💵 USD</option>
+        </select>
+      </div>
 
-      {/* 2FA */}
-      <h3>🔐 2FA Authentication</h3>
-      <button onClick={handle2FAToggle}>
-        {is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}
-      </button>
+      {/* Security Settings */}
+      <div className="settings-section">
+        <h3>🔒 Security</h3>
+        <button onClick={toggle2FA} className="security-btn">
+          {is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}
+        </button>
+      </div>
 
-      {/* Pranešimai */}
-      <h3>🔔 Notifications</h3>
-      <label>
-        <input type="checkbox" checked={notifications.email} onChange={() => handleNotificationChange("email")} />
-        📧 Email
-      </label>
-      <label>
-        <input type="checkbox" checked={notifications.sms} onChange={() => handleNotificationChange("sms")} />
-        📱 SMS
-      </label>
-      <label>
-        <input type="checkbox" checked={notifications.push} onChange={() => handleNotificationChange("push")} />
-        📲 Push Notifications
-      </label>
+      {/* Notifications Settings */}
+      <div className="settings-section">
+        <h3>🔔 Notifications</h3>
+        <button onClick={toggleNotifications} className="notification-btn">
+          {notificationsEnabled ? "🔕 Disable Notifications" : "🔔 Enable Notifications"}
+        </button>
+      </div>
 
-      {/* Prisijungimo istorija */}
-      <h3>📜 Login History</h3>
-      <ul>
-        {loginHistory.map((log, index) => (
-          <li key={index}>{log}</li>
-        ))}
-      </ul>
-    </motion.div>
+      {/* Auto Logout */}
+      <div className="settings-section">
+        <h3>⏳ Auto Logout</h3>
+        <button onClick={toggleAutoLogout} className="auto-logout-btn">
+          {autoLogout ? "🛑 Disable Auto Logout" : "✅ Enable Auto Logout"}
+        </button>
+      </div>
+
+      {statusMessage && <p className="status-message">{statusMessage}</p>}
+    </div>
   );
 };
 
