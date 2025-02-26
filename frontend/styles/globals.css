@@ -1,143 +1,196 @@
-/* ============================
-   🌟 GLOBAL STYLES - NORD BALTIC PAY 🌟
-   Elegantiškas, modernus dizainas (Tamsiai mėlyna + auksiniai akcentai)
-   ============================ */
-
-/* 🔹 Visos sistemos nustatymai */
-:root {
-  --primary-color: #0A1F44; /* Tamsiai mėlyna */
-  --secondary-color: #FFD700; /* Auksinė */
-  --text-color: #EAEAEA; /* Šviesiai pilka tekstui */
-  --background-color: #0E1324; /* Tamsus fonas */
-  --card-bg: #1A1F38; /* Kortelių fonas */
-  --border-color: #FFD700; /* Auksiniai rėmeliai */
-  --btn-hover: #FFC107; /* Ryškesnis auksinis */
-  --transition: all 0.3s ease-in-out;
+/* ======== Global Styles ======== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
-  background-color: var(--background-color);
-  color: var(--text-color);
-  margin: 0;
-  padding: 0;
-  transition: var(--transition);
+  background-color: #0A1F44; /* Tamsiai mėlyna */
+  color: #ffffff;
+  font-size: 16px;
+  line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
 }
 
-/* 🔹 Header (Navbar) */
+/* ======== Links ======== */
+a {
+  color: #FFD700; /* Auksinė */
+  text-decoration: none;
+  transition: all 0.3s ease-in-out;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ======== Buttons ======== */
+button {
+  background: linear-gradient(135deg, #FFD700, #FFB800);
+  color: #0A1F44;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  background: linear-gradient(135deg, #FFB800, #FFD700);
+  transform: scale(1.05);
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* ======== Wallet Buttons ======== */
+.wallet-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.wallet-connect-btn {
+  background: #1A2B6B;
+  color: #FFD700;
+  border: 2px solid #FFD700;
+  padding: 12px 18px;
+  border-radius: 8px;
+  font-weight: bold;
+  transition: all 0.3s ease-in-out;
+}
+
+.wallet-connect-btn:hover {
+  background: #FFD700;
+  color: #1A2B6B;
+}
+
+/* ======== Wallet Info ======== */
+.wallet-info {
+  background: rgba(255, 215, 0, 0.1);
+  border: 2px solid #FFD700;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.wallet-address {
+  font-size: 18px;
+  font-weight: bold;
+  color: #FFD700;
+}
+
+/* ======== QR Code ======== */
+.qr-section {
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 1px solid #FFD700;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+/* ======== Tables & Lists ======== */
+table {
+  width: 90%;
+  max-width: 800px;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: rgba(255, 215, 0, 0.1);
+  border: 2px solid #FFD700;
+  border-radius: 12px;
+}
+
+th, td {
+  padding: 12px;
+  border-bottom: 1px solid #FFD700;
+}
+
+th {
+  background: #FFD700;
+  color: #0A1F44;
+}
+
+tr:hover {
+  background: rgba(255, 215, 0, 0.2);
+}
+
+/* ======== Navbar & Footer ======== */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
   padding: 15px 30px;
-  background: var(--primary-color);
-  box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.2);
+  background: #1A2B6B;
+  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.2);
 }
 
-.navbar-logo {
-  font-size: 24px;
-  font-weight: bold;
-  color: var(--secondary-color);
+.menu {
+  display: flex;
+  gap: 20px;
 }
 
-.navbar-links a {
-  text-decoration: none;
-  color: var(--text-color);
-  margin: 0 15px;
-  transition: var(--transition);
-}
-
-.navbar-links a:hover {
-  color: var(--secondary-color);
-}
-
-/* 🔹 Mygtukai */
-button {
-  background: var(--secondary-color);
-  color: var(--primary-color);
-  border: none;
-  padding: 12px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: var(--transition);
-}
-
-button:hover {
-  background: var(--btn-hover);
-  transform: scale(1.05);
-}
-
-/* 🔹 Pagrindiniai blokai */
-.container {
-  max-width: 1200px;
-  margin: 20px auto;
-  padding: 20px;
-  background: var(--card-bg);
-  border-radius: 10px;
-  box-shadow: 0px 5px 15px rgba(255, 215, 0, 0.2);
-}
-
-/* 🔹 QR kodas */
-.qr-code {
-  margin: 20px auto;
-  padding: 10px;
-  background: white;
-  border-radius: 8px;
-}
-
-/* 🔹 Wallet adresas */
-.wallet-address {
+.menu a {
   font-size: 18px;
   font-weight: bold;
-  color: var(--secondary-color);
-  margin-bottom: 10px;
 }
 
-/* 🔹 Lentelės */
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--card-bg);
-}
-
-.table th, .table td {
-  padding: 12px;
-  border-bottom: 1px solid var(--border-color);
-  text-align: left;
-}
-
-.table th {
-  background: var(--primary-color);
-  color: var(--secondary-color);
-}
-
-/* 🔹 Animacijos */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animated {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-/* 🔹 Footer */
 .footer {
-  background: var(--primary-color);
-  padding: 15px;
+  margin-top: 50px;
+  width: 100%;
+  padding: 20px 0;
   text-align: center;
-  color: var(--text-color);
-  font-size: 14px;
+  background: #1A2B6B;
+  color: #FFD700;
+  border-top: 2px solid #FFD700;
 }
 
-.footer a {
-  color: var(--secondary-color);
-  text-decoration: none;
-  transition: var(--transition);
+/* ======== Forms & Inputs ======== */
+input, select {
+  width: 100%;
+  max-width: 300px;
+  padding: 10px;
+  margin-top: 10px;
+  border: 2px solid #FFD700;
+  border-radius: 8px;
+  background: transparent;
+  color: #FFD700;
+  font-size: 16px;
 }
 
-.footer a:hover {
-  text-decoration: underline;
+input::placeholder {
+  color: rgba(255, 215, 0, 0.5);
+}
+
+select {
+  cursor: pointer;
+}
+
+.invalid {
+  border-color: red;
+}
+
+/* ======== Mobile Styles ======== */
+@media (max-width: 768px) {
+  .menu {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .wallet-buttons {
+    flex-direction: column;
+  }
 }
