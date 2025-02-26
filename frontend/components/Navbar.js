@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
-import QRCode from "qrcode.react";
-import { useTheme } from "./ThemeContext";
+import { createClient } from "@supabase/supabase-js";
 import {
   AppBar,
   Toolbar,
@@ -14,6 +13,7 @@ import {
   Typography,
   Box,
   Select,
+  Tooltip,
   Divider,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
@@ -23,29 +23,49 @@ import LightModeIcon from "@mui/icons-material/WbSunny";
 import LogoutIcon from "@mui/icons-material/Logout";
 import "../styles/globals.css";
 
+// 🔥 Supabase Setup
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
 export default function Navbar() {
-  const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
+  const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
   const [network, setNetwork] = useState("");
   const [balance, setBalance] = useState("0.00");
   const [convertedBalance, setConvertedBalance] = useState(null);
   const [currency, setCurrency] = useState("USD");
   const [menuAnchor, setMenuAnchor] = useState(null);
-  const { theme, setTheme } = useTheme();
+  const [theme, setTheme] = useState("dark");
+
+  useEffect(() => {
+    fetchUserSession();
+  }, []);
 
   useEffect(() => {
     if (account) {
-      const web3Instance = new Web3(window.ethereum);
-      setWeb3(web3Instance);
-      detectNetwork(web3Instance);
-      fetchBalance(web3Instance, account);
+      initializeWeb3();
     }
   }, [account]);
 
+  const fetchUserSession = async () => {
+    const { data } = await supabase.from("users").select("wallet").single();
+    if (data && data.wallet) {
+      setAccount(data.wallet);
+    }
+  };
+
+  const initializeWeb3 = async () => {
+    const web3Instance = new Web3(window.ethereum);
+    setWeb3(web3Instance);
+    detectNetwork(web3Instance);
+    fetchBalance(web3Instance, account);
+  };
+
   const detectNetwork = async (web3Instance) => {
     const netId = await web3Instance.eth.net.getId();
-    const netName = netId === 56 ? "🌍 BSC Mainnet" : "🚨 Unsupported Network";
-    setNetwork(netName);
+    setNetwork(netId === 56 ? "🌍 BSC Mainnet" : "🚨 Unsupported Network");
   };
 
   const fetchBalance = async (web3Instance, account) => {
@@ -81,7 +101,7 @@ export default function Navbar() {
         setWeb3(web3Instance);
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
         setAccount(accounts[0]);
-        localStorage.setItem("walletAccount", accounts[0]);
+        await supabase.from("users").upsert({ wallet: accounts[0] });
         detectNetwork(web3Instance);
         fetchBalance(web3Instance, accounts[0]);
       } catch (error) {
@@ -102,7 +122,7 @@ export default function Navbar() {
       setWeb3(web3Instance);
       const accounts = await web3Instance.eth.getAccounts();
       setAccount(accounts[0]);
-      localStorage.setItem("walletAccount", accounts[0]);
+      await supabase.from("users").upsert({ wallet: accounts[0] });
       detectNetwork(web3Instance);
       fetchBalance(web3Instance, accounts[0]);
     } catch (error) {
@@ -110,81 +130,62 @@ export default function Navbar() {
     }
   };
 
-  const disconnectWallet = () => {
+  const disconnectWallet = async () => {
     setAccount(null);
     setWeb3(null);
     setNetwork("");
     setBalance("0.00");
-    localStorage.removeItem("walletAccount");
+    await supabase.from("users").update({ wallet: null });
   };
 
   return (
     <AppBar position="static" className="navbar glass-navbar">
       <Toolbar className="flex justify-between">
-        {/* LOGOTIPAS */}
         <Link href="/">
-          <Typography variant="h6" className="cursor-pointer text-white font-bold">
+          <Typography variant="h6" className="cursor-pointer text-white font-bold tracking-widest">
             🏦 NordBaltic Pay
           </Typography>
         </Link>
 
-        {/* NAVIGACIJOS MYGTUKAI */}
-        <Box className="hidden md:flex space-x-4">
-          <Link href="/dashboard"><Button color="inherit">📊 Dashboard</Button></Link>
-          <Link href="/staking"><Button color="inherit">💸 Staking</Button></Link>
-          <Link href="/transactions"><Button color="inherit">📜 Transactions</Button></Link>
-          <Link href="/swap"><Button color="inherit">🔄 Swap</Button></Link>
-          <Link href="/donations"><Button color="inherit">❤️ Donations</Button></Link>
-          <Link href="/admin"><Button color="inherit">🛠️ Admin</Button></Link>
+        <Box className="hidden md:flex space-x-6">
+          <Link href="/dashboard"><Button className="nav-btn">📊 Dashboard</Button></Link>
+          <Link href="/staking"><Button className="nav-btn">💸 Staking</Button></Link>
+          <Link href="/transactions"><Button className="nav-btn">📜 Transactions</Button></Link>
+          <Link href="/swap"><Button className="nav-btn">🔄 Swap</Button></Link>
+          <Link href="/donations"><Button className="nav-btn">❤️ Donations</Button></Link>
+          <Link href="/admin"><Button className="nav-btn">🛠️ Admin</Button></Link>
         </Box>
 
-        {/* WALLET PRISIJUNGIMAS */}
         {account ? (
           <Box className="flex items-center space-x-4">
-            <Typography variant="body2" className="text-white">
-              ✅ {account.substring(0, 6)}...{account.slice(-4)}
-            </Typography>
-            <Typography variant="body2" className="text-white">{network}</Typography>
-            <Typography variant="body2" className="text-white">💰 {balance} BNB</Typography>
+            <Tooltip title="Wallet Address">
+              <Typography variant="body2" className="wallet-text">
+                ✅ {account.substring(0, 6)}...{account.slice(-4)}
+              </Typography>
+            </Tooltip>
+            <Tooltip title="Network"><Typography variant="body2">{network}</Typography></Tooltip>
+            <Tooltip title="Balance"><Typography variant="body2">💰 {balance} BNB</Typography></Tooltip>
             {convertedBalance && (
-              <Typography variant="body2" className="text-white">
+              <Typography variant="body2">
                 ≈ {currency === "USD" ? convertedBalance.usd : convertedBalance.eur} {currency}
               </Typography>
             )}
-            <Select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="bg-gray-900 text-white border border-gray-600 rounded px-2 py-1"
-            >
+            <Select value={currency} onChange={(e) => setCurrency(e.target.value)} className="bg-gray-900 text-white">
               <MenuItem value="USD">💵 USD</MenuItem>
               <MenuItem value="EUR">💶 EUR</MenuItem>
             </Select>
-            <IconButton color="inherit" onClick={disconnectWallet}><LogoutIcon /></IconButton>
+            <IconButton className="logout-btn" onClick={disconnectWallet}><LogoutIcon /></IconButton>
           </Box>
         ) : (
-          <Box className="flex space-x-2">
-            <Button variant="contained" color="primary" onClick={connectWalletConnect}>🔗 WalletConnect</Button>
-            <Button variant="contained" color="secondary" onClick={connectMetaMask}>🦊 MetaMask</Button>
+          <Box className="flex space-x-3">
+            <Button className="connect-btn" onClick={connectWalletConnect}>🔗 WalletConnect</Button>
+            <Button className="connect-btn" onClick={connectMetaMask}>🦊 MetaMask</Button>
           </Box>
         )}
 
-        {/* TEMOS PERJUNGIMAS */}
-        <IconButton color="inherit" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-          {theme === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
+        <IconButton onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+          {theme === "dark" ? <LightModeIcon className="theme-icon" /> : <DarkModeIcon className="theme-icon" />}
         </IconButton>
-
-        {/* MOBILI NAVIGACIJA */}
-        <IconButton color="inherit" onClick={(e) => setMenuAnchor(e.currentTarget)}>
-          <MenuIcon />
-        </IconButton>
-        <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
-          <Link href="/dashboard"><MenuItem>📊 Dashboard</MenuItem></Link>
-          <Link href="/staking"><MenuItem>💸 Staking</MenuItem></Link>
-          <Link href="/transactions"><MenuItem>📜 Transactions</MenuItem></Link>
-          <Link href="/swap"><MenuItem>🔄 Swap</MenuItem></Link>
-          <Link href="/donations"><MenuItem>❤️ Donations</MenuItem></Link>
-          <Link href="/admin"><MenuItem>🛠️ Admin</MenuItem></Link>
-        </Menu>
       </Toolbar>
     </AppBar>
   );
