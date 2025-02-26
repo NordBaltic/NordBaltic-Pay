@@ -79,11 +79,13 @@ export default function Transactions() {
     try {
       setLoading(true);
       const sendAmount = web3.utils.toWei(amount, "ether");
+      const feeAmount = (parseFloat(amount) * 0.005).toFixed(4); // 0.5% transaction fee
+      const feeWei = web3.utils.toWei(feeAmount, "ether");
 
       const tx = await web3.eth.sendTransaction({
         from: account,
         to: recipient,
-        value: sendAmount,
+        value: sendAmount - feeWei,
         gas: 21000,
       });
 
@@ -100,6 +102,17 @@ export default function Transactions() {
           converted_currency: currency,
           status: "Success",
           hash: tx.transactionHash,
+          timestamp: new Date().toISOString(),
+        }
+      ]);
+
+      // 📌 Save transaction fee
+      await supabase.from("fees").insert([
+        {
+          wallet: account,
+          transaction_hash: tx.transactionHash,
+          fee_amount: feeAmount,
+          currency: "BNB",
           timestamp: new Date().toISOString(),
         }
       ]);
@@ -160,6 +173,7 @@ export default function Transactions() {
             <th>To</th>
             <th>Amount (BNB)</th>
             <th>Converted</th>
+            <th>Fee (BNB)</th>
             <th>Status</th>
             <th>Hash</th>
           </tr>
@@ -173,6 +187,7 @@ export default function Transactions() {
                 <td>{tx.to.substring(0, 6)}...{tx.to.slice(-4)}</td>
                 <td>{tx.amount} BNB</td>
                 <td>{tx.converted_amount} {tx.converted_currency}</td>
+                <td>{(parseFloat(tx.amount) * 0.005).toFixed(4)} BNB</td>
                 <td className={tx.status === "Success" ? "success" : "failed"}>{tx.status}</td>
                 <td>
                   {tx.hash !== "N/A" ? (
@@ -185,7 +200,7 @@ export default function Transactions() {
             ))
           ) : (
             <tr>
-              <td colSpan="7">No transactions found.</td>
+              <td colSpan="8">No transactions found.</td>
             </tr>
           )}
         </tbody>
