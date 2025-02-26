@@ -1,4 +1,4 @@
-/* 🎨 GLOBAL THEME VARIABLES */
+/* 🎨 THEME STYLES – MAXIMUM PREMIUM DESIGN */
 :root {
   --primary-color: #4CAF50;
   --secondary-color: #2E7D32;
@@ -208,6 +208,22 @@ button:hover {
 
 button:active {
   transform: scale(0.98);
+}
+
+/* 🔄 ANIMATED GRADIENT BACKGROUND */
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-bg {
+  background: linear-gradient(-45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+  background-size: 400% 400%;
+  animation: gradientBG 10s ease infinite;
+  padding: 24px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
 }
 
 /* 💠 MODAL BLUR EFFECT */
