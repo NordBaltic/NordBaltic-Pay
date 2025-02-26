@@ -1,55 +1,41 @@
-import { useEffect, useState } from "react";
-import { Switch, Tooltip, IconButton } from "@mui/material";
-import { DarkMode, LightMode } from "@mui/icons-material";
+import { useTheme } from "../context/ThemeContext";
+import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { motion } from "framer-motion";
 
-// 🔥 Supabase setup
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+// 🔥 Supabase Setup
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL, 
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 const ThemeSwitcher = ({ user }) => {
-  const [theme, setTheme] = useState("dark");
+  const { theme, setTheme } = useTheme();
+  const [icon, setIcon] = useState("🌙");
 
   useEffect(() => {
-    const fetchTheme = async () => {
-      if (user) {
-        const { data, error } = await supabase
-          .from("users")
-          .select("theme")
-          .eq("id", user.id)
-          .single();
+    setIcon(theme === "dark" ? "☀️" : "🌙");
+  }, [theme]);
 
-        if (data?.theme) {
-          setTheme(data.theme);
-        } else if (!error) {
-          setTheme(window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-        }
-      } else {
-        setTheme(localStorage.getItem("theme") || "dark");
-      }
-    };
+  const toggleTheme = async () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
 
-    fetchTheme();
-  }, [user]);
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-    localStorage.setItem("theme", theme);
-
+    // Saugo į Supabase duomenų bazę
     if (user) {
-      supabase.from("users").update({ theme }).eq("id", user.id);
+      await supabase.from("users").update({ theme: newTheme }).eq("id", user.id);
     }
-  }, [theme, user]);
+  };
 
   return (
-    <Tooltip title={`Switch to ${theme === "dark" ? "Light" : "Dark"} Mode`} arrow>
-      <IconButton
-        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-        color="inherit"
-        className="theme-switcher"
-      >
-        {theme === "dark" ? <LightMode /> : <DarkMode />}
-      </IconButton>
-    </Tooltip>
+    <motion.button 
+      className="theme-switcher"
+      onClick={toggleTheme}
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.95 }}
+    >
+      {icon} {theme === "dark" ? "Light Mode" : "Dark Mode"}
+    </motion.button>
   );
 };
 
