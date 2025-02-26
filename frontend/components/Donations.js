@@ -14,9 +14,8 @@ import {
   Box,
   CircularProgress,
   Grid,
-  Fade,
 } from "@mui/material";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import "../styles/globals.css";
 
 // 🔥 Supabase Setup
@@ -34,7 +33,7 @@ export default function Donations() {
   const [totalDonated, setTotalDonated] = useState("0.00");
   const [loading, setLoading] = useState(false);
   const [impact, setImpact] = useState("🌍 Changing Lives...");
-  
+
   const donationWallet = process.env.NEXT_PUBLIC_DONATION_WALLET;
   const donationContract = process.env.NEXT_PUBLIC_DONATION_CONTRACT_ADDRESS;
 
@@ -46,44 +45,36 @@ export default function Donations() {
 
   useEffect(() => {
     fetchUserAccount();
+    fetchTotalDonations();
   }, []);
 
   useEffect(() => {
-    if (account) {
-      initializeWeb3();
-    }
-  }, [account]);
-
-  useEffect(() => {
     if (!donationAmount) return;
-    const convert = async () => {
-      const rate = await fetchConversionRate();
-      if (rate) {
-        setConvertedAmount((parseFloat(donationAmount) * rate).toFixed(2));
-        calculateImpact(donationAmount);
-      }
-    };
-    convert();
+    convertDonation();
   }, [donationAmount, currency]);
 
   const fetchUserAccount = async () => {
     const { data } = await supabase.from("users").select("wallet").single();
-    if (data && data.wallet) {
+    if (data?.wallet) {
       setAccount(data.wallet);
+      initializeWeb3();
     }
   };
 
-  const initializeWeb3 = async () => {
+  const initializeWeb3 = () => {
     const web3Instance = new Web3(window.ethereum);
     setWeb3(web3Instance);
-    fetchTotalDonations();
   };
 
   const fetchTotalDonations = async () => {
     try {
-      const { data, error } = await supabase.from("donations").select("SUM(amount)").single();
-      if (!error && data) {
-        setTotalDonated(data.sum || "0.00");
+      const { data, error } = await supabase
+        .from("donations")
+        .select("SUM(amount) as total")
+        .single();
+
+      if (!error && data.total) {
+        setTotalDonated(data.total.toFixed(2));
       }
     } catch (error) {
       console.error("❌ Klaida gaunant donacijų statistiką:", error);
@@ -92,7 +83,9 @@ export default function Donations() {
 
   const fetchConversionRate = async () => {
     try {
-      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`);
+      const response = await axios.get(
+        `https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`
+      );
       return response.data.binancecoin[currency.toLowerCase()];
     } catch (error) {
       console.error("❌ Klaida gaunant valiutos kursą:", error);
@@ -100,9 +93,17 @@ export default function Donations() {
     }
   };
 
+  const convertDonation = async () => {
+    const rate = await fetchConversionRate();
+    if (rate) {
+      setConvertedAmount((parseFloat(donationAmount) * rate).toFixed(2));
+      calculateImpact(donationAmount);
+    }
+  };
+
   const calculateImpact = (amount) => {
-    const peopleHelped = Math.floor(parseFloat(amount) * 10); 
-    setImpact(`🌍 This donation will support ~${peopleHelped} people!`);
+    const peopleHelped = Math.floor(parseFloat(amount) * 12); 
+    setImpact(`🌍 Your donation will support ~${peopleHelped} people!`);
   };
 
   const handleDonate = async () => {
