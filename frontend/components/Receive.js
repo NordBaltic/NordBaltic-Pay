@@ -1,4 +1,3 @@
-// 📂 /frontend/components/Receive.js - MAX PREMIUM RECEIVE FUNCTIONALITY
 import { useState, useEffect } from "react";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
@@ -6,10 +5,10 @@ import QRCode from "qrcode.react";
 import axios from "axios";
 import "../styles/globals.css";
 
-export default function ReceiveComponent() {
+export default function Receive() {
   const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
   const [web3, setWeb3] = useState(null);
-  const [currency, setCurrency] = useState("EUR");
+  const [currency, setCurrency] = useState("EUR"); // ✅ Numatytasis EUR
   const [bnbBalance, setBnbBalance] = useState("0.00");
   const [convertedAmount, setConvertedAmount] = useState(null);
 
