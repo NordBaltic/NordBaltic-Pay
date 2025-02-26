@@ -3,7 +3,20 @@ import axios from "axios";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { createClient } from "@supabase/supabase-js";
-import { Card, CardContent, Typography, Button, Grid, CircularProgress, Table, TableHead, TableBody, TableRow, TableCell } from "@mui/material";
+import { motion } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Grid,
+  CircularProgress,
+  Table,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+} from "@mui/material";
 import "../styles/globals.css";
 
 // 🔥 Supabase Setup
@@ -74,7 +87,7 @@ export default function TokenList() {
     localStorage.removeItem("walletAccount");
   };
 
-  // 📜 Gauti vartotojo tokenus
+  // 📜 Fetch User Tokens
   const fetchTokens = async () => {
     try {
       const apiKey = process.env.NEXT_PUBLIC_BSCSCAN_API_KEY;
@@ -85,16 +98,16 @@ export default function TokenList() {
         setTokens(response.data.result);
         fetchTokenPrices(response.data.result);
       } else {
-        console.error("❌ BSCScan API klaida:", response.data.message);
+        console.error("❌ BSCScan API error:", response.data.message);
       }
       setIsLoading(false);
     } catch (error) {
-      console.error("❌ Klaida gaunant tokenus:", error);
+      console.error("❌ Error fetching tokens:", error);
       setIsLoading(false);
     }
   };
 
-  // 🔹 Gauti tokenų kainas ir rinkos kapitalizaciją
+  // 🔹 Fetch Token Prices
   const fetchTokenPrices = async (tokenList) => {
     try {
       const tokenSymbols = tokenList.map((token) => token.tokenSymbol.toLowerCase()).join(",");
@@ -107,7 +120,7 @@ export default function TokenList() {
     }
   };
 
-  // 🔹 Formatuoti tokenų sąrašą
+  // 🔹 Format Token Data
   const formattedTokens = useMemo(() => {
     return tokens.map((token) => {
       const balance = parseFloat(token.balance) / 10 ** token.tokenDecimal;
@@ -128,70 +141,77 @@ export default function TokenList() {
   }, [tokens, tokenPrices, currency]);
 
   return (
-    <Card className="glass-card max-w-4xl mx-auto p-6 text-center">
-      <CardContent>
-        <Typography variant="h5" className="mb-4">💰 My Tokens</Typography>
-        <Typography variant="body1" className="mb-4">🌐 {network}</Typography>
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="token-list-container p-6"
+    >
+      <Card className="glass-card max-w-4xl mx-auto p-6 text-center">
+        <CardContent>
+          <Typography variant="h5" className="mb-4">💰 My Tokens</Typography>
+          <Typography variant="body1" className="mb-4">🌐 {network}</Typography>
 
-        <Button variant="contained" color="secondary" onClick={() => setCurrency(currency === "usd" ? "eur" : "usd")}>
-          Show in {currency === "usd" ? "EUR" : "USD"}
-        </Button>
+          <Button variant="contained" color="secondary" onClick={() => setCurrency(currency === "usd" ? "eur" : "usd")}>
+            Show in {currency === "usd" ? "EUR" : "USD"}
+          </Button>
 
-        {!account ? (
-          <div className="wallet-buttons">
-            <Button variant="contained" color="primary" onClick={connectMetaMask}>
-              🦊 Connect MetaMask
-            </Button>
-            <Button variant="contained" color="secondary" onClick={connectWalletConnect}>
-              🔗 Connect WalletConnect
-            </Button>
-          </div>
-        ) : (
-          <div>
-            <Typography variant="body1" className="mb-2">
-              ✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}
-            </Typography>
-            <Button variant="outlined" color="error" onClick={disconnectWallet}>
-              Disconnect
-            </Button>
-          </div>
-        )}
+          {!account ? (
+            <div className="wallet-buttons">
+              <Button variant="contained" color="primary" onClick={connectMetaMask}>
+                🦊 Connect MetaMask
+              </Button>
+              <Button variant="contained" color="secondary" onClick={connectWalletConnect}>
+                🔗 Connect WalletConnect
+              </Button>
+            </div>
+          ) : (
+            <div>
+              <Typography variant="body1" className="mb-2">
+                ✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}
+              </Typography>
+              <Button variant="outlined" color="error" onClick={disconnectWallet}>
+                Disconnect
+              </Button>
+            </div>
+          )}
 
-        {isLoading ? (
-          <CircularProgress className="mt-4" />
-        ) : tokens.length > 0 ? (
-          <Table className="mt-4">
-            <TableHead>
-              <TableRow>
-                <TableCell>Token</TableCell>
-                <TableCell>Symbol</TableCell>
-                <TableCell>Balance</TableCell>
-                <TableCell>Price ({currency.toUpperCase()})</TableCell>
-                <TableCell>Total Value</TableCell>
-                <TableCell>Market Cap</TableCell>
-                <TableCell>24h Change</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {formattedTokens.map((token) => (
-                <TableRow key={token.contractAddress}>
-                  <TableCell>{token.tokenName}</TableCell>
-                  <TableCell>{token.tokenSymbol}</TableCell>
-                  <TableCell>{token.balance.toFixed(4)}</TableCell>
-                  <TableCell>{currency.toUpperCase()} {token.price.toFixed(2)}</TableCell>
-                  <TableCell>{currency.toUpperCase()} {token.totalValue}</TableCell>
-                  <TableCell>${token.marketCap.toLocaleString()}</TableCell>
-                  <TableCell style={{ color: token.priceChange > 0 ? "green" : "red" }}>
-                    {token.priceChange.toFixed(2)}%
-                  </TableCell>
+          {isLoading ? (
+            <CircularProgress className="mt-4" />
+          ) : tokens.length > 0 ? (
+            <Table className="mt-4">
+              <TableHead>
+                <TableRow>
+                  <TableCell>Token</TableCell>
+                  <TableCell>Symbol</TableCell>
+                  <TableCell>Balance</TableCell>
+                  <TableCell>Price ({currency.toUpperCase()})</TableCell>
+                  <TableCell>Total Value</TableCell>
+                  <TableCell>Market Cap</TableCell>
+                  <TableCell>24h Change</TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        ) : (
-          <Typography variant="body2">🚫 No tokens found.</Typography>
-        )}
-      </CardContent>
-    </Card>
+              </TableHead>
+              <TableBody>
+                {formattedTokens.map((token) => (
+                  <TableRow key={token.contractAddress}>
+                    <TableCell>{token.tokenName}</TableCell>
+                    <TableCell>{token.tokenSymbol}</TableCell>
+                    <TableCell>{token.balance.toFixed(4)}</TableCell>
+                    <TableCell>{currency.toUpperCase()} {token.price.toFixed(2)}</TableCell>
+                    <TableCell>{currency.toUpperCase()} {token.totalValue}</TableCell>
+                    <TableCell>${token.marketCap.toLocaleString()}</TableCell>
+                    <TableCell style={{ color: token.priceChange > 0 ? "green" : "red" }}>
+                      {token.priceChange.toFixed(2)}%
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          ) : (
+            <Typography variant="body2">🚫 No tokens found.</Typography>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
   );
-        }
+          }
