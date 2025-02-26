@@ -1,4 +1,4 @@
-/* 🎨 BENDRIEJI TEMOS KINTAMIEJI */
+/* 🎨 TEMOS KINTAMIEJI */
 :root {
   --primary-color: #4CAF50;
   --secondary-color: #2E7D32;
@@ -30,25 +30,39 @@
   --card-border: rgba(0, 0, 0, 0.1);
 }
 
-/* 🌟 BENDRI STILIAI */
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg-color);
-  color: var(--text-color);
+/* 🔥 TEMOS PERJUNGIMAS SU ANIMACIJA */
+.theme-switcher {
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  padding: 12px;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 18px;
   transition: var(--transition);
-  margin: 0;
-  padding: 0;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-switcher:hover {
+  background: var(--accent-color);
+  color: var(--bg-color);
+  transform: scale(1.05);
 }
 
 /* 🏦 NAVBAR */
 .navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   padding: 15px 20px;
   box-shadow: var(--shadow);
   border-radius: var(--border-radius);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .navbar a {
@@ -62,22 +76,7 @@ body {
 
 .navbar a:hover {
   opacity: 0.8;
-}
-
-/* 🎛️ THEME SWITCHER */
-.theme-switcher {
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  padding: 12px;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: 18px;
-  transition: var(--transition);
-}
-
-.theme-switcher:hover {
-  background: var(--accent-color);
-  color: var(--bg-color);
+  transform: translateY(-2px);
 }
 
 /* 📊 DASHBOARD */
@@ -97,6 +96,8 @@ body {
   font-weight: bold;
   text-align: center;
   margin-bottom: 20px;
+  color: var(--text-color);
+  animation: fadeIn 1s ease-in-out;
 }
 
 .dashboard-buttons a {
@@ -108,10 +109,12 @@ body {
   transition: var(--transition);
   text-decoration: none;
   font-weight: bold;
+  box-shadow: var(--shadow);
 }
 
 .dashboard-buttons a:hover {
   background: var(--accent-color);
+  transform: scale(1.05);
 }
 
 /* 📜 TRANSACTION HISTORY */
@@ -135,6 +138,7 @@ body {
 
 .transaction-history tr:hover {
   background: var(--card-bg);
+  transform: scale(1.01);
 }
 
 /* ⚡ ADMIN PANEL */
@@ -151,6 +155,7 @@ body {
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 10px;
+  color: var(--text-color);
 }
 
 .admin-container table {
@@ -174,33 +179,6 @@ body {
   background: var(--card-bg);
 }
 
-/* ⚙️ SETTINGS */
-.settings-container {
-  max-width: 600px;
-  margin: auto;
-  padding: 20px;
-  background: var(--card-bg);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-}
-
-.settings-section {
-  margin-bottom: 20px;
-}
-
-.settings-section h3 {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.settings-container select {
-  padding: 8px;
-  border-radius: var(--border-radius);
-  font-size: 16px;
-  background: var(--card-bg);
-  color: var(--text-color);
-}
-
 /* 📉 CHARTS */
 .chart-container {
   background: var(--card-bg);
@@ -208,6 +186,7 @@ body {
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
   margin-top: 20px;
+  animation: fadeIn 1s ease-in-out;
 }
 
 /* 🔥 FOOTER */
@@ -221,7 +200,19 @@ body {
   margin-top: 20px;
 }
 
-/* 🛠 RESPONSIVE */
+/* 🔥 ANIMACIJOS */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 🛠 RESPONSIVE DESIGN */
 @media (max-width: 768px) {
   .navbar .menu {
     flex-direction: column;
