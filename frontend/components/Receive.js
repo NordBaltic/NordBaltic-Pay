@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import Web3 from "web3";
-import WalletConnectProvider from "@walletconnect/web3-provider";
 import QRCode from "qrcode.react";
 import axios from "axios";
 import "../styles/globals.css";
@@ -8,9 +7,10 @@ import "../styles/globals.css";
 export default function Receive() {
   const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
   const [web3, setWeb3] = useState(null);
-  const [currency, setCurrency] = useState("EUR"); // ✅ Numatytasis EUR
   const [bnbBalance, setBnbBalance] = useState("0.00");
-  const [convertedAmount, setConvertedAmount] = useState(null);
+  const [convertedAmount, setConvertedAmount] = useState({ usd: "0.00", eur: "0.00" });
+  const [currency, setCurrency] = useState("EUR");
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (account) {
@@ -27,7 +27,20 @@ export default function Receive() {
       setBnbBalance(parseFloat(balanceEth).toFixed(4));
       fetchConversionRate(balanceEth);
     } catch (error) {
-      console.error("Klaida gaunant balansą:", error);
+      console.error("❌ Klaida gaunant balansą:", error);
+    }
+  };
+
+  const fetchConversionRate = async (bnbAmount) => {
+    try {
+      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`);
+      const rates = response.data.binancecoin;
+      setConvertedAmount({
+        usd: (bnbAmount * rates.usd).toFixed(2),
+        eur: (bnbAmount * rates.eur).toFixed(2),
+      });
+    } catch (error) {
+      console.error("❌ Klaida gaunant valiutos kursą:", error);
     }
   };
 
@@ -41,10 +54,10 @@ export default function Receive() {
         localStorage.setItem("walletAccount", accounts[0]);
         fetchBalance(web3Instance, accounts[0]);
       } catch (error) {
-        console.error("MetaMask klaida:", error);
+        console.error("❌ MetaMask klaida:", error);
       }
     } else {
-      alert("MetaMask nerastas!");
+      alert("⚠️ MetaMask nerastas!");
     }
   };
 
@@ -61,26 +74,13 @@ export default function Receive() {
       localStorage.setItem("walletAccount", accounts[0]);
       fetchBalance(web3Instance, accounts[0]);
     } catch (error) {
-      console.error("WalletConnect klaida:", error);
-    }
-  };
-
-  const fetchConversionRate = async (bnbAmount) => {
-    try {
-      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`);
-      const rates = response.data.binancecoin;
-      setConvertedAmount({
-        usd: (bnbAmount * rates.usd).toFixed(2),
-        eur: (bnbAmount * rates.eur).toFixed(2),
-      });
-    } catch (error) {
-      console.error("Error fetching exchange rates:", error);
+      console.error("❌ WalletConnect klaida:", error);
     }
   };
 
   return (
     <div className="receive-container">
-      <h1 className="receive-title">Receive Crypto</h1>
+      <h1>📥 Receive Crypto</h1>
       {!account ? (
         <div className="wallet-buttons">
           <button className="wallet-connect-btn" onClick={connectWalletConnect}>
@@ -95,21 +95,18 @@ export default function Receive() {
           <p className="wallet-address">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
           <p className="balance-text">💰 Balance: {bnbBalance} BNB</p>
 
-          {/* ✅ QR kodas gavimo adresui */}
           <div className="qr-section">
             <p>Your Wallet Address:</p>
             <QRCode value={account} size={180} className="qr-code" />
             <p className="small-text">Scan the QR code to receive crypto.</p>
           </div>
 
-          {/* ✅ Valiutos pasirinkimas */}
           <label>Show in:</label>
           <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
             <option value="EUR">💶 EUR</option>
             <option value="USD">💵 USD</option>
           </select>
 
-          {/* ✅ Konvertuota suma */}
           {convertedAmount && (
             <p className="converted-amount">
               1 BNB ≈ {currency === "EUR" ? convertedAmount.eur : convertedAmount.usd} {currency}
