@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+:root {
+  --primary-color: #0A1F44; /* Tamsiai mėlyna */
+  --secondary-color: #FFD700; /* Auksinė */
+  --background-color: #0D0D0D; /* Juodas fonas */
+  --text-color: #EAEAEA; /* Šviesi tekstinė spalva */
+  --font-family: 'Poppins', sans-serif;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+a {
+  text-decoration: none;
+  color: var(--secondary-color);
+  transition: all 0.3s ease-in-out;
+}
+
+a:hover {
+  color: #ffea00;
+}
+
+button {
+  background-color: var(--secondary-color);
+  color: var(--background-color);
+  border: none;
+  padding: 10px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+}
+
+button:hover {
+  background-color: #FFC700;
+}
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  padding: 20px;
+  transition: transform 0.3s ease-in-out;
+}
+
+.card:hover {
+  transform: scale(1.03);
+}
