@@ -18,5 +18,5 @@ export const ThemeProvider = ({ children }) => {
   );
 };
 
-// Sukuriame funkciją, kad būtų patogiau naudoti kontekstą
+// Funkcija naudoti temai
 export const useTheme = () => useContext(ThemeContext);
