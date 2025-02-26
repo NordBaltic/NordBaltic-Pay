@@ -1,9 +1,17 @@
 import { useState, useEffect } from "react";
 import Web3 from "web3";
 import axios from "axios";
+import { createClient } from "@supabase/supabase-js";
+import { Box, Card, CardContent, Typography, Button, Select, MenuItem, TextField, CircularProgress } from "@mui/material";
 import "../styles/globals.css";
 
-const SwapComponent = ({ account, web3, onTransactionComplete }) => {
+// 🔥 Supabase setup
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
+// 🔹 SMART CONTRACT ADRESAS IŠ `.env`
+const WALLET_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_WALLET_CONTRACT_ADDRESS;
+
+const Swap = ({ account, web3, onTransactionComplete }) => {
   const [swapAmount, setSwapAmount] = useState("");
   const [swapFrom, setSwapFrom] = useState("BNB");
   const [swapTo, setSwapTo] = useState("USDT");
@@ -11,7 +19,6 @@ const SwapComponent = ({ account, web3, onTransactionComplete }) => {
   const [balanceTo, setBalanceTo] = useState("0.00");
   const [swapRate, setSwapRate] = useState(null);
   const [swapProcessing, setSwapProcessing] = useState(false);
-  const WALLET_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_WALLET_CONTRACT_ADDRESS;
 
   const tokenList = [
     { symbol: "BNB", address: "0x...", logo: "https://assets.coingecko.com/coins/images/825/thumb/binance-coin-logo.png" },
@@ -68,6 +75,7 @@ const SwapComponent = ({ account, web3, onTransactionComplete }) => {
       const feeAmount = (parseFloat(swapAmount) * 0.002).toFixed(6);
       const feeWei = web3.utils.toWei(feeAmount, "ether");
 
+      // 📌 Mokesčio transakcija į smart kontraktą
       await web3.eth.sendTransaction({
         from: account,
         to: WALLET_CONTRACT_ADDRESS,
@@ -75,53 +83,87 @@ const SwapComponent = ({ account, web3, onTransactionComplete }) => {
         gas: 21000,
       });
 
+      // 📌 Išsaugoti swap operaciją „Supabase“
+      await supabase.from("swaps").insert([
+        {
+          wallet: account,
+          from_token: swapFrom,
+          to_token: swapTo,
+          amount: swapAmount,
+          swap_rate: swapRate.toFixed(6),
+          fee: feeAmount,
+          status: "Success",
+          timestamp: new Date().toISOString(),
+        }
+      ]);
+
       alert(`✅ Swap sėkmingas! ${swapAmount} ${swapFrom} → ${swapTo}`);
       onTransactionComplete();
     } catch (error) {
       console.error("❌ Swap klaida:", error);
+
+      // 📌 Įrašyti nepavykusį swap'ą
+      await supabase.from("swaps").insert([
+        {
+          wallet: account,
+          from_token: swapFrom,
+          to_token: swapTo,
+          amount: swapAmount,
+          swap_rate: swapRate ? swapRate.toFixed(6) : "N/A",
+          fee: "N/A",
+          status: "Failed",
+          timestamp: new Date().toISOString(),
+        }
+      ]);
     }
 
     setSwapProcessing(false);
   };
 
   return (
-    <div className="swap-container">
-      <h1>🔄 Token Swap</h1>
+    <Box className="swap-container p-6">
+      <Typography variant="h4" className="text-center text-white font-bold mb-6">🔄 Token Swap</Typography>
 
-      <div className="swap-inputs">
-        <label>From:</label>
-        <div className="swap-selection">
-          <img src={tokenList.find(t => t.symbol === swapFrom).logo} alt={swapFrom} className="token-logo" />
-          <select value={swapFrom} onChange={(e) => setSwapFrom(e.target.value)}>
+      <Card className="glass-card p-6">
+        <CardContent>
+          <Typography variant="h6" className="text-white">💰 Balansas: {balanceFrom} {swapFrom}</Typography>
+          <Select fullWidth value={swapFrom} onChange={(e) => setSwapFrom(e.target.value)} className="mt-2 bg-gray-800 text-white">
             {tokenList.map(token => (
-              <option key={token.symbol} value={token.symbol}>{token.symbol}</option>
+              <MenuItem key={token.symbol} value={token.symbol}>{token.symbol}</MenuItem>
             ))}
-          </select>
-        </div>
-        <p className="wallet-balance">💰 Balansas: {balanceFrom} {swapFrom}</p>
+          </Select>
 
-        <label>To:</label>
-        <div className="swap-selection">
-          <img src={tokenList.find(t => t.symbol === swapTo).logo} alt={swapTo} className="token-logo" />
-          <select value={swapTo} onChange={(e) => setSwapTo(e.target.value)}>
+          <Typography variant="h6" className="mt-4 text-white">🔄 Konvertuoti į:</Typography>
+          <Select fullWidth value={swapTo} onChange={(e) => setSwapTo(e.target.value)} className="mt-2 bg-gray-800 text-white">
             {tokenList.map(token => (
-              <option key={token.symbol} value={token.symbol}>{token.symbol}</option>
+              <MenuItem key={token.symbol} value={token.symbol}>{token.symbol}</MenuItem>
             ))}
-          </select>
-        </div>
-        <p className="wallet-balance">💰 Balansas: {balanceTo} {swapTo}</p>
+          </Select>
 
-        <label>Amount:</label>
-        <input type="number" value={swapAmount} onChange={(e) => setSwapAmount(e.target.value)} placeholder="0.01" />
-      </div>
+          <TextField 
+            fullWidth 
+            label="Suma (BNB)" 
+            type="number" 
+            value={swapAmount} 
+            onChange={(e) => setSwapAmount(e.target.value)} 
+            className="mt-4 bg-gray-900 text-white rounded-lg px-4 py-2 border border-gray-600 focus:ring-2 focus:ring-blue-400"
+          />
 
-      {swapRate && <p className="swap-rate">1 {swapFrom} ≈ {swapRate.toFixed(6)} {swapTo}</p>}
+          {swapRate && <Typography variant="h6" className="mt-4 text-white">1 {swapFrom} ≈ {swapRate.toFixed(6)} {swapTo}</Typography>}
 
-      <button className="swap-btn" onClick={executeSwap} disabled={swapProcessing || !swapAmount || parseFloat(swapAmount) > parseFloat(balanceFrom)}>
-        {swapProcessing ? "⏳ Processing..." : "⚡ Swap Now"}
-      </button>
-    </div>
+          <Button 
+            variant="contained" 
+            fullWidth 
+            className="swap-btn mt-6 bg-gradient-to-r from-green-400 to-blue-500 hover:from-green-500 hover:to-blue-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg transition-transform transform hover:scale-105"
+            onClick={executeSwap}
+            disabled={swapProcessing || !swapAmount || parseFloat(swapAmount) > parseFloat(balanceFrom)}
+          >
+            {swapProcessing ? <CircularProgress size={24} /> : "⚡ Swap Now"}
+          </Button>
+        </CardContent>
+      </Card>
+    </Box>
   );
 };
 
-export default SwapComponent;
+export default Swap;
