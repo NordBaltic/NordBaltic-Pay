@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
 import Web3 from "web3";
 import axios from "axios";
-import Security from "./Security"; // ✅ Integruojame saugumo valdymą
 import "../styles/globals.css";
 
-export default function Admin() {
+const Admin = () => {
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [fees, setFees] = useState({ swap: 0.2, send: 3, donation: 3 });
+  const [userList, setUserList] = useState([]);
+  const [logs, setLogs] = useState([]);
+  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+  const [newBanAddress, setNewBanAddress] = useState("");
+  const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
@@ -23,35 +26,77 @@ export default function Admin() {
           const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET.toLowerCase();
           setIsAdmin(accounts[0].toLowerCase() === adminWallet);
 
-          fetchSettings();
+          fetchAdminData();
         } catch (error) {
           console.error("🔴 MetaMask connection error:", error);
         }
       }
+      setLoading(false);
     };
 
     loadAccount();
   }, []);
 
-  const fetchSettings = async () => {
+  const fetchAdminData = async () => {
     try {
-      const response = await axios.get("/api/admin/settings"); // 🔹 Pakeisti su realiu API
-      setFees(response.data.fees);
+      const response = await axios.get("/api/admin", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+      });
+      setUserList(response.data.bannedUsers);
+      setLogs(response.data.logs);
+      setIs2FAEnabled(response.data.is2FAEnabled);
     } catch (error) {
-      console.error("❌ Error fetching admin settings:", error);
+      console.error("⚠️ Admin data fetch error:", error);
     }
   };
 
-  const updateFees = async (feeType, value) => {
+  const handleBanUnban = async (userAddress, isBanned) => {
     try {
-      await axios.post("/api/admin/updateFees", { feeType, value }); // 🔹 API sujungimas
-      setStatusMessage(`✅ Updated ${feeType} fee to ${value}%`);
-      fetchSettings();
+      await axios.post("/api/admin/ban", { userAddress, isBanned });
+      setStatusMessage(`✅ User ${isBanned ? "banned" : "unbanned"} successfully.`);
+      fetchAdminData();
     } catch (error) {
-      console.error("❌ Error updating fees:", error);
-      setStatusMessage("❌ Update failed.");
+      console.error("❌ Error updating user status:", error);
+      setStatusMessage("❌ Error processing request.");
     }
   };
+
+  const handleFreezeUnfreeze = async (userAddress, isFrozen) => {
+    try {
+      await axios.post("/api/admin/freeze", { userAddress, isFrozen });
+      setStatusMessage(`✅ Funds ${isFrozen ? "frozen" : "unfrozen"} successfully.`);
+      fetchAdminData();
+    } catch (error) {
+      console.error("❌ Error updating funds status:", error);
+      setStatusMessage("❌ Error processing request.");
+    }
+  };
+
+  const handleRefund = async (userAddress, amount) => {
+    try {
+      await axios.post("/api/admin/refund", { userAddress, amount });
+      setStatusMessage(`✅ Refunded ${amount} BNB to ${userAddress}`);
+      fetchAdminData();
+    } catch (error) {
+      console.error("❌ Error processing refund:", error);
+      setStatusMessage("❌ Refund failed.");
+    }
+  };
+
+  const toggle2FA = async () => {
+    try {
+      await axios.post(
+        "/api/admin/toggle-2fa",
+        {},
+        { headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` } }
+      );
+      setIs2FAEnabled(!is2FAEnabled);
+    } catch (error) {
+      console.error("🔒 2FA toggle error:", error);
+    }
+  };
+
+  if (loading) return <p className="loading">🔄 Loading admin panel...</p>;
 
   if (!isAdmin) {
     return (
@@ -64,40 +109,81 @@ export default function Admin() {
 
   return (
     <div className="admin-container">
-      <h1>🔧 Admin Panel</h1>
+      <h1>👑 Admin Panel</h1>
       <p className="admin-status">Welcome, <strong>{account}</strong></p>
 
-      {/* 🔹 Mokesčių valdymas */}
-      <div className="settings-section">
-        <h2>⚙️ Fees Management</h2>
-        <div className="fees-control">
-          <label>Swap Fee (%)</label>
-          <input
-            type="number"
-            value={fees.swap}
-            onChange={(e) => updateFees("swap", e.target.value)}
-          />
+      {/* 2FA Valdymas */}
+      <h3>🔐 2FA Authentication</h3>
+      <button onClick={toggle2FA}>
+        {is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}
+      </button>
 
-          <label>Send Fee (%)</label>
-          <input
-            type="number"
-            value={fees.send}
-            onChange={(e) => updateFees("send", e.target.value)}
-          />
+      {/* Ban/Unban */}
+      <h3>🚫 Ban Users</h3>
+      <input
+        type="text"
+        placeholder="Enter wallet address..."
+        value={newBanAddress}
+        onChange={(e) => setNewBanAddress(e.target.value)}
+      />
+      <button onClick={() => handleBanUnban(newBanAddress, true)}>Ban User</button>
 
-          <label>Donation Fee (%)</label>
-          <input
-            type="number"
-            value={fees.donation}
-            onChange={(e) => updateFees("donation", e.target.value)}
-          />
-        </div>
-      </div>
+      {/* User Table */}
+      <table className="user-table">
+        <thead>
+          <tr>
+            <th>User Address</th>
+            <th>Status</th>
+            <th>Ban/Unban</th>
+            <th>Freeze/Unfreeze</th>
+            <th>Refund</th>
+          </tr>
+        </thead>
+        <tbody>
+          {userList.map((user) => (
+            <tr key={user.address}>
+              <td>{user.address}</td>
+              <td>{user.isBanned ? "🚫 Banned" : "✅ Active"}</td>
+              <td>
+                <button
+                  className={user.isBanned ? "unban-btn" : "ban-btn"}
+                  onClick={() => handleBanUnban(user.address, !user.isBanned)}
+                >
+                  {user.isBanned ? "Unban" : "Ban"}
+                </button>
+              </td>
+              <td>
+                <button
+                  className={user.isFrozen ? "unfreeze-btn" : "freeze-btn"}
+                  onClick={() => handleFreezeUnfreeze(user.address, !user.isFrozen)}
+                >
+                  {user.isFrozen ? "Unfreeze" : "Freeze"}
+                </button>
+              </td>
+              <td>
+                <button
+                  className="refund-btn"
+                  onClick={() => handleRefund(user.address, 0.1)}
+                >
+                  💸 Refund
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
 
-      {/* 🔹 Vartotojų valdymas */}
-      <Security />
+      {/* Security Logs */}
+      <h3>📜 Security Logs</h3>
+      <ul>
+        {logs.map((log, index) => (
+          <li key={index}>{log}</li>
+        ))}
+      </ul>
 
       {statusMessage && <p className="status-message">{statusMessage}</p>}
     </div>
   );
-}
+};
+
+export default Admin;
