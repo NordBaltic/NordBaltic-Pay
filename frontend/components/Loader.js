@@ -1,9 +1,10 @@
-// 📂 /components/Loader.js
-export default function Loader({ message }) {
+import "../styles/globals.css";
+
+export default function Loader({ message = "Loading..." }) {
   return (
-    <div className="loader-container">
-      <div className="spinner"></div>
-      <p>{message}</p>
+    <div className="loader-wrapper">
+      <div className="glowing-spinner"></div>
+      <p className="loader-text">{message}</p>
     </div>
   );
 }
