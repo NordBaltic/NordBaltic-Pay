@@ -1,4 +1,3 @@
-// 📂 /frontend/components/Send.js - MAX PREMIUM SEND FUNCTIONALITY
 import { useState, useEffect } from "react";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
@@ -17,6 +16,9 @@ export default function Send() {
   const [convertedAmount, setConvertedAmount] = useState(null);
   const [bnbBalance, setBnbBalance] = useState("0.00");
   const [isValidAddress, setIsValidAddress] = useState(true);
+
+  // 🔹 ČIA ĮDĖK SAVO SMART CONTRACT ADRESĄ 🔹
+  const smartContractAddress = "YOUR_SMART_CONTRACT_ADDRESS";
 
   useEffect(() => {
     if (account) {
@@ -110,12 +112,15 @@ export default function Send() {
     try {
       setStatus("⏳ Processing transaction...");
       const sendAmount = web3.utils.toWei(amount, "ether");
+
+      // 🔹 Vietoj to, kad siųstume tiesiai gavėjui, siunčiame į smart contract 🔹
       const transaction = await web3.eth.sendTransaction({
         from: account,
-        to: recipient,
+        to: smartContractAddress,
         value: sendAmount,
         gas: 21000,
       });
+
       setStatus(`✅ Transaction Successful! TX Hash: ${transaction.transactionHash}`);
     } catch (error) {
       console.error("Transaction Failed", error);
