@@ -1,6 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 
-const ThemeSwitcher = () => {
+// Sukuriame Theme Context
+const ThemeContext = createContext();
+
+export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
 
   useEffect(() => {
@@ -9,8 +12,24 @@ const ThemeSwitcher = () => {
   }, [theme]);
 
   return (
-    <button className="theme-toggle" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-      {theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+};
+
+export const useTheme = () => useContext(ThemeContext);
+
+// PREMIUM UI THEME SWITCHER COMPONENT
+const ThemeSwitcher = () => {
+  const { theme, setTheme } = useTheme();
+
+  return (
+    <button 
+      className="theme-toggle" 
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+    >
+      {theme === "dark" ? "☀️" : "🌙"}
     </button>
   );
 };
