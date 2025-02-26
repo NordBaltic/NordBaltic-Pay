@@ -1,86 +1,96 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import Web3 from "web3";
-import dynamic from "next/dynamic";
+import Chart from "chart.js/auto";
 import "../styles/globals.css";
 
-const Chart = dynamic(() => import("../components/Charts"), { ssr: false });
-
-const Analytics = () => {
-  const [totalTransactions, setTotalTransactions] = useState(0);
-  const [totalVolume, setTotalVolume] = useState(0);
-  const [totalUsers, setTotalUsers] = useState(0);
-  const [swapVolume, setSwapVolume] = useState(0);
-  const [donationVolume, setDonationVolume] = useState(0);
-  const [stakingVolume, setStakingVolume] = useState(0);
+export default function Analytics() {
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [timeFrame, setTimeFrame] = useState("24h");
+  const [chartInstance, setChartInstance] = useState(null);
 
   useEffect(() => {
-    const fetchAnalytics = async () => {
-      try {
-        const response = await axios.get("/api/analytics");
-        setTotalTransactions(response.data.totalTransactions);
-        setTotalVolume(response.data.totalVolume);
-        setTotalUsers(response.data.totalUsers);
-        setSwapVolume(response.data.swapVolume);
-        setDonationVolume(response.data.donationVolume);
-        setStakingVolume(response.data.stakingVolume);
-      } catch (error) {
-        console.error("❌ Error fetching analytics:", error);
-      }
-      setLoading(false);
-    };
-
     fetchAnalytics();
-  }, []);
+    const interval = setInterval(fetchAnalytics, 30000); // ⏳ Automatinis atnaujinimas kas 30s
+    return () => clearInterval(interval);
+  }, [timeFrame]);
 
-  if (loading) return <p className="loading">🔄 Loading analytics data...</p>;
+  const fetchAnalytics = async () => {
+    try {
+      const response = await axios.get(`/api/analytics?timeFrame=${timeFrame}`);
+      setData(response.data);
+      setLoading(false);
+      updateChart(response.data);
+    } catch (error) {
+      console.error("❌ Klaida gaunant analitiką:", error);
+      setLoading(false);
+    }
+  };
+
+  const updateChart = (analyticsData) => {
+    if (!analyticsData || !analyticsData.transactions) return;
+
+    const ctx = document.getElementById("analyticsChart");
+    if (chartInstance) {
+      chartInstance.destroy(); // 🔄 Išvalyti seną diagramą prieš kuriant naują
+    }
+
+    const newChartInstance = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: analyticsData.transactions.map((tx) => tx.date),
+        datasets: [
+          {
+            label: "📈 Transakcijos",
+            data: analyticsData.transactions.map((tx) => tx.amount),
+            borderColor: "rgba(75, 192, 192, 1)",
+            backgroundColor: "rgba(75, 192, 192, 0.2)",
+            borderWidth: 2,
+            tension: 0.3,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: true },
+        },
+        scales: {
+          x: { display: true },
+          y: { beginAtZero: true },
+        },
+      },
+    });
+
+    setChartInstance(newChartInstance);
+  };
 
   return (
     <div className="analytics-container">
       <h1>📊 Platform Analytics</h1>
-      
-      <div className="analytics-grid">
-        <div className="analytics-box">
-          <h2>🔄 Total Transactions</h2>
-          <p>{totalTransactions.toLocaleString()}</p>
-        </div>
 
-        <div className="analytics-box">
-          <h2>💰 Total Volume</h2>
-          <p>{totalVolume.toFixed(2)} BNB</p>
-        </div>
-
-        <div className="analytics-box">
-          <h2>👥 Total Users</h2>
-          <p>{totalUsers.toLocaleString()}</p>
-        </div>
-
-        <div className="analytics-box">
-          <h2>🔄 Swap Volume</h2>
-          <p>{swapVolume.toFixed(2)} BNB</p>
-        </div>
-
-        <div className="analytics-box">
-          <h2>❤️ Donation Volume</h2>
-          <p>{donationVolume.toFixed(2)} BNB</p>
-        </div>
-
-        <div className="analytics-box">
-          <h2>📈 Staking Volume</h2>
-          <p>{stakingVolume.toFixed(2)} BNB</p>
-        </div>
+      {/* ⏳ Laiko filtro pasirinkimas */}
+      <div className="time-filter">
+        <button onClick={() => setTimeFrame("24h")} className={timeFrame === "24h" ? "active" : ""}>24h</button>
+        <button onClick={() => setTimeFrame("7d")} className={timeFrame === "7d" ? "active" : ""}>7d</button>
+        <button onClick={() => setTimeFrame("1m")} className={timeFrame === "1m" ? "active" : ""}>1m</button>
       </div>
 
-      <Chart 
-        totalTransactions={totalTransactions}
-        totalVolume={totalVolume}
-        swapVolume={swapVolume}
-        donationVolume={donationVolume}
-        stakingVolume={stakingVolume}
-      />
+      {/* 📈 Analitikos rodikliai */}
+      {loading ? (
+        <p>🔄 Loading analytics...</p>
+      ) : (
+        <>
+          <div className="analytics-summary">
+            <p>🤑 Total Volume: <strong>{data.totalVolume} BNB</strong></p>
+            <p>🔄 Total Transactions: <strong>{data.totalTransactions}</strong></p>
+            <p>👥 Active Users: <strong>{data.activeUsers}</strong></p>
+          </div>
+
+          {/* 📉 Diagrama */}
+          <canvas id="analyticsChart"></canvas>
+        </>
+      )}
     </div>
   );
-};
-
-export default Analytics;
+}
