@@ -1,101 +1,146 @@
-// 📂 /frontend/components/TokenList.js
 import { useState, useEffect } from "react";
-import Web3 from "web3";
 import axios from "axios";
+import Web3 from "web3";
+import WalletConnectProvider from "@walletconnect/web3-provider";
 
-export default function TokenList({ account }) {
+export default function TokenList() {
   const [tokens, setTokens] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currency, setCurrency] = useState("usd"); // Galima rinktis EUR arba USD
-  const [exchangeRates, setExchangeRates] = useState({});
+  const [account, setAccount] = useState(null);
+  const [web3, setWeb3] = useState(null);
+  const [tokenPrices, setTokenPrices] = useState({});
+  const [currency, setCurrency] = useState("usd");
+  const [isLoading, setIsLoading] = useState(true);
+  const [exchangeRates, setExchangeRates] = useState({ usd: 1, eur: 1 });
 
   useEffect(() => {
-    if (account) {
-      fetchTokens();
-      fetchExchangeRates();
-    }
-  }, [account, currency]);
+    const loadAccount = async () => {
+      if (window.ethereum) {
+        try {
+          const web3Instance = new Web3(window.ethereum);
+          setWeb3(web3Instance);
+          const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+          setAccount(accounts[0]);
+        } catch (error) {
+          console.error("User denied account access", error);
+        }
+      }
+    };
 
-  // 🔥 Gauti rinkos kursus (USD ir EUR)
-  const fetchExchangeRates = async () => {
+    loadAccount();
+  }, []);
+
+  const connectWalletConnect = async () => {
     try {
-      const response = await axios.get("https://api.coingecko.com/api/v3/exchange_rates");
-      setExchangeRates(response.data.rates);
+      const provider = new WalletConnectProvider({
+        rpc: {
+          56: "https://bsc-dataseed.binance.org/",
+        },
+      });
+
+      await provider.enable();
+      const web3Instance = new Web3(provider);
+      setWeb3(web3Instance);
+
+      const accounts = await web3Instance.eth.getAccounts();
+      setAccount(accounts[0]);
     } catch (error) {
-      console.error("Error fetching exchange rates:", error);
+      console.error("Error connecting with WalletConnect", error);
     }
   };
 
-  // 🔥 Gauti visus vartotojo tokenus iš BSCScan
-  const fetchTokens = async () => {
-    try {
-      const web3 = new Web3("https://bsc-dataseed.binance.org/");
-      const tokenListUrl = `https://api.bscscan.com/api?module=account&action=tokenlist&address=${account}&apikey=YourBscScanAPIKey`;
-      const response = await axios.get(tokenListUrl);
+  useEffect(() => {
+    if (!account) return;
 
-      if (response.data.status === "1") {
-        const enrichedTokens = await Promise.all(
-          response.data.result.map(async (token) => {
-            const balance = await web3.eth.getBalance(account);
-            const tokenPriceUrl = `https://api.coingecko.com/api/v3/simple/price?ids=${token.tokenName.toLowerCase()}&vs_currencies=usd,eur`;
-            const priceResponse = await axios.get(tokenPriceUrl);
-
-            return {
-              name: token.tokenName,
-              symbol: token.tokenSymbol,
-              balance: web3.utils.fromWei(balance, "ether"),
-              price: priceResponse.data[token.tokenName.toLowerCase()] || { usd: 0, eur: 0 },
-              logo: token.tokenLogo || "https://via.placeholder.com/50",
-            };
-          })
-        );
-
-        setTokens(enrichedTokens);
+    const fetchTokens = async () => {
+      try {
+        const apiKey = process.env.NEXT_PUBLIC_BSCSCAN_API_KEY;
+        const url = `https://api.bscscan.com/api?module=account&action=tokenbalance&address=${account}&apikey=${apiKey}`;
+        const response = await axios.get(url);
+        if (response.data.status === "1") {
+          setTokens(response.data.result);
+          fetchTokenPrices(response.data.result);
+        } else {
+          console.error("BSCScan API klaida:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Klaida gaunant tokenus:", error);
       }
+    };
+
+    fetchTokens();
+  }, [account]);
+
+  const fetchTokenPrices = async (tokenList) => {
+    try {
+      const tokenSymbols = tokenList.map(token => token.tokenSymbol.toLowerCase()).join(",");
+      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${tokenSymbols},usd,eur&vs_currencies=usd,eur`);
+      
+      setTokenPrices(response.data);
+      setExchangeRates({
+        usd: response.data.usd.eur ? response.data.usd.eur : 1,
+        eur: response.data.eur.usd ? response.data.eur.usd : 1
+      });
+
+      setIsLoading(false);
     } catch (error) {
-      console.error("Error fetching tokens:", error);
+      console.error("Error fetching token prices:", error);
     }
   };
 
   return (
-    <div className="token-list-container">
-      <h2 className="token-list-title">My Tokens</h2>
+    <div className="token-list">
+      <h2>💰 My Tokens</h2>
+      <button className="currency-toggle" onClick={() => setCurrency(currency === "usd" ? "eur" : "usd")}>
+        Show in {currency === "usd" ? "EUR" : "USD"}
+      </button>
+      
+      {!account ? (
+        <div className="wallet-buttons">
+          <button className="wallet-connect-btn" onClick={connectWalletConnect}>
+            Connect WalletConnect
+          </button>
+          <button className="wallet-connect-btn" onClick={() => window.ethereum.request({ method: "eth_requestAccounts" })}>
+            Connect MetaMask
+          </button>
+        </div>
+      ) : (
+        <p className="wallet-address">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
+      )}
 
-      {/* 🔥 Valiutos pasirinkimas */}
-      <div className="currency-switch">
-        <label>Select Currency: </label>
-        <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
-          <option value="usd">USD ($)</option>
-          <option value="eur">EUR (€)</option>
-        </select>
-      </div>
+      {isLoading ? (
+        <p>Loading tokens...</p>
+      ) : tokens.length > 0 ? (
+        <table className="token-table">
+          <thead>
+            <tr>
+              <th>Token</th>
+              <th>Symbol</th>
+              <th>Balance</th>
+              <th>Price ({currency.toUpperCase()})</th>
+              <th>Total Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tokens.map((token) => {
+              const balance = parseFloat(token.balance) / 10 ** token.tokenDecimal;
+              const price = tokenPrices[token.tokenSymbol.toLowerCase()]?.[currency] || 0;
+              const totalValue = (balance * price).toFixed(2);
 
-      {/* 🔥 Paieška */}
-      <input
-        type="text"
-        className="token-search"
-        placeholder="Search token..."
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
-
-      <div className="token-list">
-        {tokens
-          .filter((token) =>
-            token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            token.symbol.toLowerCase().includes(searchQuery.toLowerCase())
-          )
-          .map((token, index) => (
-            <div key={index} className="token-card">
-              <img src={token.logo} alt={token.symbol} className="token-logo" />
-              <div className="token-info">
-                <h3>{token.name} ({token.symbol})</h3>
-                <p>Balance: {token.balance}</p>
-                <p>Value: {currency === "usd" ? `$${(token.balance * token.price.usd).toFixed(2)}` : `€${(token.balance * token.price.eur).toFixed(2)}`}</p>
-              </div>
-            </div>
-          ))}
-      </div>
+              return (
+                <tr key={token.contractAddress}>
+                  <td>{token.tokenName}</td>
+                  <td>{token.tokenSymbol}</td>
+                  <td>{balance}</td>
+                  <td>{currency.toUpperCase()} {price.toFixed(2)}</td>
+                  <td>{currency.toUpperCase()} {totalValue}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      ) : (
+        <p>No tokens found.</p>
+      )}
     </div>
   );
 }
