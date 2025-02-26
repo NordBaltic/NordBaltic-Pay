@@ -18,11 +18,10 @@ export default function Dashboard() {
   const [web3, setWeb3] = useState(null);
   const [balance, setBalance] = useState("0.00");
   const [balanceChange, setBalanceChange] = useState({ "24h": 0, "1w": 0, "1m": 0 });
-  const [currency, setCurrency] = useState("USD");
-  const [convertedBalance, setConvertedBalance] = useState(null);
   const [stakingRewards, setStakingRewards] = useState("0.00");
   const [chartData, setChartData] = useState(null);
-  const [timeframe, setTimeframe] = useState("1w");
+  const [lastTransaction, setLastTransaction] = useState(null);
+  const [systemStatus, setSystemStatus] = useState("🟢 Live");
 
   useEffect(() => {
     fetchUserAccount();
@@ -34,10 +33,11 @@ export default function Dashboard() {
       setWeb3(web3Instance);
       fetchBalance(web3Instance, account);
       fetchBalanceChange();
-      fetchChartData(timeframe);
+      fetchChartData("1w");
       fetchStakingRewards();
+      fetchLastTransaction();
     }
-  }, [account, timeframe]);
+  }, [account]);
 
   // 🔵 Fetch user account from Supabase
   const fetchUserAccount = async () => {
@@ -50,78 +50,33 @@ export default function Dashboard() {
     }
   };
 
-  // 🦊 MetaMask login
-  const connectMetaMask = async () => {
-    if (window.ethereum) {
-      try {
-        const web3Instance = new Web3(window.ethereum);
-        setWeb3(web3Instance);
-        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        const userWallet = accounts[0];
-
-        setAccount(userWallet);
-        await supabase.from("users").upsert({ wallet: userWallet });
-
-        fetchBalance(web3Instance, userWallet);
-        fetchBalanceChange();
-        fetchChartData(timeframe);
-        fetchStakingRewards();
-      } catch (error) {
-        console.error("🔴 MetaMask error:", error);
-      }
-    } else {
-      alert("🚨 MetaMask not found!");
-    }
-  };
-
   // 💰 Fetch balance
   const fetchBalance = async (web3Instance, account) => {
     try {
       const balanceWei = await web3Instance.eth.getBalance(account);
       const balanceEth = web3Instance.utils.fromWei(balanceWei, "ether");
       setBalance(parseFloat(balanceEth).toFixed(4));
-      fetchConversionRate(balanceEth);
       
       await supabase.from("users").update({ balance: balanceEth }).eq("wallet", account);
     } catch (error) {
-      console.error("🔴 Error fetching balance:", error);
+      console.error("🔴 Klaida gaunant balansą:", error);
     }
   };
 
   // 📈 Fetch balance changes
   const fetchBalanceChange = async () => {
     try {
-      const response = await axios.get(
-        "https://api.coingecko.com/api/v3/coins/binancecoin/market_chart?vs_currency=usd&days=30"
-      );
+      const response = await axios.get("https://api.coingecko.com/api/v3/coins/binancecoin/market_chart?vs_currency=usd&days=1");
       const prices = response.data.prices;
       setBalanceChange({
-        "24h": ((prices[prices.length - 1][1] / prices[prices.length - 2][1] - 1) * 100).toFixed(2),
-        "1w": ((prices[prices.length - 1][1] / prices[prices.length - 8][1] - 1) * 100).toFixed(2),
-        "1m": ((prices[prices.length - 1][1] / prices[0][1] - 1) * 100).toFixed(2),
+        "24h": ((prices[prices.length - 1][1] / prices[0][1] - 1) * 100).toFixed(2),
       });
     } catch (error) {
-      console.error("🔴 Error fetching price change:", error);
+      console.error("🔴 Klaida gaunant kainų pokytį:", error);
     }
   };
 
-  // 🔄 Currency conversion
-  const fetchConversionRate = async (bnbAmount) => {
-    try {
-      const response = await axios.get(
-        `https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`
-      );
-      const rates = response.data.binancecoin;
-      setConvertedBalance({
-        usd: (bnbAmount * rates.usd).toFixed(2),
-        eur: (bnbAmount * rates.eur).toFixed(2),
-      });
-    } catch (error) {
-      console.error("🔴 Error fetching exchange rates:", error);
-    }
-  };
-
-  // 📊 Fetch staking rewards from Supabase
+  // 🏆 Fetch staking rewards
   const fetchStakingRewards = async () => {
     if (!account) return;
     
@@ -133,29 +88,15 @@ export default function Dashboard() {
     }
   };
 
-  // 📊 Fetch chart data
-  const fetchChartData = async (selectedTimeframe) => {
-    const days = selectedTimeframe === "24h" ? 1 : selectedTimeframe === "1w" ? 7 : 30;
-    try {
-      const response = await axios.get(
-        `https://api.coingecko.com/api/v3/coins/binancecoin/market_chart?vs_currency=usd&days=${days}`
-      );
-      const prices = response.data.prices;
-      setChartData({
-        labels: prices.map((entry) => new Date(entry[0]).toLocaleDateString()),
-        datasets: [
-          {
-            label: "BNB Price",
-            data: prices.map((entry) => entry[1]),
-            borderColor: "#FFD700",
-            backgroundColor: "rgba(255, 215, 0, 0.2)",
-            fill: true,
-            tension: 0.4,
-          },
-        ],
-      });
-    } catch (error) {
-      console.error("🔴 Error fetching chart data:", error);
+  // 🔄 Fetch last transaction
+  const fetchLastTransaction = async () => {
+    if (!account) return;
+
+    const { data, error } = await supabase.from("transactions").select("*").eq("from", account).order("timestamp", { ascending: false }).limit(1).single();
+    if (data) {
+      setLastTransaction(data);
+    } else if (error) {
+      console.error("🔴 Klaida gaunant paskutinę transakciją:", error);
     }
   };
 
@@ -164,24 +105,38 @@ export default function Dashboard() {
       <h1 className="dashboard-title">🚀 NordBaltic Pay Dashboard</h1>
 
       {!account ? (
-        <button className="wallet-connect-btn" onClick={connectMetaMask}>🦊 Connect MetaMask</button>
+        <button className="wallet-connect-btn">🦊 Connect MetaMask</button>
       ) : (
         <>
-          <p className="wallet-address">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
-          <p className="wallet-balance">💰 {balance} BNB</p>
-          <p className="staking-rewards">🏆 Staking Rewards: {stakingRewards} BNB</p>
-          <QRCode value={account} size={128} />
+          <p className="system-status">{systemStatus}</p>
+          <div className="dashboard-card">
+            <p className="wallet-balance">💰 {balance} BNB</p>
+            <p className="staking-rewards">🏆 {stakingRewards} BNB (Staking Rewards)</p>
+            <p className={`balance-change ${balanceChange["24h"] >= 0 ? "positive" : "negative"}`}>
+              24h Change: {balanceChange["24h"]}%
+            </p>
+          </div>
 
           <h3>📊 Balance Chart</h3>
           {chartData && <Line data={chartData} />}
 
           <div className="dashboard-buttons">
-            <Link href="/send"><a>📤 Send</a></Link>
-            <Link href="/staking"><a>💸 Stake</a></Link>
-            <Link href="/swap"><a>🔄 Swap</a></Link>
+            <Link href="/send"><a className="button">📤 Send</a></Link>
+            <Link href="/staking"><a className="button">💸 Stake</a></Link>
+            <Link href="/swap"><a className="button">🔄 Swap</a></Link>
           </div>
+
+          {lastTransaction && (
+            <div className="transaction-card">
+              <h3>🔄 Last Transaction</h3>
+              <p>To: {lastTransaction.to.substring(0, 6)}...{lastTransaction.to.slice(-4)}</p>
+              <p>Amount: {lastTransaction.amount} BNB</p>
+              <p>Status: {lastTransaction.status}</p>
+              <a href={`https://bscscan.com/tx/${lastTransaction.hash}`} target="_blank">🔗 View on BSCScan</a>
+            </div>
+          )}
         </>
       )}
     </div>
   );
-      }
+}
