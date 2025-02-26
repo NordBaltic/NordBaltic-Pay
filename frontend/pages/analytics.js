@@ -1,55 +1,52 @@
-import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import Web3 from "web3";
+import dynamic from "next/dynamic";
+import axios from "axios";
 import "../styles/globals.css";
 
-const AnalyticsComponent = dynamic(() => import("../components/Analytics"), { ssr: false });
+// ✅ Dinaminis `Analytics` importavimas (pagerina našumą)
+const AnalyticsComponent = dynamic(() => import("../components/Analytics"), {
+  ssr: false, // Išjungiamas SSR, kad `Chart.js` veiktų teisingai
+});
 
-export default function AnalyticsPage() {
-  const [account, setAccount] = useState(null);
-  const [web3, setWeb3] = useState(null);
+const AnalyticsPage = () => {
   const [isAdmin, setIsAdmin] = useState(false);
-  const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAdminAccess = async () => {
-      if (window.ethereum) {
-        try {
-          const web3Instance = new Web3(window.ethereum);
-          setWeb3(web3Instance);
-          const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-          setAccount(accounts[0]);
+    checkAdminStatus();
+  }, []);
 
-          const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET.toLowerCase();
-          if (accounts[0].toLowerCase() === adminWallet) {
-            setIsAdmin(true);
-          } else {
-            setIsAdmin(false);
-            router.push("/");
-          }
-        } catch (error) {
-          console.error("🔴 MetaMask connection error:", error);
-          router.push("/");
-        }
-      }
-    };
+  const checkAdminStatus = async () => {
+    try {
+      const response = await axios.get("/api/admin/check", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+      });
 
-    checkAdminAccess();
-  }, [router]);
+      setIsAdmin(response.data.isAdmin);
+      setLoading(false);
+    } catch (error) {
+      console.error("⚠️ Admin check failed:", error);
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <p className="loading">🔄 Loading analytics page...</p>;
 
   if (!isAdmin) {
     return (
-      <div className="admin-container">
+      <div className="analytics-container">
         <h1>🚨 Access Denied</h1>
-        <p>🔒 You are not authorized to view this page.</p>
+        <p>🔒 You do not have permission to view this page.</p>
       </div>
     );
   }
 
   return (
-    <div className="admin-container">
+    <div className="analytics-page-container">
+      <h1>📊 System Analytics Dashboard</h1>
       <AnalyticsComponent />
     </div>
   );
-}
+};
+
+export default AnalyticsPage;
