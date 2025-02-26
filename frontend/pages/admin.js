@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import AdminControls from "../components/Admin";
-import SecurityControls from "../components/Security";
-import AnalyticsPanel from "../components/Analytics";
+import { useState, useEffect } from "react";
 import Web3 from "web3";
+import axios from "axios";
+import AdminControls from "../components/AdminControls";
 import "../styles/globals.css";
 
 export default function AdminPage() {
   const [account, setAccount] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const router = useRouter();
+  const [userStats, setUserStats] = useState({ activeUsers: 0, totalTransactions: 0, totalVolume: 0 });
+  const [systemHealth, setSystemHealth] = useState({ uptime: "Loading...", nodeStatus: "Checking..." });
+  const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
     const loadAccount = async () => {
@@ -20,22 +20,27 @@ export default function AdminPage() {
           setAccount(accounts[0]);
 
           const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET.toLowerCase();
-          if (accounts[0].toLowerCase() === adminWallet) {
-            setIsAdmin(true);
-          } else {
-            router.push("/");
-          }
+          setIsAdmin(accounts[0].toLowerCase() === adminWallet);
+
+          fetchAdminData();
         } catch (error) {
           console.error("🔴 MetaMask connection error:", error);
         }
-      } else {
-        alert("⚠️ Please install MetaMask!");
-        router.push("/");
       }
     };
 
     loadAccount();
   }, []);
+
+  const fetchAdminData = async () => {
+    try {
+      const response = await axios.get("/api/admin/stats");
+      setUserStats(response.data.userStats);
+      setSystemHealth(response.data.systemHealth);
+    } catch (error) {
+      console.error("⚠️ Error fetching admin data:", error);
+    }
+  };
 
   if (!isAdmin) {
     return (
@@ -47,21 +52,37 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="admin-page">
-      <h1>👑 Admin Dashboard</h1>
+    <div className="admin-container">
+      <h1>⚙️ Admin Dashboard</h1>
       <p className="admin-status">Welcome, <strong>{account}</strong></p>
 
-      <div className="admin-grid">
-        <div className="admin-section">
-          <AdminControls />
+      {/* 📊 Sistemos metrika */}
+      <div className="stats-container">
+        <div className="stat-box">
+          <h3>👥 Active Users</h3>
+          <p>{userStats.activeUsers}</p>
         </div>
-        <div className="admin-section">
-          <SecurityControls />
+        <div className="stat-box">
+          <h3>💳 Total Transactions</h3>
+          <p>{userStats.totalTransactions}</p>
         </div>
-        <div className="admin-section">
-          <AnalyticsPanel />
+        <div className="stat-box">
+          <h3>📊 Total Volume</h3>
+          <p>{userStats.totalVolume} BNB</p>
         </div>
       </div>
+
+      {/* 🛠️ Sistemos sveikatos tikrinimas */}
+      <div className="system-health">
+        <h3>🖥️ System Health</h3>
+        <p>⏳ Uptime: {systemHealth.uptime}</p>
+        <p>🔗 Node Status: {systemHealth.nodeStatus}</p>
+      </div>
+
+      {/* 🔧 Administravimo įrankiai */}
+      <AdminControls />
+
+      {statusMessage && <p className="status-message">{statusMessage}</p>}
     </div>
   );
 }
