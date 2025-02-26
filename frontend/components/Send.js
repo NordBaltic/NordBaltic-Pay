@@ -1,15 +1,12 @@
-// 📂 /frontend/components/Send.js - MAX PREMIUM SEND FUNCTIONALITY
 import { useState, useEffect } from "react";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import QRCode from "qrcode.react";
 import axios from "axios";
+import Loader from "./Loader"; // 🔥 Krovimosi efektas
 import "../styles/globals.css";
 
-// 🔹 ČIA ĮDĖK SAVO SMART CONTRACT ADRESĄ 🔹
-const smartContractAddress = "YOUR_SMART_CONTRACT_ADDRESS";
-
-export default function SendComponent() {
+export default function Send() {
   const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
   const [web3, setWeb3] = useState(null);
   const [recipient, setRecipient] = useState("");
@@ -19,14 +16,27 @@ export default function SendComponent() {
   const [convertedAmount, setConvertedAmount] = useState(null);
   const [bnbBalance, setBnbBalance] = useState("0.00");
   const [isValidAddress, setIsValidAddress] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 🔹 SMART CONTRACT ADRESAS 🔹
+  const smartContractAddress = "YOUR_SMART_CONTRACT_ADDRESS";
 
   useEffect(() => {
-    if (account) {
-      const web3Instance = new Web3(window.ethereum);
-      setWeb3(web3Instance);
-      fetchBalance(web3Instance, account);
-    }
-  }, [account]);
+    const loadWeb3 = async () => {
+      if (window.ethereum) {
+        const web3Instance = new Web3(window.ethereum);
+        setWeb3(web3Instance);
+        const accounts = await web3Instance.eth.getAccounts();
+        if (accounts.length > 0) {
+          setAccount(accounts[0]);
+          localStorage.setItem("walletAccount", accounts[0]);
+          fetchBalance(web3Instance, accounts[0]);
+        }
+      }
+      setIsLoading(false);
+    };
+    loadWeb3();
+  }, []);
 
   const fetchBalance = async (web3Instance, account) => {
     try {
@@ -38,43 +48,9 @@ export default function SendComponent() {
     }
   };
 
-  const connectMetaMask = async () => {
-    if (window.ethereum) {
-      try {
-        const web3Instance = new Web3(window.ethereum);
-        setWeb3(web3Instance);
-        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        setAccount(accounts[0]);
-        localStorage.setItem("walletAccount", accounts[0]);
-        fetchBalance(web3Instance, accounts[0]);
-      } catch (error) {
-        console.error("MetaMask klaida:", error);
-      }
-    } else {
-      alert("MetaMask nerastas!");
-    }
-  };
-
-  const connectWalletConnect = async () => {
-    try {
-      const provider = new WalletConnectProvider({
-        rpc: { 56: "https://bsc-dataseed.binance.org/" },
-      });
-      await provider.enable();
-      const web3Instance = new Web3(provider);
-      setWeb3(web3Instance);
-      const accounts = await web3Instance.eth.getAccounts();
-      setAccount(accounts[0]);
-      localStorage.setItem("walletAccount", accounts[0]);
-      fetchBalance(web3Instance, accounts[0]);
-    } catch (error) {
-      console.error("WalletConnect klaida:", error);
-    }
-  };
-
   const fetchConversionRate = async () => {
     try {
-      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`);
+      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=${currency.toLowerCase()}`);
       return response.data.binancecoin[currency.toLowerCase()];
     } catch (error) {
       console.error("Klaida gaunant valiutos kursą:", error);
@@ -103,7 +79,6 @@ export default function SendComponent() {
       setStatus("❌ Please enter recipient and amount.");
       return;
     }
-
     if (!isValidAddress) {
       setStatus("❌ Invalid recipient address.");
       return;
@@ -111,6 +86,7 @@ export default function SendComponent() {
 
     try {
       setStatus("⏳ Processing transaction...");
+      setIsLoading(true);
       const sendAmount = web3.utils.toWei(amount, "ether");
 
       // 🔹 Vietoj to, kad siųstume tiesiai gavėjui, siunčiame į smart contract 🔹
@@ -122,22 +98,26 @@ export default function SendComponent() {
       });
 
       setStatus(`✅ Transaction Successful! TX Hash: ${transaction.transactionHash}`);
+      fetchBalance(web3, account);
     } catch (error) {
       console.error("Transaction Failed", error);
       setStatus("❌ Transaction failed. Please try again.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="send-container">
-      <h1 className="send-title">Send Crypto</h1>
-      {!account ? (
+      {isLoading ? (
+        <Loader message="Processing transaction..." />
+      ) : !account ? (
         <div className="wallet-buttons">
+          <button className="wallet-connect-btn" onClick={() => window.ethereum.request({ method: "eth_requestAccounts" })}>
+            🦊 Connect MetaMask
+          </button>
           <button className="wallet-connect-btn" onClick={connectWalletConnect}>
             🔗 Connect WalletConnect
-          </button>
-          <button className="wallet-connect-btn" onClick={connectMetaMask}>
-            🦊 Connect MetaMask
           </button>
         </div>
       ) : (
@@ -146,13 +126,7 @@ export default function SendComponent() {
           <p className="balance-text">💰 Balance: {bnbBalance} BNB</p>
           <div className="send-form">
             <label>Recipient Address</label>
-            <input 
-              type="text" 
-              value={recipient} 
-              onChange={(e) => setRecipient(e.target.value)} 
-              placeholder="0x..." 
-              className={isValidAddress ? "" : "invalid"}
-            />
+            <input type="text" value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder="0x..." className={isValidAddress ? "" : "invalid"} />
             
             {recipient && <QRCode value={recipient} size={128} className="qr-code" />}
             {!isValidAddress && <p className="error-text">❌ Invalid Address</p>}
