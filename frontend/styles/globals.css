@@ -1,4 +1,4 @@
-/* 🔥 RESET IR BENDRIEJI STILIAI */
+/* 🔥 RESET & BASE STYLES */
 :root {
   --primary-color: #4CAF50;
   --secondary-color: #2E7D32;
@@ -7,10 +7,8 @@
   --bg-light: #F5F5F5;
   --text-dark: #FFFFFF;
   --text-light: #000000;
-  --card-bg-dark: rgba(255, 255, 255, 0.05);
-  --card-bg-light: rgba(0, 0, 0, 0.05);
-  --border-radius: 10px;
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --border-radius: 12px;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   --transition: all 0.3s ease-in-out;
 }
 
@@ -18,26 +16,24 @@
 [data-theme="dark"] {
   --bg-color: var(--bg-dark);
   --text-color: var(--text-dark);
-  --card-bg: var(--card-bg-dark);
-  --card-border: rgba(255, 255, 255, 0.1);
+  --card-bg: rgba(255, 255, 255, 0.08);
+  --card-border: rgba(255, 255, 255, 0.15);
 }
 
 /* ☀️ LIGHT MODE */
 [data-theme="light"] {
   --bg-color: var(--bg-light);
   --text-color: var(--text-light);
-  --card-bg: var(--card-bg-light);
-  --card-border: rgba(0, 0, 0, 0.1);
+  --card-bg: rgba(0, 0, 0, 0.08);
+  --card-border: rgba(0, 0, 0, 0.15);
 }
 
-/* 🌟 BENDRI STILIAI */
+/* 🔥 GENERAL STYLES */
 body {
   font-family: 'Inter', sans-serif;
-  background: var(--bg-color);
+  background-color: var(--bg-color);
   color: var(--text-color);
   transition: var(--transition);
-  margin: 0;
-  padding: 0;
 }
 
 h1, h2, h3, h4 {
@@ -46,11 +42,14 @@ h1, h2, h3, h4 {
 
 button {
   border: none;
-  padding: 10px 20px;
+  padding: 12px 18px;
   font-size: 16px;
   cursor: pointer;
   border-radius: var(--border-radius);
   transition: var(--transition);
+  background: var(--primary-color);
+  color: white;
+  box-shadow: var(--shadow);
 }
 
 button:hover {
@@ -65,7 +64,6 @@ button:hover {
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   padding: 15px 20px;
   box-shadow: var(--shadow);
-  border-radius: var(--border-radius);
 }
 
 .navbar a {
@@ -73,26 +71,21 @@ button:hover {
   text-decoration: none;
   font-size: 18px;
   font-weight: bold;
-  transition: var(--transition);
 }
 
-.navbar a:hover {
-  opacity: 0.8;
+.navbar .menu {
+  display: flex;
+  gap: 15px;
 }
 
-.navbar .theme-switcher {
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  padding: 12px;
+.navbar .menu a {
+  padding: 10px 15px;
   border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: 18px;
   transition: var(--transition);
 }
 
-.navbar .theme-switcher:hover {
-  background: var(--accent-color);
-  color: var(--bg-color);
+.navbar .menu a:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 /* 📊 DASHBOARD */
@@ -101,17 +94,15 @@ button:hover {
   margin: auto;
   padding: 20px;
   background: var(--card-bg);
-  border: 1px solid var(--card-border);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
   transition: var(--transition);
 }
 
 .dashboard-title {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: bold;
   text-align: center;
-  margin-bottom: 20px;
 }
 
 .wallet-balance {
@@ -132,7 +123,7 @@ button:hover {
   color: #F44336;
 }
 
-/* 📜 TRANSAKCIJŲ LENTELĖ */
+/* 📜 TRANSACTION HISTORY */
 .transaction-history {
   width: 100%;
   border-collapse: collapse;
@@ -154,7 +145,30 @@ button:hover {
   background: var(--card-bg);
 }
 
-/* ⚡ ADMIN PANEL */
+/* 📉 ANALYTICS */
+.analytics-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+.market-info p {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.positive {
+  color: #4CAF50;
+}
+
+.negative {
+  color: #F44336;
+}
+
+/* ⚙️ ADMIN PANEL */
 .admin-container {
   max-width: 850px;
   margin: auto;
@@ -233,8 +247,6 @@ button:hover {
   padding: 20px;
   background: var(--primary-color);
   color: white;
-  font-size: 16px;
-  font-weight: bold;
   margin-top: 20px;
 }
 
@@ -247,10 +259,5 @@ button:hover {
   .transaction-history th, .transaction-history td,
   .admin-container th, .admin-container td {
     font-size: 14px;
-  }
-
-  .dashboard-container, .admin-container, .settings-container {
-    width: 90%;
-    padding: 15px;
   }
 }
