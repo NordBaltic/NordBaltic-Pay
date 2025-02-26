@@ -1,7 +1,11 @@
 import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
 import Web3 from "web3";
 import axios from "axios";
 import "../styles/globals.css";
+
+// 🔥 Supabase setup
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 
 export default function AdminSecurity() {
   const [account, setAccount] = useState(null);
@@ -40,15 +44,24 @@ export default function AdminSecurity() {
 
   const fetchSecurityData = async () => {
     try {
-      const response = await axios.get("/api/admin/security");
-      setIsFTWMode(response.data.isFTWMode);
-      setIs2FAEnabled(response.data.is2FAEnabled);
-      setServerStatus(response.data.serverStatus);
-      setNodeStatus(response.data.nodeStatus);
-      setSystemHealth(response.data.systemHealth);
-      setLogs(response.data.logs);
-      setRecentLogins(response.data.recentLogins);
-      setBannedUsers(response.data.bannedUsers);
+      // 🔄 Gauti būsenas iš Supabase
+      const { data: settings } = await supabase.from("admin_settings").select("*").single();
+      if (settings) {
+        setIsFTWMode(settings.ftw_mode);
+        setIs2FAEnabled(settings.two_factor);
+      }
+
+      // 🔄 Gauti užblokuotus vartotojus
+      const { data: bannedUsersData } = await supabase.from("banned_users").select("*");
+      setBannedUsers(bannedUsersData || []);
+
+      // 🔄 Gauti prisijungimus
+      const { data: loginData } = await supabase.from("recent_logins").select("*").order("timestamp", { ascending: false }).limit(10);
+      setRecentLogins(loginData || []);
+
+      // 🔄 Gauti saugumo log'us
+      const { data: logsData } = await supabase.from("security_logs").select("*").order("timestamp", { ascending: false }).limit(10);
+      setLogs(logsData || []);
     } catch (error) {
       console.error("⚠️ Security data fetch error:", error);
     }
@@ -56,8 +69,9 @@ export default function AdminSecurity() {
 
   const toggleFTWMode = async () => {
     try {
-      await axios.post("/api/admin/toggle-ftw");
-      setIsFTWMode(!isFTWMode);
+      const updatedStatus = !isFTWMode;
+      await supabase.from("admin_settings").update({ ftw_mode: updatedStatus }).eq("id", 1);
+      setIsFTWMode(updatedStatus);
     } catch (error) {
       console.error("⚠️ FTW Mode toggle error:", error);
     }
@@ -65,8 +79,9 @@ export default function AdminSecurity() {
 
   const toggle2FA = async () => {
     try {
-      await axios.post("/api/admin/toggle-2fa");
-      setIs2FAEnabled(!is2FAEnabled);
+      const updatedStatus = !is2FAEnabled;
+      await supabase.from("admin_settings").update({ two_factor: updatedStatus }).eq("id", 1);
+      setIs2FAEnabled(updatedStatus);
     } catch (error) {
       console.error("⚠️ 2FA toggle error:", error);
     }
@@ -74,7 +89,11 @@ export default function AdminSecurity() {
 
   const handleBanUnban = async (userAddress, isBanned) => {
     try {
-      await axios.post("/api/admin/ban", { userAddress, isBanned });
+      if (isBanned) {
+        await supabase.from("banned_users").insert([{ address: userAddress }]);
+      } else {
+        await supabase.from("banned_users").delete().eq("address", userAddress);
+      }
       fetchSecurityData();
     } catch (error) {
       console.error("❌ Error updating user status:", error);
@@ -114,15 +133,6 @@ export default function AdminSecurity() {
         </div>
       </div>
 
-      {/* 📡 Serverių būklė */}
-      <div className="system-status">
-        <h3>🖥️ System Health</h3>
-        <p>⏳ Uptime: {systemHealth.uptime}</p>
-        <p>📊 Load: {systemHealth.load}</p>
-        <p>🔗 Node Status: {nodeStatus}</p>
-        <p>🟢 Server Status: {serverStatus}</p>
-      </div>
-
       {/* 🚫 Ban/Unban Naudotojai */}
       <div className="section">
         <h3>🚫 Ban Users</h3>
@@ -145,7 +155,7 @@ export default function AdminSecurity() {
         </ul>
       </div>
 
-      {/* 👤 Paskutiniai prisijungimai */}
+      {/* 👤 Recent Logins */}
       <div className="section">
         <h3>👤 Recent Logins</h3>
         <ul>
