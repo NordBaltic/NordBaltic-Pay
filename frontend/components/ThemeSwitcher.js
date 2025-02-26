@@ -1,12 +1,7 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
-// 🔥 Sukuriame Theme Context
-const ThemeContext = createContext();
-
-export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(
-    localStorage.getItem("theme") || (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-  );
+const ThemeSwitcher = () => {
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -14,21 +9,8 @@ export const ThemeProvider = ({ children }) => {
   }, [theme]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      {children}
-    </ThemeContext.Provider>
-  );
-};
-
-export const useTheme = () => useContext(ThemeContext);
-
-// ✅ **Dinaminiam Theme Switcheriui Navbar'e ar kitur**
-const ThemeSwitcher = () => {
-  const { theme, setTheme } = useTheme();
-
-  return (
     <button
-      className={`theme-toggle ${theme}`}
+      className="theme-switcher-btn"
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
     >
       {theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}
