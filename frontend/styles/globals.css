@@ -50,11 +50,22 @@ body {
 }
 
 /* === WALLET CONNECT BUTTON === */
+.wallet-connect-container {
+  text-align: center;
+  padding: 20px;
+}
+
+.wallet-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
 .wallet-connect-btn {
   background: #FFD700;
   color: #0A1F44;
   border: none;
-  padding: 10px 18px;
+  padding: 12px 20px;
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
@@ -67,9 +78,10 @@ body {
   color: #0A1F44;
 }
 
-.wallet-connect-btn:disabled {
-  background: #888;
-  cursor: not-allowed;
+.wallet-address {
+  font-size: 18px;
+  font-weight: bold;
+  color: #FFD700;
 }
 
 /* === TOKEN LIST STILIAI === */
