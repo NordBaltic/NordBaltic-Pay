@@ -1,40 +1,90 @@
 import { useState, useEffect } from "react";
 import Web3 from "web3";
 import axios from "axios";
+import { createClient } from "@supabase/supabase-js";
 import QRCode from "qrcode.react";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  TextField,
+  Select,
+  MenuItem,
+  Box,
+  CircularProgress,
+  Grid,
+  Fade,
+} from "@mui/material";
+import { AnimatePresence, motion } from "framer-motion";
 import "../styles/globals.css";
 
+// 🔥 Supabase Setup
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
 export default function Donations() {
-  const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
+  const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
   const [donationAmount, setDonationAmount] = useState("");
-  const [donationFee, setDonationFee] = useState("3%");
   const [currency, setCurrency] = useState("EUR");
   const [convertedAmount, setConvertedAmount] = useState(null);
   const [totalDonated, setTotalDonated] = useState("0.00");
-  const [loading, setLoading] = useState(true);
-
+  const [loading, setLoading] = useState(false);
+  const [impact, setImpact] = useState("🌍 Changing Lives...");
+  
   const donationWallet = process.env.NEXT_PUBLIC_DONATION_WALLET;
   const donationContract = process.env.NEXT_PUBLIC_DONATION_CONTRACT_ADDRESS;
 
   const charityFunds = [
-    { name: "🌍 Climate Action Fund", wallet: "0xCharityFund1" },
-    { name: "🩺 Medical Relief Fund", wallet: "0xCharityFund2" },
-    { name: "📚 Education & Children Fund", wallet: "0xCharityFund3" },
+    { name: "🌱 Green Earth Fund", wallet: "0xGreenFund" },
+    { name: "🧑‍⚕️ Medical Aid Foundation", wallet: "0xMedicalAid" },
+    { name: "📚 Future Education Fund", wallet: "0xEduFund" },
   ];
 
   useEffect(() => {
+    fetchUserAccount();
+  }, []);
+
+  useEffect(() => {
     if (account) {
-      const web3Instance = new Web3(window.ethereum);
-      setWeb3(web3Instance);
-      fetchTotalDonations();
+      initializeWeb3();
     }
   }, [account]);
 
+  useEffect(() => {
+    if (!donationAmount) return;
+    const convert = async () => {
+      const rate = await fetchConversionRate();
+      if (rate) {
+        setConvertedAmount((parseFloat(donationAmount) * rate).toFixed(2));
+        calculateImpact(donationAmount);
+      }
+    };
+    convert();
+  }, [donationAmount, currency]);
+
+  const fetchUserAccount = async () => {
+    const { data } = await supabase.from("users").select("wallet").single();
+    if (data && data.wallet) {
+      setAccount(data.wallet);
+    }
+  };
+
+  const initializeWeb3 = async () => {
+    const web3Instance = new Web3(window.ethereum);
+    setWeb3(web3Instance);
+    fetchTotalDonations();
+  };
+
   const fetchTotalDonations = async () => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_DONATION_STATS_API}`);
-      setTotalDonated(response.data.total);
+      const { data, error } = await supabase.from("donations").select("SUM(amount)").single();
+      if (!error && data) {
+        setTotalDonated(data.sum || "0.00");
+      }
     } catch (error) {
       console.error("❌ Klaida gaunant donacijų statistiką:", error);
     }
@@ -50,78 +100,123 @@ export default function Donations() {
     }
   };
 
-  useEffect(() => {
-    if (!donationAmount) return;
-    const convert = async () => {
-      const rate = await fetchConversionRate();
-      if (rate) {
-        setConvertedAmount((parseFloat(donationAmount) * rate).toFixed(2));
-      }
-    };
-    convert();
-  }, [donationAmount, currency]);
+  const calculateImpact = (amount) => {
+    const peopleHelped = Math.floor(parseFloat(amount) * 10); 
+    setImpact(`🌍 This donation will support ~${peopleHelped} people!`);
+  };
 
   const handleDonate = async () => {
-    if (!donationAmount) return;
+    if (!donationAmount || !web3) return;
 
     try {
+      setLoading(true);
       const sendAmount = web3.utils.toWei(donationAmount, "ether");
-      const fee = web3.utils.toWei((parseFloat(donationAmount) * 0.03).toFixed(4), "ether"); // 3% fee
-      const netAmount = sendAmount - fee;
 
       await web3.eth.sendTransaction({
         from: account,
         to: donationContract,
-        value: netAmount,
+        value: sendAmount,
         gas: 21000,
       });
 
-      await web3.eth.sendTransaction({
-        from: account,
-        to: donationWallet,
-        value: fee,
-        gas: 21000,
-      });
+      await supabase.from("donations").insert([
+        {
+          wallet: account,
+          amount: donationAmount,
+          currency: "BNB",
+          converted_amount: convertedAmount,
+          converted_currency: currency,
+          timestamp: new Date().toISOString(),
+        }
+      ]);
 
       fetchTotalDonations();
+      setDonationAmount("");
     } catch (error) {
       console.error("❌ Klaida donacijų procese:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="donations-container">
-      <h2>❤️ Donations</h2>
-      <p>Support global charities with NordBaltic Pay. All transactions are transparent and secure.</p>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+      className="donations-container glass-card"
+    >
+      <Typography variant="h4" className="text-center mb-4 neon-text">
+        ❤️ Change the World with Your Donation
+      </Typography>
+      <Typography className="text-center mb-6">
+        Your donation is **fully transparent**, supporting **verified global funds**.
+      </Typography>
 
-      <div className="total-donated">
-        <h3>🌟 Total Donated: {totalDonated} BNB</h3>
-      </div>
+      <Card className="glass-card">
+        <CardContent>
+          <Typography variant="h5" className="text-center glow-text">
+            🌟 Total Donated: {totalDonated} BNB
+          </Typography>
+        </CardContent>
+      </Card>
 
-      <label>Amount to Donate (BNB)</label>
-      <input type="number" value={donationAmount} onChange={(e) => setDonationAmount(e.target.value)} placeholder="Enter amount" />
+      <Box className="donation-form mt-6">
+        <TextField
+          label="Amount to Donate (BNB)"
+          type="number"
+          fullWidth
+          value={donationAmount}
+          onChange={(e) => setDonationAmount(e.target.value)}
+          className="mb-4"
+        />
 
-      <label>Show in:</label>
-      <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
-        <option value="EUR">💶 EUR</option>
-        <option value="USD">💵 USD</option>
-      </select>
+        <Select
+          fullWidth
+          value={currency}
+          onChange={(e) => setCurrency(e.target.value)}
+          className="mb-4"
+        >
+          <MenuItem value="EUR">💶 EUR</MenuItem>
+          <MenuItem value="USD">💵 USD</MenuItem>
+        </Select>
 
-      {convertedAmount && <p className="converted-amount">≈ {convertedAmount} {currency}</p>}
+        {convertedAmount && (
+          <Typography className="converted-amount text-center mb-4 neon-text">
+            ≈ {convertedAmount} {currency}
+          </Typography>
+        )}
 
-      <p className="donation-fee">📌 Donation Fee: {donationFee} (Sent directly to charity wallets)</p>
+        <Typography className="impact-message text-center mb-4">
+          {impact}
+        </Typography>
 
-      <button className="donate-btn" onClick={handleDonate}>❤️ Donate Now</button>
+        <Button
+          variant="contained"
+          fullWidth
+          className="donate-btn"
+          onClick={handleDonate}
+          disabled={loading}
+        >
+          {loading ? <CircularProgress size={24} /> : "❤️ Donate Now"}
+        </Button>
+      </Box>
 
-      <h3>📜 Donation Transparency</h3>
-      <p>All donations are automatically distributed among the following verified funds:</p>
-      <ul>
+      <Typography variant="h5" className="text-center mt-6">
+        📜 Verified Charity Funds
+      </Typography>
+      <Grid container spacing={3} className="mt-4">
         {charityFunds.map((fund) => (
-          <li key={fund.wallet}>
-            {fund.name} - <strong>{fund.wallet}</strong> <QRCode value={fund.wallet} size={50} />
-          </li>
+          <Grid item xs={12} sm={4} key={fund.wallet}>
+            <Card className="charity-card glass-card">
+              <CardContent className="flex items-center justify-between">
+                <Typography variant="body1">{fund.name}</Typography>
+                <QRCode value={fund.wallet} size={50} />
+              </CardContent>
+            </Card>
+          </Grid>
         ))}
-      </ul>
-    </div>
+      </Grid>
+    </motion.div>
   );
 }
