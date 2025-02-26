@@ -1,12 +1,18 @@
+// 📂 /frontend/components/Footer.js - MAX PREMIUM FOOTER
 import { useState, useEffect } from "react";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
+import QRCode from "qrcode.react";
+import axios from "axios";
 
 export default function Footer() {
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
   const [network, setNetwork] = useState("");
   const [balance, setBalance] = useState("0");
+  const [usdBalance, setUsdBalance] = useState("0");
+  const [eurBalance, setEurBalance] = useState("0");
+  const [currency, setCurrency] = useState("USD");
 
   useEffect(() => {
     const loadAccount = async () => {
@@ -21,10 +27,24 @@ export default function Footer() {
           setNetwork(netId === 56 ? "BSC Mainnet" : "Unsupported Network");
 
           const balanceWei = await web3Instance.eth.getBalance(accounts[0]);
-          setBalance(web3Instance.utils.fromWei(balanceWei, "ether"));
+          const balanceEth = web3Instance.utils.fromWei(balanceWei, "ether");
+          setBalance(balanceEth);
+
+          fetchExchangeRates(balanceEth);
         } catch (error) {
           console.error("User denied account access", error);
         }
+      }
+    };
+
+    const fetchExchangeRates = async (bnbAmount) => {
+      try {
+        const response = await axios.get("https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur");
+        const rates = response.data.binancecoin;
+        setUsdBalance((bnbAmount * rates.usd).toFixed(2));
+        setEurBalance((bnbAmount * rates.eur).toFixed(2));
+      } catch (error) {
+        console.error("Error fetching exchange rates:", error);
       }
     };
 
@@ -47,7 +67,10 @@ export default function Footer() {
       setAccount(accounts[0]);
 
       const balanceWei = await web3Instance.eth.getBalance(accounts[0]);
-      setBalance(web3Instance.utils.fromWei(balanceWei, "ether"));
+      const balanceEth = web3Instance.utils.fromWei(balanceWei, "ether");
+      setBalance(balanceEth);
+
+      fetchExchangeRates(balanceEth);
     } catch (error) {
       console.error("Error connecting with WalletConnect", error);
     }
@@ -61,7 +84,9 @@ export default function Footer() {
           <div>
             <p>✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
             <p>💰 Balance: {balance} BNB</p>
-            <p>🌐 Network: {network}</p>
+            <p>🌍 Network: {network}</p>
+            <p>💵 USD: ${usdBalance} | 💶 EUR: €{eurBalance}</p>
+            <QRCode value={account} size={60} />
           </div>
         ) : (
           <div className="wallet-buttons">
