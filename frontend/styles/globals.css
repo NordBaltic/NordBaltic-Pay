@@ -1,4 +1,4 @@
-/* === Globalus stilius – Premium dizainas su prabangiais elementais === */
+/* === GLOBALUS STILIUS – PREMIUM DIZAINAS SU PRABANGIAIS ELEMENTAIS === */
 body {
   font-family: 'Poppins', sans-serif;
   background-color: #0A1F44;
@@ -7,129 +7,65 @@ body {
   padding: 0;
 }
 
-/* === NAVBAR STILIAI === */
+/* === NAVBAR === */
 .navbar {
-  background: linear-gradient(90deg, #0A1F44, #111);
-  color: #FFD700;
-  padding: 15px 20px;
+  background: rgba(10, 31, 68, 0.9);
+  padding: 15px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0px 4px 8px rgba(255, 215, 0, 0.2);
-  border-bottom: 2px solid #FFD700;
+  box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.2);
 }
 
-.navbar-container {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.navbar-logo-img {
-  height: 40px;
-}
-
-.navbar-menu {
-  display: flex;
-  list-style: none;
-  gap: 20px;
-}
-
-.navbar-menu li a {
-  text-decoration: none;
+.navbar a {
   color: #FFD700;
-  font-size: 16px;
+  text-decoration: none;
   font-weight: bold;
-  transition: color 0.3s ease;
-}
-
-.navbar-menu li a:hover {
-  color: #fff;
-}
-
-/* === WALLET CONNECT BUTTON === */
-.wallet-connect-container {
-  text-align: center;
-  padding: 20px;
-}
-
-.wallet-buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-}
-
-.wallet-connect-btn {
-  background: #FFD700;
-  color: #0A1F44;
-  border: none;
-  padding: 12px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 8px;
+  padding: 8px 15px;
   transition: all 0.3s ease;
 }
 
-.wallet-connect-btn:hover {
-  background: #fff;
-  color: #0A1F44;
+.navbar a:hover {
+  background: rgba(255, 215, 0, 0.2);
+  border-radius: 8px;
 }
 
-.wallet-address {
-  font-size: 18px;
-  font-weight: bold;
-  color: #FFD700;
+/* === FOOTER === */
+.footer {
+  background: rgba(10, 31, 68, 0.9);
+  padding: 15px;
+  text-align: center;
+  font-size: 14px;
+  color: rgba(255, 215, 0, 0.8);
+  box-shadow: 0px -4px 10px rgba(255, 215, 0, 0.2);
 }
 
-/* === TOKEN LIST STILIAI === */
-.token-list {
+/* === DASHBOARD === */
+.dashboard-container {
   background: #111;
-  padding: 20px;
+  padding: 25px;
   border-radius: 12px;
   box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.2);
-  margin-top: 20px;
-}
-
-.token-list h2 {
-  color: #FFD700;
-  font-size: 20px;
   text-align: center;
+  margin-top: 20px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.token-list ul {
-  list-style: none;
-  padding: 0;
-}
-
-.token-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px;
-  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
-}
-
-.balance {
-  font-weight: bold;
+.dashboard-title {
   color: #FFD700;
+  font-size: 24px;
+  font-weight: bold;
 }
 
-/* === TRANSACTION HISTORY STILIAI === */
+/* === TRANSACTION HISTORY === */
 .transaction-history {
-  background: #111;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.2);
-  margin-top: 20px;
-}
-
-.transaction-history h2 {
-  color: #FFD700;
-  font-size: 20px;
-  text-align: center;
+  background: #222;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 15px;
+  box-shadow: 0px 2px 5px rgba(255, 215, 0, 0.2);
 }
 
 .transaction-history ul {
@@ -137,41 +73,28 @@ body {
   padding: 0;
 }
 
-.transaction-item {
-  background: rgba(255, 215, 0, 0.1);
-  padding: 15px;
-  border-radius: 8px;
-  margin: 10px 0;
-  box-shadow: 0px 2px 5px rgba(255, 215, 0, 0.2);
-}
-
-.transaction-item p {
-  margin: 5px 0;
-}
-
-.transaction-item a {
-  color: #FFD700;
-  font-weight: bold;
-  text-decoration: none;
-}
-
-.transaction-item a:hover {
-  text-decoration: underline;
+.transaction-history li {
+  padding: 10px;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.2);
 }
 
 /* === RECEIVE FUNKCIJOS STILIAI === */
 .receive-container {
   background: #111;
-  padding: 20px;
+  padding: 25px;
   border-radius: 12px;
   box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.2);
   text-align: center;
   margin-top: 20px;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .receive-container h2 {
   color: #FFD700;
   font-size: 22px;
+  font-weight: bold;
 }
 
 .receive-address {
@@ -189,49 +112,76 @@ body {
   background: rgba(255, 215, 0, 0.2);
 }
 
-.qr-container {
+/* === STAKING PUSLAPIS === */
+.staking-container {
+  background: #1A1A2E;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 12px rgba(255, 215, 0, 0.2);
+  text-align: center;
+  max-width: 600px;
+  margin: auto;
+}
+
+.staking-container h2 {
+  color: #FFD700;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.stake-button, .unstake-button {
+  background: #FFD700;
+  color: #0A1F44;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 10px;
+}
+
+.stake-button:hover, .unstake-button:hover {
+  background: #e6c200;
+}
+
+/* === DONATION PUSLAPIS === */
+.donation-container {
+  background: #222;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.2);
+  text-align: center;
+  max-width: 500px;
+  margin: auto;
+}
+
+.donation-title {
+  color: #FFD700;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.donation-box {
+  background: rgba(255, 215, 0, 0.1);
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 10px;
+  box-shadow: 0px 2px 5px rgba(255, 215, 0, 0.2);
+}
+
+.donation-button {
+  background: #FFD700;
+  color: #0A1F44;
+  padding: 12px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
   margin-top: 15px;
 }
 
-.qr-container img {
-  width: 150px;
-  border-radius: 10px;
-  box-shadow: 0px 2px 5px rgba(255, 215, 0, 0.3);
-}
-
-/* === FOOTER STILIAI === */
-.footer {
-  background: linear-gradient(90deg, #0A1F44, #111);
-  color: #FFD700;
-  text-align: center;
-  padding: 20px 0;
-  border-top: 2px solid #FFD700;
-  font-size: 14px;
-  box-shadow: 0px -4px 8px rgba(255, 215, 0, 0.2);
-}
-
-.footer-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 20px;
-}
-
-.footer-links {
-  list-style: none;
-  display: flex;
-  gap: 20px;
-}
-
-.footer-links li a {
-  text-decoration: none;
-  color: #FFD700;
-  font-weight: bold;
-  transition: color 0.3s ease;
-}
-
-.footer-links li a:hover {
-  color: #fff;
+.donation-button:hover {
+  background: #e6c200;
 }
