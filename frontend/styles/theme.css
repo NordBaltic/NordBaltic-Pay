@@ -1,0 +1,36 @@
+/* 🔥 Theme Variables */
+:root {
+  --primary-color: #0a1f44;
+  --secondary-color: #ffd700;
+  --background-light: #ffffff;
+  --background-dark: #0b0f19;
+  --text-light: #ffffff;
+  --text-dark: #0a1f44;
+}
+
+/* 🌙 Dark Theme */
+[data-theme="dark"] {
+  --bg-color: var(--background-dark);
+  --text-color: var(--text-light);
+  --card-bg: rgba(255, 255, 255, 0.1);
+}
+
+/* ☀️ Light Theme */
+[data-theme="light"] {
+  --bg-color: var(--background-light);
+  --text-color: var(--text-dark);
+  --card-bg: rgba(0, 0, 0, 0.05);
+}
+
+/* 🎛️ Theme Toggle */
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  cursor: pointer;
+  font-weight: bold;
+}
+.theme-toggle:hover {
+  opacity: 0.8;
+}
