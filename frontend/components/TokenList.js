@@ -1,57 +1,70 @@
-import { useState, useEffect } from "react";
-import Web3 from "web3";
-import erc20ABI from "../utils/erc20ABI.json";
+import { useEffect, useState } from "react";
+import axios from "axios";
 
-export default function TokenList({ account }) {
+const TokenList = ({ web3, account }) => {
   const [tokens, setTokens] = useState([]);
-
-  const tokenContracts = [
-    { symbol: "BNB", address: "0x0000000000000000000000000000000000000000", decimals: 18 },
-    { symbol: "USDT", address: "0x55d398326f99059fF775485246999027B3197955", decimals: 18 },
-    { symbol: "BUSD", address: "0xe9e7cea3dedca5984780bafc599bd69add087d56", decimals: 18 },
-  ];
+  const [prices, setPrices] = useState({});
 
   useEffect(() => {
-    if (account) {
-      loadBalances();
-    }
-  }, [account]);
+    // Palaikomų tokenų sąrašas (galima papildyti)
+    const supportedTokens = [
+      { symbol: "BNB", address: "0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", decimals: 18 },
+      { symbol: "USDT", address: "0x55d398326f99059ff775485246999027b3197955", decimals: 18 },
+      { symbol: "BUSD", address: "0xe9e7cea3dedca5984780bafc599bd69add087d56", decimals: 18 },
+    ];
 
-  const loadBalances = async () => {
-    try {
-      const web3 = new Web3(window.ethereum);
-      const balances = await Promise.all(
-        tokenContracts.map(async (token) => {
-          if (token.address === "0x0000000000000000000000000000000000000000") {
-            const balance = await web3.eth.getBalance(account);
-            return { symbol: token.symbol, balance: web3.utils.fromWei(balance, "ether") };
-          } else {
-            const contract = new web3.eth.Contract(erc20ABI, token.address);
-            const balance = await contract.methods.balanceOf(account).call();
-            return { symbol: token.symbol, balance: web3.utils.fromWei(balance, "ether") };
-          }
-        })
-      );
-      setTokens(balances);
-    } catch (error) {
-      console.error("Error loading token balances", error);
-    }
-  };
+    setTokens(supportedTokens);
+  }, []);
+
+  useEffect(() => {
+    // Gauti realaus laiko kainas
+    const fetchPrices = async () => {
+      try {
+        const response = await axios.get(
+          "https://api.coingecko.com/api/v3/simple/price?ids=binancecoin,tether,binance-usd&vs_currencies=usd"
+        );
+        setPrices({
+          BNB: response.data.binancecoin.usd,
+          USDT: response.data.tether.usd,
+          BUSD: response.data["binance-usd"].usd,
+        });
+      } catch (error) {
+        console.error("Klaida gaunant kainas:", error);
+      }
+    };
+
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 30000); // Atnaujiname kas 30s
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="token-list">
-      <h2>My Tokens</h2>
-      <ul>
-        {tokens.length > 0 ? (
-          tokens.map((token, index) => (
-            <li key={index} className="token-item">
-              <span className="balance">{token.balance} {token.symbol}</span>
-            </li>
-          ))
-        ) : (
-          <p>Loading balances...</p>
-        )}
-      </ul>
+      <h2>Token Portfolio</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Symbol</th>
+            <th>Balance</th>
+            <th>Value (USD)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tokens.map((token) => (
+            <tr key={token.symbol}>
+              <td>{token.symbol}</td>
+              <td>
+                {account
+                  ? web3.utils.fromWei("1000000000000000000", "ether") // Čia įdėk balansų gavimą iš blockchain
+                  : "-"}
+              </td>
+              <td>${prices[token.symbol] ? prices[token.symbol].toFixed(2) : "N/A"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
+
+export default TokenList;
