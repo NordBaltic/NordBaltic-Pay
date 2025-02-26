@@ -1,18 +1,18 @@
-/* 🎨 GLOBAL STYLES – PREMIUM LUXURY UI */
+/* 🎨 GLOBAL STYLES – THE ABSOLUTE LUXURY UI */
 :root {
   --primary-color: #FFD700; /* Auksinė */
   --secondary-color: #2E7D32;
-  --accent-color: #29B6F6; /* Neoninis mėlynas */
+  --accent-color: #29B6F6; /* Neon mėlynas */
   --bg-dark: #0A1F44;
   --bg-light: #F5F5F5;
   --text-dark: #FFFFFF;
   --text-light: #0A1F44;
   --card-bg-dark: rgba(255, 255, 255, 0.1);
   --card-bg-light: rgba(0, 0, 0, 0.05);
-  --border-radius: 18px;
-  --shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-  --button-glow: 0 0 15px rgba(255, 215, 0, 0.8);
-  --transition: all 0.3s ease-in-out;
+  --border-radius: 20px;
+  --shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  --button-glow: 0 0 20px rgba(255, 215, 0, 1);
+  --transition: all 0.35s ease-in-out;
 }
 
 /* 🌙 DARK MODE */
@@ -20,8 +20,8 @@
   --bg-color: var(--bg-dark);
   --text-color: var(--text-dark);
   --card-bg: var(--card-bg-dark);
-  --card-border: rgba(255, 255, 255, 0.15);
-  --button-glow: 0 0 20px rgba(255, 215, 0, 1);
+  --card-border: rgba(255, 255, 255, 0.2);
+  --button-glow: 0 0 25px rgba(255, 215, 0, 1);
 }
 
 /* ☀️ LIGHT MODE */
@@ -29,11 +29,11 @@
   --bg-color: var(--bg-light);
   --text-color: var(--text-light);
   --card-bg: var(--card-bg-light);
-  --card-border: rgba(0, 0, 0, 0.1);
-  --button-glow: 0 0 12px rgba(41, 182, 246, 0.7);
+  --card-border: rgba(0, 0, 0, 0.15);
+  --button-glow: 0 0 15px rgba(41, 182, 246, 0.8);
 }
 
-/* 🔄 ANIMATED GRADIENT BACKGROUND */
+/* 🔄 GRADIENT BACKGROUND ANIMATION */
 @keyframes gradientBG {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
@@ -43,8 +43,8 @@
 .animated-bg {
   background: linear-gradient(-45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
   background-size: 400% 400%;
-  animation: gradientBG 12s ease infinite;
-  padding: 24px;
+  animation: gradientBG 10s ease infinite;
+  padding: 26px;
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
 }
@@ -65,7 +65,7 @@ body {
   justify-content: space-between;
   align-items: center;
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  padding: 16px 24px;
+  padding: 18px 26px;
   box-shadow: var(--shadow);
   border-radius: var(--border-radius);
 }
@@ -73,16 +73,16 @@ body {
 .navbar a {
   color: white;
   text-decoration: none;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: bold;
   transition: var(--transition);
-  padding: 10px;
+  padding: 12px;
   border-radius: var(--border-radius);
 }
 
 .navbar a:hover {
   background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.05);
+  transform: scale(1.07);
 }
 
 /* 🌙 THEME SWITCHER */
@@ -91,11 +91,11 @@ body {
   align-items: center;
   justify-content: center;
   background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  padding: 12px 18px;
+  border: 3px solid var(--card-border);
+  padding: 14px 20px;
   border-radius: var(--border-radius);
   cursor: pointer;
-  font-size: 18px;
+  font-size: 20px;
   transition: var(--transition);
   box-shadow: var(--button-glow);
 }
@@ -103,43 +103,43 @@ body {
 .theme-switcher:hover {
   background: var(--accent-color);
   color: var(--bg-color);
-  transform: scale(1.08);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  transform: scale(1.1);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.4);
 }
 
 /* 📊 DASHBOARD */
 .dashboard-container {
-  max-width: 1100px;
+  max-width: 1200px;
   margin: auto;
-  padding: 24px;
+  padding: 30px;
   background: var(--card-bg);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
   transition: var(--transition);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(15px);
 }
 
 /* 💎 GLASSMORPHISM EFFECT */
 .glass-card {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(14px);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
   border-radius: var(--border-radius);
-  padding: 22px;
+  padding: 24px;
   box-shadow: var(--shadow);
   transition: var(--transition);
 }
 
 .glass-card:hover {
-  transform: scale(1.03);
-  box-shadow: 0 15px 30px rgba(255, 215, 0, 0.35);
+  transform: scale(1.05);
+  box-shadow: 0 18px 35px rgba(255, 215, 0, 0.4);
 }
 
 /* 💎 NEUMORPHIC BUTTONS */
 button {
   background: var(--primary-color);
   color: white;
-  font-size: 16px;
-  padding: 12px 22px;
+  font-size: 18px;
+  padding: 14px 24px;
   border-radius: var(--border-radius);
   border: none;
   cursor: pointer;
@@ -150,24 +150,24 @@ button {
 button:hover {
   background: var(--accent-color);
   box-shadow: var(--shadow);
-  transform: scale(1.07);
+  transform: scale(1.1);
 }
 
 button:active {
-  transform: scale(0.96);
+  transform: scale(0.95);
 }
 
 /* 📜 TRANSACTION HISTORY */
 .transaction-history {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin-top: 24px;
   border-radius: var(--border-radius);
   overflow: hidden;
 }
 
 .transaction-history th, .transaction-history td {
-  padding: 16px;
+  padding: 18px;
   text-align: center;
   border-bottom: 1px solid var(--card-border);
 }
@@ -179,15 +179,15 @@ button:active {
 }
 
 .transaction-history tr:hover {
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.1);
   transition: var(--transition);
 }
 
 /* 🔥 MODAL STYLES */
 .modal {
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(12px);
-  padding: 26px;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(14px);
+  padding: 28px;
   border-radius: var(--border-radius);
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -199,24 +199,24 @@ button:active {
 
 /* 💠 LOADING ANIMATION */
 @keyframes glowing {
-  0% { box-shadow: 0 0 12px var(--primary-color); }
-  50% { box-shadow: 0 0 24px var(--primary-color); }
-  100% { box-shadow: 0 0 12px var(--primary-color); }
+  0% { box-shadow: 0 0 14px var(--primary-color); }
+  50% { box-shadow: 0 0 28px var(--primary-color); }
+  100% { box-shadow: 0 0 14px var(--primary-color); }
 }
 
 .loading {
-  animation: glowing 1.5s infinite alternate;
+  animation: glowing 1.7s infinite alternate;
 }
 
 /* 💡 FOOTER */
 .footer {
   text-align: center;
-  padding: 26px;
+  padding: 30px;
   background: var(--primary-color);
   color: white;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: bold;
-  margin-top: 20px;
+  margin-top: 24px;
   border-radius: var(--border-radius);
 }
 
@@ -227,11 +227,11 @@ button:active {
   }
 
   .transaction-history th, .transaction-history td {
-    font-size: 15px;
+    font-size: 16px;
   }
 
   .dashboard-container, .admin-container {
-    width: 92%;
-    padding: 20px;
+    width: 95%;
+    padding: 22px;
   }
 }
