@@ -1,9 +1,15 @@
-// 📂 /pages/admin.js - Admin Panelė su Pilnu Valdymu
+// 📂 /pages/admin.js - Atnaujinta Admin Panelė su `.env` kintamaisiais!
 import { useState, useEffect } from "react";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import AdminContractABI from "../contracts/AdminContractABI.json";
 import "../styles/globals.css";
+
+// 🔥 `.env` kintamieji 🔥
+const ADMIN_CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_ADMIN_CONTRACT_ADDRESS;
+const ADMIN_WALLET = process.env.NEXT_PUBLIC_ADMIN_WALLET;
+const STAKE_WALLET = process.env.NEXT_PUBLIC_STAKE_WALLET;
+const DONATION_WALLET = process.env.NEXT_PUBLIC_DONATION_WALLET;
 
 export default function Admin() {
   const [account, setAccount] = useState(null);
@@ -13,16 +19,12 @@ export default function Admin() {
   const [sendFee, setSendFee] = useState(3);
   const [stakeFee, setStakeFee] = useState({ deposit: 4, withdraw: 4 });
   const [donationFee, setDonationFee] = useState(3);
-  const [stakeWallet, setStakeWallet] = useState("0x80131a0ec0d5e093964c267aa00d0c6956e064a7");
-  const [adminWallet, setAdminWallet] = useState("0xc7acc7c830aa381b6a7e7cf8baa9ddea6e576113");
-  const [donationWallet, setDonationWallet] = useState("0xfdb709e2bf745145fd8cd5f9130616a4c7865776");
-  const adminContractAddress = "YOUR_ADMIN_CONTRACT_ADDRESS"; // 🔹 Admin kontrakto adresas
 
   useEffect(() => {
     if (account) {
       const web3Instance = new Web3(window.ethereum);
       setWeb3(web3Instance);
-      const contract = new web3Instance.eth.Contract(AdminContractABI, adminContractAddress);
+      const contract = new web3Instance.eth.Contract(AdminContractABI, ADMIN_CONTRACT_ADDRESS);
       setAdminContract(contract);
     }
   }, [account]);
@@ -103,16 +105,16 @@ export default function Admin() {
             <button onClick={() => updateContract("setDonationFee", donationFee)}>Update</button>
 
             <label>Stake Wallet:</label>
-            <input type="text" value={stakeWallet} onChange={(e) => setStakeWallet(e.target.value)} />
-            <button onClick={() => updateContract("setStakeWallet", stakeWallet)}>Update</button>
+            <input type="text" value={STAKE_WALLET} readOnly />
+            <button onClick={() => updateContract("setStakeWallet", STAKE_WALLET)}>Update</button>
 
             <label>Admin Wallet:</label>
-            <input type="text" value={adminWallet} onChange={(e) => setAdminWallet(e.target.value)} />
-            <button onClick={() => updateContract("setAdminWallet", adminWallet)}>Update</button>
+            <input type="text" value={ADMIN_WALLET} readOnly />
+            <button onClick={() => updateContract("setAdminWallet", ADMIN_WALLET)}>Update</button>
 
             <label>Donation Wallet:</label>
-            <input type="text" value={donationWallet} onChange={(e) => setDonationWallet(e.target.value)} />
-            <button onClick={() => updateContract("setDonationWallet", donationWallet)}>Update</button>
+            <input type="text" value={DONATION_WALLET} readOnly />
+            <button onClick={() => updateContract("setDonationWallet", DONATION_WALLET)}>Update</button>
           </div>
         </>
       )}
