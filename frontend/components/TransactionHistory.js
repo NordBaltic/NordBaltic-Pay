@@ -4,7 +4,16 @@ import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import QRCode from "qrcode.react";
 import { createClient } from "@supabase/supabase-js";
-import { Card, CardContent, Typography, Button, Grid, CircularProgress, Alert } from "@mui/material";
+import { motion } from "framer-motion";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Grid,
+  CircularProgress,
+  Alert,
+} from "@mui/material";
 import "../styles/globals.css";
 
 // 🔥 Supabase Setup
@@ -30,7 +39,7 @@ export default function TransactionHistory() {
     }
   }, [account]);
 
-  // 🔹 Gauti BNB kainą USD
+  // 🔹 Fetch BNB Price in USD & EUR
   const fetchBNBPrice = async () => {
     try {
       const response = await axios.get(
@@ -42,7 +51,7 @@ export default function TransactionHistory() {
     }
   };
 
-  // 📜 Gauti tranzakcijas iš BSCScan ir Supabase
+  // 📜 Fetch Transactions from BSCScan & Supabase
   const fetchTransactions = async () => {
     try {
       const apiKey = process.env.NEXT_PUBLIC_BSCSCAN_API_KEY;
@@ -71,7 +80,7 @@ export default function TransactionHistory() {
     }
   };
 
-  // 🦊 MetaMask prisijungimas
+  // 🦊 MetaMask Connection
   const connectMetaMask = async () => {
     if (window.ethereum) {
       try {
@@ -82,14 +91,14 @@ export default function TransactionHistory() {
         localStorage.setItem("walletAccount", accounts[0]);
       } catch (error) {
         console.error("❌ MetaMask connection error:", error);
-        setError("🚨 MetaMask prisijungimo klaida!");
+        setError("🚨 MetaMask connection error!");
       }
     } else {
       alert("🚨 MetaMask not found!");
     }
   };
 
-  // 🔗 WalletConnect prisijungimas
+  // 🔗 WalletConnect Connection
   const connectWalletConnect = async () => {
     try {
       const provider = new WalletConnectProvider({
@@ -104,72 +113,81 @@ export default function TransactionHistory() {
       localStorage.setItem("walletAccount", accounts[0]);
     } catch (error) {
       console.error("❌ WalletConnect connection error:", error);
-      setError("❌ WalletConnect prisijungimo klaida!");
+      setError("❌ WalletConnect connection error!");
     }
   };
 
   return (
-    <Card className="glass-card max-w-3xl mx-auto p-6 text-center">
-      <CardContent>
-        <Typography variant="h5" className="mb-4">📜 Transaction History</Typography>
+    <motion.div
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="transaction-history-container p-6"
+    >
+      <Card className="glass-card max-w-3xl mx-auto p-6 text-center">
+        <CardContent>
+          <Typography variant="h5" className="mb-4">📜 Transaction History</Typography>
 
-        {!account ? (
-          <div className="wallet-buttons">
-            <Button variant="contained" color="primary" onClick={connectMetaMask}>
-              🦊 Connect MetaMask
-            </Button>
-            <Button variant="contained" color="secondary" onClick={connectWalletConnect}>
-              🔗 Connect WalletConnect
-            </Button>
-          </div>
-        ) : (
-          <Typography variant="body1" className="mb-4">
-            ✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}
-          </Typography>
-        )}
+          {!account ? (
+            <div className="wallet-buttons">
+              <Button variant="contained" color="primary" onClick={connectMetaMask}>
+                🦊 Connect MetaMask
+              </Button>
+              <Button variant="contained" color="secondary" onClick={connectWalletConnect}>
+                🔗 Connect WalletConnect
+              </Button>
+            </div>
+          ) : (
+            <Typography variant="body1" className="mb-4">
+              ✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}
+            </Typography>
+          )}
 
-        {isLoading ? (
-          <CircularProgress />
-        ) : transactions.length > 0 ? (
-          <Grid container spacing={2} className="transaction-list">
-            {transactions.map((tx) => {
-              const txUSD = bnbPrice ? (tx.value * bnbPrice.usd).toFixed(2) : "Loading...";
-              return (
-                <Grid item xs={12} key={tx.hash}>
-                  <Card className="transaction-card p-4">
-                    <CardContent>
-                      <Typography variant="body1">
-                        <strong>Tx Hash:</strong>{" "}
-                        <a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank" rel="noopener noreferrer">
-                          {tx.hash.substring(0, 10)}... 🔍
-                        </a>
-                      </Typography>
-                      <Typography variant="body2">🔄 {tx.status}</Typography>
-                      <Typography variant="body2">
-                        <strong>From:</strong> {tx.from.substring(0, 6)}...{tx.from.slice(-4)}
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>To:</strong> {tx.to.substring(0, 6)}...{tx.to.slice(-4)}
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>Value:</strong> {tx.value} BNB (~${txUSD} USD)
-                      </Typography>
-                      <Typography variant="body2">
-                        <strong>Date:</strong> {new Date(tx.timestamp).toLocaleString()}
-                      </Typography>
-                      <div className="qr-code mt-2">
-                        <QRCode value={`https://bscscan.com/tx/${tx.hash}`} size={60} />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              );
-            })}
-          </Grid>
-        ) : (
-          <Alert severity="info">🚫 No transactions found.</Alert>
-        )}
-      </CardContent>
-    </Card>
+          {isLoading ? (
+            <CircularProgress />
+          ) : transactions.length > 0 ? (
+            <Grid container spacing={2} className="transaction-list">
+              {transactions.map((tx) => {
+                const txUSD = bnbPrice ? (tx.value * bnbPrice.usd).toFixed(2) : "Loading...";
+                return (
+                  <Grid item xs={12} key={tx.hash}>
+                    <motion.div whileHover={{ scale: 1.02 }}>
+                      <Card className="transaction-card p-4">
+                        <CardContent>
+                          <Typography variant="body1">
+                            <strong>Tx Hash:</strong>{" "}
+                            <a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank" rel="noopener noreferrer">
+                              {tx.hash.substring(0, 10)}... 🔍
+                            </a>
+                          </Typography>
+                          <Typography variant="body2">🔄 {tx.status}</Typography>
+                          <Typography variant="body2">
+                            <strong>From:</strong> {tx.from.substring(0, 6)}...{tx.from.slice(-4)}
+                          </Typography>
+                          <Typography variant="body2">
+                            <strong>To:</strong> {tx.to.substring(0, 6)}...{tx.to.slice(-4)}
+                          </Typography>
+                          <Typography variant="body2">
+                            <strong>Value:</strong> {tx.value} BNB (~${txUSD} USD)
+                          </Typography>
+                          <Typography variant="body2">
+                            <strong>Date:</strong> {new Date(tx.timestamp).toLocaleString()}
+                          </Typography>
+                          <div className="qr-code mt-2">
+                            <QRCode value={`https://bscscan.com/tx/${tx.hash}`} size={60} />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </motion.div>
+                  </Grid>
+                );
+              })}
+            </Grid>
+          ) : (
+            <Alert severity="info">🚫 No transactions found.</Alert>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }
