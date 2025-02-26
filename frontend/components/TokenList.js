@@ -1,3 +1,4 @@
+// 📂 /frontend/components/TokenList.js - MAX PREMIUM TOKEN LIST
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Web3 from "web3";
@@ -68,6 +69,8 @@ export default function TokenList() {
     };
 
     fetchTokens();
+    const interval = setInterval(fetchTokens, 60000);
+    return () => clearInterval(interval);
   }, [account]);
 
   const fetchTokenPrices = async (tokenList) => {
@@ -77,8 +80,8 @@ export default function TokenList() {
       
       setTokenPrices(response.data);
       setExchangeRates({
-        usd: response.data.usd.eur ? response.data.usd.eur : 1,
-        eur: response.data.eur.usd ? response.data.eur.usd : 1
+        usd: response.data.usd?.eur || 1,
+        eur: response.data.eur?.usd || 1
       });
 
       setIsLoading(false);
