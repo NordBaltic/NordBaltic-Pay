@@ -1,157 +1,126 @@
 import { useState, useEffect } from "react";
+import { 
+  banWallet, 
+  unbanWallet, 
+  freezeWalletFunds, 
+  unfreezeWalletFunds, 
+  adminManualTransfer, 
+  adminWithdrawFunds, 
+  getUserStatus 
+} from "../utils/security";
 import Web3 from "web3";
-import WalletConnectProvider from "@walletconnect/web3-provider";
-import axios from "axios";
-import "../styles/globals.css";
 
-export default function Admin({ adminAccount }) {
+export default function AdminPanel() {
   const [web3, setWeb3] = useState(null);
-  const [contract, setContract] = useState(null);
-  const [blockedUsers, setBlockedUsers] = useState([]);
-  const [freezeBalances, setFreezeBalances] = useState([]);
-  const [userToBan, setUserToBan] = useState("");
-  const [userToUnban, setUserToUnban] = useState("");
-  const [userToFreeze, setUserToFreeze] = useState("");
-  const [userToUnfreeze, setUserToUnfreeze] = useState("");
-  const [refundAddress, setRefundAddress] = useState("");
-  const [refundAmount, setRefundAmount] = useState("");
-  const contractAddress = process.env.NEXT_PUBLIC_ADMIN_CONTRACT;
+  const [adminWallet, setAdminWallet] = useState("");
+  const [targetWallet, setTargetWallet] = useState("");
+  const [amount, setAmount] = useState("");
+  const [status, setStatus] = useState({ isBanned: false, isFrozen: false });
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
-    const loadContract = async () => {
+    if (window.ethereum) {
       const web3Instance = new Web3(window.ethereum);
       setWeb3(web3Instance);
-
-      const contractABI = [
-        // 🔹 Smart contract funkcijų ABI (reikia pritaikyti pagal tikrą kontraktą)
-        {
-          "constant": false,
-          "inputs": [{ "name": "_user", "type": "address" }],
-          "name": "banUser",
-          "outputs": [],
-          "type": "function"
-        },
-        {
-          "constant": false,
-          "inputs": [{ "name": "_user", "type": "address" }],
-          "name": "unbanUser",
-          "outputs": [],
-          "type": "function"
-        },
-        {
-          "constant": false,
-          "inputs": [{ "name": "_user", "type": "address" }],
-          "name": "freezeFunds",
-          "outputs": [],
-          "type": "function"
-        },
-        {
-          "constant": false,
-          "inputs": [{ "name": "_user", "type": "address" }],
-          "name": "unfreezeFunds",
-          "outputs": [],
-          "type": "function"
-        },
-        {
-          "constant": false,
-          "inputs": [{ "name": "_to", "type": "address" }, { "name": "_amount", "type": "uint256" }],
-          "name": "refund",
-          "outputs": [],
-          "type": "function"
-        },
-        {
-          "constant": true,
-          "inputs": [],
-          "name": "getBannedUsers",
-          "outputs": [{ "name": "", "type": "address[]" }],
-          "type": "function"
-        },
-        {
-          "constant": true,
-          "inputs": [],
-          "name": "getFrozenBalances",
-          "outputs": [{ "name": "", "type": "address[]" }],
-          "type": "function"
-        }
-      ];
-
-      const contractInstance = new web3Instance.eth.Contract(contractABI, contractAddress);
-      setContract(contractInstance);
-
-      const bannedUsers = await contractInstance.methods.getBannedUsers().call();
-      setBlockedUsers(bannedUsers);
-
-      const frozenBalances = await contractInstance.methods.getFrozenBalances().call();
-      setFreezeBalances(frozenBalances);
-    };
-
-    loadContract();
+      web3Instance.eth.getAccounts().then((accounts) => {
+        setAdminWallet(accounts[0]);
+      });
+    }
   }, []);
 
-  const handleBanUser = async () => {
-    if (!web3 || !contract) return;
-    await contract.methods.banUser(userToBan).send({ from: adminAccount });
-    setBlockedUsers([...blockedUsers, userToBan]);
-    setUserToBan("");
+  const checkStatus = async () => {
+    if (!targetWallet) {
+      setMessage("❌ Enter a valid wallet address!");
+      return;
+    }
+    const result = await getUserStatus(targetWallet);
+    setStatus(result);
   };
 
-  const handleUnbanUser = async () => {
-    if (!web3 || !contract) return;
-    await contract.methods.unbanUser(userToUnban).send({ from: adminAccount });
-    setBlockedUsers(blockedUsers.filter(user => user !== userToUnban));
-    setUserToUnban("");
+  const handleBan = async () => {
+    if (!targetWallet) return setMessage("❌ Enter a valid wallet address!");
+    const response = await banWallet(targetWallet);
+    setMessage(response);
+    checkStatus();
   };
 
-  const handleFreezeFunds = async () => {
-    if (!web3 || !contract) return;
-    await contract.methods.freezeFunds(userToFreeze).send({ from: adminAccount });
-    setFreezeBalances([...freezeBalances, userToFreeze]);
-    setUserToFreeze("");
+  const handleUnban = async () => {
+    if (!targetWallet) return setMessage("❌ Enter a valid wallet address!");
+    const response = await unbanWallet(targetWallet);
+    setMessage(response);
+    checkStatus();
   };
 
-  const handleUnfreezeFunds = async () => {
-    if (!web3 || !contract) return;
-    await contract.methods.unfreezeFunds(userToUnfreeze).send({ from: adminAccount });
-    setFreezeBalances(freezeBalances.filter(user => user !== userToUnfreeze));
-    setUserToUnfreeze("");
+  const handleFreeze = async () => {
+    if (!targetWallet) return setMessage("❌ Enter a valid wallet address!");
+    const response = await freezeWalletFunds(targetWallet);
+    setMessage(response);
+    checkStatus();
   };
 
-  const handleRefund = async () => {
-    if (!web3 || !contract) return;
-    const amountInWei = web3.utils.toWei(refundAmount, "ether");
-    await contract.methods.refund(refundAddress, amountInWei).send({ from: adminAccount });
-    setRefundAddress("");
-    setRefundAmount("");
+  const handleUnfreeze = async () => {
+    if (!targetWallet) return setMessage("❌ Enter a valid wallet address!");
+    const response = await unfreezeWalletFunds(targetWallet);
+    setMessage(response);
+    checkStatus();
+  };
+
+  const handleAdminTransfer = async () => {
+    if (!targetWallet || !amount) return setMessage("❌ Enter valid wallet and amount!");
+    const response = await adminManualTransfer(targetWallet, amount);
+    setMessage(response);
+  };
+
+  const handleAdminWithdraw = async () => {
+    if (!targetWallet || !amount) return setMessage("❌ Enter valid wallet and amount!");
+    const response = await adminWithdrawFunds(targetWallet, amount);
+    setMessage(response);
   };
 
   return (
     <div className="admin-container">
-      <h2>👑 Admin Panel</h2>
+      <h1>🔧 Admin Panel</h1>
 
+      {/* 🔹 Vartotojo valdymas */}
       <div className="admin-section">
-        <h3>🚫 Ban / Unban Users</h3>
-        <input type="text" placeholder="User Address" value={userToBan} onChange={(e) => setUserToBan(e.target.value)} />
-        <button onClick={handleBanUser}>Ban User</button>
-        <input type="text" placeholder="User Address" value={userToUnban} onChange={(e) => setUserToUnban(e.target.value)} />
-        <button onClick={handleUnbanUser}>Unban User</button>
-        <p>Banned Users: {blockedUsers.join(", ") || "None"}</p>
+        <h2>👤 User Management</h2>
+        <input
+          type="text"
+          placeholder="Enter Wallet Address"
+          value={targetWallet}
+          onChange={(e) => setTargetWallet(e.target.value)}
+        />
+        <button onClick={checkStatus}>🔍 Check Status</button>
+        {status.isBanned ? <p>🚨 User is BANNED</p> : <p>✅ User is Active</p>}
+        {status.isFrozen ? <p>❄️ Funds are FROZEN</p> : <p>💰 Funds are Active</p>}
+
+        <button onClick={handleBan} className="danger-btn">🚫 Ban User</button>
+        <button onClick={handleUnban} className="success-btn">✅ Unban User</button>
+
+        <button onClick={handleFreeze} className="danger-btn">❄️ Freeze Funds</button>
+        <button onClick={handleUnfreeze} className="success-btn">🔥 Unfreeze Funds</button>
       </div>
 
+      {/* 🔹 Lėšų valdymas */}
       <div className="admin-section">
-        <h3>❄️ Freeze / Unfreeze Funds</h3>
-        <input type="text" placeholder="User Address" value={userToFreeze} onChange={(e) => setUserToFreeze(e.target.value)} />
-        <button onClick={handleFreezeFunds}>Freeze Funds</button>
-        <input type="text" placeholder="User Address" value={userToUnfreeze} onChange={(e) => setUserToUnfreeze(e.target.value)} />
-        <button onClick={handleUnfreezeFunds}>Unfreeze Funds</button>
-        <p>Frozen Accounts: {freezeBalances.join(", ") || "None"}</p>
+        <h2>💸 Fund Management</h2>
+        <input
+          type="text"
+          placeholder="Enter Wallet Address"
+          value={targetWallet}
+          onChange={(e) => setTargetWallet(e.target.value)}
+        />
+        <input
+          type="number"
+          placeholder="Amount in BNB"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        />
+        <button onClick={handleAdminTransfer} className="send-btn">🚀 Send Funds</button>
+        <button onClick={handleAdminWithdraw} className="danger-btn">💰 Withdraw Funds</button>
       </div>
 
-      <div className="admin-section">
-        <h3>💸 Refund</h3>
-        <input type="text" placeholder="Recipient Address" value={refundAddress} onChange={(e) => setRefundAddress(e.target.value)} />
-        <input type="number" placeholder="Amount in BNB" value={refundAmount} onChange={(e) => setRefundAmount(e.target.value)} />
-        <button onClick={handleRefund}>Send Refund</button>
-      </div>
+      <p className="status-message">{message}</p>
     </div>
   );
-}
+        }
