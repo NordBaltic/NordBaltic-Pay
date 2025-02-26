@@ -10,29 +10,20 @@ const supabase = createClient(
 );
 
 const ThemeSwitcher = ({ user }) => {
-  const { theme, setTheme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const [icon, setIcon] = useState("🌙");
 
   useEffect(() => {
     setIcon(theme === "dark" ? "☀️" : "🌙");
   }, [theme]);
 
-  const toggleTheme = async () => {
-    const newTheme = theme === "dark" ? "light" : "dark";
-    setTheme(newTheme);
-
-    // Saugo į Supabase duomenų bazę
-    if (user) {
-      await supabase.from("users").update({ theme: newTheme }).eq("id", user.id);
-    }
-  };
-
   return (
     <motion.button 
       className="theme-switcher"
       onClick={toggleTheme}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.95 }}
+      whileHover={{ scale: 1.12, rotate: 10, boxShadow: "0px 0px 12px var(--primary-color)" }}
+      whileTap={{ scale: 0.92 }}
+      transition={{ duration: 0.2 }}
     >
       {icon} {theme === "dark" ? "Light Mode" : "Dark Mode"}
     </motion.button>
