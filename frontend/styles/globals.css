@@ -1,113 +1,253 @@
-/* 🌍 GLOBAL VARIABLES */
+/* 🔥 RESET IR BAZINIAI STILIAI */
 :root {
-  --primary-color: #0a1f44; /* NordBaltic Blue */
-  --secondary-color: #ffd700; /* Gold */
-  --bg-dark: #0b0f19;
-  --bg-light: #ffffff;
-  --text-light: #ffffff;
-  --text-dark: #0a1f44;
-  --card-bg: rgba(255, 255, 255, 0.1);
-  --button-gradient: linear-gradient(135deg, #ffd700, #ffb300);
+  --primary-color: #4CAF50;
+  --secondary-color: #2E7D32;
+  --bg-dark: #0A1F44;
+  --bg-light: #F5F5F5;
+  --text-dark: #FFFFFF;
+  --text-light: #000000;
   --border-radius: 8px;
-  --transition-fast: 0.2s ease-in-out;
-  --shadow-lg: 0px 4px 20px rgba(0, 0, 0, 0.15);
+  --shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
-/* 🌙 DARK MODE */
 [data-theme="dark"] {
   --bg-color: var(--bg-dark);
-  --text-color: var(--text-light);
-  --card-bg: rgba(255, 255, 255, 0.1);
-  --button-bg: var(--button-gradient);
+  --text-color: var(--text-dark);
 }
 
-/* ☀️ LIGHT MODE */
 [data-theme="light"] {
   --bg-color: var(--bg-light);
-  --text-color: var(--text-dark);
-  --card-bg: rgba(0, 0, 0, 0.05);
-  --button-bg: #ffd700;
+  --text-color: var(--text-light);
 }
 
-/* 🎨 GLOBAL RESET */
 body {
-  font-family: "Poppins", sans-serif;
-  background: var(--bg-color);
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-color);
   color: var(--text-color);
-  transition: var(--transition-fast);
+  transition: background 0.3s, color 0.3s;
 }
 
-/* 🔘 BUTTONS */
-.button {
-  background: var(--button-bg);
-  color: #000;
-  padding: 12px 18px;
+h1, h2, h3, h4 {
+  font-weight: 700;
+}
+
+button {
   border: none;
-  border-radius: var(--border-radius);
+  padding: 10px 20px;
+  font-size: 16px;
   cursor: pointer;
-  font-weight: bold;
-  box-shadow: var(--shadow-lg);
-  transition: var(--transition-fast);
-}
-.button:hover {
-  opacity: 0.8;
-}
-
-/* 🔲 CARDS */
-.card {
-  background: var(--card-bg);
-  padding: 20px;
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow-lg);
+  transition: all 0.3s ease;
 }
 
-/* 📊 TABLES */
-.table {
+button:hover {
+  filter: brightness(1.2);
+}
+
+/* 🔥 NAVBAR */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  padding: 15px 20px;
+  box-shadow: var(--shadow);
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.navbar .menu {
+  display: flex;
+  gap: 15px;
+}
+
+.navbar .menu a {
+  padding: 10px 15px;
+  border-radius: var(--border-radius);
+  transition: all 0.3s ease;
+}
+
+.navbar .menu a:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* 🔥 DASHBOARD */
+.dashboard-container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+  background: var(--bg-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+.dashboard-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.wallet-balance {
+  text-align: center;
+  font-size: 20px;
+  margin: 10px 0;
+}
+
+.balance-change span {
+  font-weight: bold;
+}
+
+.positive {
+  color: #4CAF50;
+}
+
+.negative {
+  color: #F44336;
+}
+
+/* 🔥 TRANSAKCIJŲ LENTELĖ */
+.transaction-history {
   width: 100%;
   border-collapse: collapse;
-  margin: 20px 0;
-  border-radius: var(--border-radius);
-  overflow: hidden;
+  margin-top: 20px;
 }
-.table th, .table td {
-  padding: 15px;
-  text-align: left;
+
+.transaction-history th, .transaction-history td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-.table th {
-  background: var(--secondary-color);
-  color: #000;
+
+.transaction-history th {
+  background: var(--primary-color);
+  color: white;
 }
-.table tr:nth-child(even) {
+
+.transaction-history tr:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* 🔄 LOADING SPINNER */
-.loader {
-  border: 4px solid rgba(255, 255, 255, 0.3);
-  border-top: 4px solid var(--secondary-color);
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+/* 🔥 ANALYTICS */
+.analytics-container {
+  max-width: 800px;
+  margin: auto;
+  padding: 20px;
+  background: var(--bg-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
 }
 
-/* 🛑 ERROR TEXT */
-.error-text {
-  color: red;
+.market-info p {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.positive {
+  color: #4CAF50;
+}
+
+.negative {
+  color: #F44336;
+}
+
+/* 🔥 ADMIN PANEL */
+.admin-container {
+  max-width: 850px;
+  margin: auto;
+  padding: 20px;
+  background: var(--bg-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+.admin-status {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.admin-container table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.admin-container th, .admin-container td {
+  padding: 12px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.admin-container th {
+  background: var(--primary-color);
+  color: white;
+}
+
+.admin-container tr:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-container button {
+  padding: 8px 12px;
   font-size: 14px;
+  cursor: pointer;
+  border-radius: var(--border-radius);
+  transition: all 0.3s ease;
 }
 
-/* 📱 RESPONSIVE */
-@media screen and (max-width: 768px) {
-  .table th, .table td {
-    padding: 10px;
-    font-size: 14px;
+.admin-container button:hover {
+  filter: brightness(1.2);
+}
+
+/* 🔥 SETTINGS */
+.settings-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  background: var(--bg-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+.settings-section {
+  margin-bottom: 20px;
+}
+
+.settings-section h3 {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.settings-container select {
+  padding: 8px;
+  border-radius: var(--border-radius);
+  font-size: 16px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-color);
+}
+
+/* 🔥 FOOTER */
+.footer {
+  text-align: center;
+  padding: 20px;
+  background: var(--primary-color);
+  color: white;
+  margin-top: 20px;
+}
+
+/* 🔥 RESPONSIVE */
+@media (max-width: 768px) {
+  .navbar .menu {
+    flex-direction: column;
   }
-  .button {
-    padding: 10px;
+
+  .transaction-history th, .transaction-history td,
+  .admin-container th, .admin-container td {
+    font-size: 14px;
   }
 }
