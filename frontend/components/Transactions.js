@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Web3 from "web3";
 import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
+import { Box, Card, CardContent, Typography, Button, Grid, TextField, Select, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Snackbar, Alert } from "@mui/material";
 import "../styles/globals.css";
 
 // 🔥 Supabase setup
@@ -16,6 +17,7 @@ export default function Transactions() {
   const [currency, setCurrency] = useState("USD");
   const [convertedAmount, setConvertedAmount] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
   useEffect(() => {
     fetchUserAccount();
@@ -26,6 +28,7 @@ export default function Transactions() {
       const web3Instance = new Web3(window.ethereum);
       setWeb3(web3Instance);
       fetchTransactions();
+      subscribeToTransactions();
     }
   }, [account]);
 
@@ -40,14 +43,23 @@ export default function Transactions() {
   // 📜 Fetch transactions from Supabase
   const fetchTransactions = async () => {
     if (!account) return;
-    
     const { data, error } = await supabase.from("transactions").select("*").eq("from", account).order("timestamp", { ascending: false });
     if (error) {
       console.error("🔴 Klaida gaunant transakcijas:", error);
       return;
     }
-    
     setTransactions(data || []);
+  };
+
+  // 🔄 Real-time transaction updates
+  const subscribeToTransactions = () => {
+    supabase
+      .channel("transactions")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "transactions" }, (payload) => {
+        setTransactions((prev) => [payload.new, ...prev]);
+        setNotifications((prev) => [`🔄 New transaction: ${payload.new.amount} BNB`, ...prev]);
+      })
+      .subscribe();
   };
 
   // 💵 Valiutos konvertavimas
@@ -120,91 +132,68 @@ export default function Transactions() {
       fetchTransactions();
     } catch (error) {
       console.error("❌ Klaida siunčiant transakciją:", error);
-      
-      // 📌 Save failed transaction
-      await supabase.from("transactions").insert([
-        {
-          from: account,
-          to: recipient,
-          amount: amount,
-          currency: "BNB",
-          converted_amount: convertedAmount,
-          converted_currency: currency,
-          status: "Failed",
-          hash: "N/A",
-          timestamp: new Date().toISOString(),
-        }
-      ]);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="transactions-container">
-      <h2>🔄 Transactions</h2>
+    <Box className="transactions-container p-6">
+      <Typography variant="h4" className="text-center mb-6">🔄 Transactions</Typography>
 
-      <div className="send-transaction">
-        <label>Recipient Address</label>
-        <input type="text" value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder="Enter recipient address" />
+      {notifications.length > 0 && (
+        <Snackbar open autoHideDuration={5000} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+          <Alert severity="info">{notifications[0]}</Alert>
+        </Snackbar>
+      )}
 
-        <label>Amount (BNB)</label>
-        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount" />
+      <Card className="glass-card mb-6">
+        <CardContent>
+          <Typography variant="h5">📤 Send Transaction</Typography>
+          <TextField fullWidth label="Recipient Address" variant="outlined" value={recipient} onChange={(e) => setRecipient(e.target.value)} className="mt-4" />
+          <TextField fullWidth label="Amount (BNB)" type="number" variant="outlined" value={amount} onChange={(e) => setAmount(e.target.value)} className="mt-4" />
+          <Select fullWidth value={currency} onChange={(e) => setCurrency(e.target.value)} className="mt-4">
+            <MenuItem value="USD">💵 USD</MenuItem>
+            <MenuItem value="EUR">💶 EUR</MenuItem>
+          </Select>
+          {convertedAmount && <Typography variant="body2" className="mt-2">≈ {convertedAmount} {currency}</Typography>}
+          <Button variant="contained" color="primary" fullWidth className="mt-4" onClick={handleSendTransaction} disabled={loading}>
+            {loading ? "🔄 Sending..." : "🚀 Send"}
+          </Button>
+        </CardContent>
+      </Card>
 
-        <label>Show in:</label>
-        <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
-          <option value="USD">💵 USD</option>
-          <option value="EUR">💶 EUR</option>
-        </select>
-
-        {convertedAmount && <p className="converted-amount">≈ {convertedAmount} {currency}</p>}
-
-        <button className="send-btn" onClick={handleSendTransaction} disabled={loading}>
-          {loading ? "🔄 Sending..." : "🚀 Send"}
-        </button>
-      </div>
-
-      <h3>📜 Transaction History</h3>
-      <table className="transaction-table">
-        <thead>
-          <tr>
-            <th>Timestamp</th>
-            <th>From</th>
-            <th>To</th>
-            <th>Amount (BNB)</th>
-            <th>Converted</th>
-            <th>Fee (BNB)</th>
-            <th>Status</th>
-            <th>Hash</th>
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.length > 0 ? (
-            transactions.map((tx, index) => (
-              <tr key={index}>
-                <td>{new Date(tx.timestamp).toLocaleString()}</td>
-                <td>{tx.from.substring(0, 6)}...{tx.from.slice(-4)}</td>
-                <td>{tx.to.substring(0, 6)}...{tx.to.slice(-4)}</td>
-                <td>{tx.amount} BNB</td>
-                <td>{tx.converted_amount} {tx.converted_currency}</td>
-                <td>{(parseFloat(tx.amount) * 0.005).toFixed(4)} BNB</td>
-                <td className={tx.status === "Success" ? "success" : "failed"}>{tx.status}</td>
-                <td>
-                  {tx.hash !== "N/A" ? (
-                    <a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank" rel="noopener noreferrer">
-                      🔗 View
-                    </a>
-                  ) : "N/A"}
-                </td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="8">No transactions found.</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+      <Typography variant="h5" className="mb-4">📜 Transaction History</Typography>
+      <TableContainer component={Paper} className="glass-table">
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Timestamp</TableCell>
+              <TableCell>From</TableCell>
+              <TableCell>To</TableCell>
+              <TableCell>Amount (BNB)</TableCell>
+              <TableCell>Converted</TableCell>
+              <TableCell>Fee (BNB)</TableCell>
+              <TableCell>Status</TableCell>
+              <TableCell>Hash</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {transactions.length > 0 ? transactions.map((tx, index) => (
+              <TableRow key={index}>
+                <TableCell>{new Date(tx.timestamp).toLocaleString()}</TableCell>
+                <TableCell>{tx.from.substring(0, 6)}...{tx.from.slice(-4)}</TableCell>
+                <TableCell>{tx.to.substring(0, 6)}...{tx.to.slice(-4)}</TableCell>
+                <TableCell>{tx.amount} BNB</TableCell>
+                <TableCell>{tx.converted_amount} {tx.converted_currency}</TableCell>
+                <TableCell>{(parseFloat(tx.amount) * 0.005).toFixed(4)} BNB</TableCell>
+                <TableCell>{tx.status}</TableCell>
+                <TableCell>{tx.hash !== "N/A" ? <a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank">🔗 View</a> : "N/A"}</TableCell>
+              </TableRow>
+            )) : <TableRow><TableCell colSpan="8">No transactions found.</TableCell></TableRow>}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 }
