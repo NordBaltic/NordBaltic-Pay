@@ -1,14 +1,17 @@
+// 📂 /frontend/components/TransactionHistory.js - MAX PREMIUM TRANSACTION LIST
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import Link from "next/link";
+import QRCode from "qrcode.react";
 
 export default function TransactionHistory() {
   const [transactions, setTransactions] = useState([]);
   const [web3, setWeb3] = useState(null);
   const [account, setAccount] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!account) return;
@@ -24,12 +27,15 @@ export default function TransactionHistory() {
         } else {
           console.error("BSCScan API klaida:", response.data.message);
         }
+        setIsLoading(false);
       } catch (error) {
         console.error("Klaida gaunant tranzakcijas:", error);
       }
     };
 
     fetchTransactions();
+    const interval = setInterval(fetchTransactions, 60000);
+    return () => clearInterval(interval);
   }, [account]);
 
   // Prisijungimo funkcijos
@@ -67,18 +73,18 @@ export default function TransactionHistory() {
   return (
     <div className="transaction-history">
       <div className="navbar">
-        <h2>Transaction History</h2>
+        <h2>📜 Transaction History</h2>
         <div className="menu">
           <button className="menu-button" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             ☰
           </button>
           {isMenuOpen && (
             <div className="dropdown-menu">
-              <Link href="/dashboard">Dashboard</Link>
-              <Link href="/staking">Staking</Link>
-              <Link href="/donations">Donations</Link>
-              <Link href="/wallet">Wallet</Link>
-              <Link href="/settings">Settings</Link>
+              <Link href="/dashboard">🏠 Dashboard</Link>
+              <Link href="/staking">💸 Staking</Link>
+              <Link href="/donations">❤️ Donations</Link>
+              <Link href="/wallet">👛 Wallet</Link>
+              <Link href="/settings">⚙️ Settings</Link>
             </div>
           )}
         </div>
@@ -99,28 +105,36 @@ export default function TransactionHistory() {
       )}
 
       {/* Tranzakcijų sąrašas */}
-      <ul>
-        {transactions.length > 0 ? (
-          transactions.map((tx) => (
-            <li key={tx.hash}>
-              <strong>Tx Hash:</strong> {tx.hash.substring(0, 10)}...{" "}
-              <a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank" rel="noopener noreferrer">
-                View on BSCScan
-              </a>
-              <br />
-              <strong>From:</strong> {tx.from.substring(0, 6)}...{tx.from.slice(-4)}
-              <br />
-              <strong>To:</strong> {tx.to.substring(0, 6)}...{tx.to.slice(-4)}
-              <br />
-              <strong>Value:</strong> {parseFloat(tx.value) / 10 ** 18} BNB
-              <br />
-              <strong>Date:</strong> {new Date(tx.timeStamp * 1000).toLocaleString()}
-            </li>
-          ))
-        ) : (
-          <p>No transactions found.</p>
-        )}
-      </ul>
+      {isLoading ? (
+        <p>Loading transactions...</p>
+      ) : transactions.length > 0 ? (
+        <div className="transaction-list">
+          {transactions.map((tx) => {
+            const status = tx.isError === "0" ? "✅ Completed" : "❌ Failed";
+            return (
+              <div key={tx.hash} className={`transaction ${tx.isError === "0" ? "success" : "failed"}`}>
+                <div className="transaction-details">
+                  <p><strong>Tx Hash:</strong> {tx.hash.substring(0, 10)}...{" "}
+                    <a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank" rel="noopener noreferrer">
+                      🔍 View on BSCScan
+                    </a>
+                  </p>
+                  <p><strong>From:</strong> {tx.from.substring(0, 6)}...{tx.from.slice(-4)}</p>
+                  <p><strong>To:</strong> {tx.to.substring(0, 6)}...{tx.to.slice(-4)}</p>
+                  <p><strong>Value:</strong> {parseFloat(tx.value) / 10 ** 18} BNB</p>
+                  <p><strong>Date:</strong> {new Date(tx.timeStamp * 1000).toLocaleString()}</p>
+                  <p><strong>Status:</strong> {status}</p>
+                </div>
+                <div className="qr-code">
+                  <QRCode value={`https://bscscan.com/tx/${tx.hash}`} size={60} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p>No transactions found.</p>
+      )}
     </div>
   );
 }
