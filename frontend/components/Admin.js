@@ -1,170 +1,175 @@
 import { useState, useEffect } from "react";
-import Web3 from "web3";
-import axios from "axios";
-import AdminSecurity from "./AdminSecurity";
+import { createClient } from "@supabase/supabase-js";
+import { Box, Card, CardContent, Typography, Button, Grid, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Snackbar, Alert } from "@mui/material";
 import "../styles/globals.css";
 
+// 🔥 Supabase setup
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
 export default function AdminPanel() {
-  const [account, setAccount] = useState(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [fees, setFees] = useState({ send: 3, swap: 0.2, stake: 4, donation: 3 });
-  const [newFees, setNewFees] = useState({ send: "", swap: "", stake: "", donation: "" });
-  const [userStats, setUserStats] = useState({ activeUsers: 0, totalTransactions: 0, totalVolume: 0 });
-  const [marketData, setMarketData] = useState({ bnbPrice: 0 });
-  const [systemHealth, setSystemHealth] = useState({ uptime: "Loading...", nodeStatus: "Checking..." });
-  const [logs, setLogs] = useState([]);
-  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("");
+  const [users, setUsers] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [notifications, setNotifications] = useState([]);
+  const [systemStatus, setSystemStatus] = useState("🟢 Live");
+  const [bnbPrice, setBnbPrice] = useState("0.00");
 
   useEffect(() => {
-    const loadAccount = async () => {
-      if (window.ethereum) {
-        try {
-          const web3Instance = new Web3(window.ethereum);
-          const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-          setAccount(accounts[0]);
-
-          const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET.toLowerCase();
-          setIsAdmin(accounts[0].toLowerCase() === adminWallet);
-
-          fetchAdminData();
-          fetchMarketData();
-        } catch (error) {
-          console.error("🔴 MetaMask connection error:", error);
-        }
-      }
-      setLoading(false);
-    };
-
-    loadAccount();
+    fetchUsers();
+    fetchTransactions();
+    fetchBNBPrice();
+    subscribeToChanges();
   }, []);
 
-  const fetchAdminData = async () => {
-    try {
-      const response = await axios.get("/api/admin/stats");
-      setUserStats(response.data.userStats);
-      setLogs(response.data.logs);
-      setSystemHealth(response.data.systemHealth);
-      setFees(response.data.fees);
-      setIs2FAEnabled(response.data.is2FAEnabled);
-    } catch (error) {
-      console.error("⚠️ Error fetching admin data:", error);
+  // 📌 Fetch users from Supabase
+  const fetchUsers = async () => {
+    const { data, error } = await supabase.from("users").select("*").order("created_at", { ascending: false });
+    if (error) {
+      console.error("🔴 Klaida gaunant vartotojus:", error);
+    } else {
+      setUsers(data);
     }
   };
 
-  const fetchMarketData = async () => {
+  // 📌 Fetch transactions from Supabase
+  const fetchTransactions = async () => {
+    const { data, error } = await supabase.from("transactions").select("*").order("timestamp", { ascending: false });
+    if (error) {
+      console.error("🔴 Klaida gaunant transakcijas:", error);
+    } else {
+      setTransactions(data);
+    }
+    setLoading(false);
+  };
+
+  // 🔄 Live monitoring: Fetch BNB price
+  const fetchBNBPrice = async () => {
     try {
-      const response = await axios.get("https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd");
-      setMarketData({ bnbPrice: response.data.binancecoin.usd });
+      const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd");
+      const data = await response.json();
+      setBnbPrice(data.binancecoin.usd.toFixed(2));
     } catch (error) {
-      console.error("⚠️ Error fetching market data:", error);
+      console.error("🔴 Klaida gaunant BNB kainą:", error);
     }
   };
 
-  const toggle2FA = async () => {
-    try {
-      await axios.post("/api/admin/toggle-2fa");
-      setIs2FAEnabled(!is2FAEnabled);
-      setStatusMessage(`✅ 2FA ${is2FAEnabled ? "disabled" : "enabled"} successfully.`);
-    } catch (error) {
-      console.error("🔒 2FA toggle error:", error);
-    }
+  // 🚀 Real-time Supabase listeners
+  const subscribeToChanges = () => {
+    supabase
+      .channel("users")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "users" }, (payload) => {
+        setUsers((prev) => [payload.new, ...prev]);
+        setNotifications((prev) => [`👤 New user joined: ${payload.new.wallet}`, ...prev]);
+      })
+      .subscribe();
+
+    supabase
+      .channel("transactions")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "transactions" }, (payload) => {
+        setTransactions((prev) => [payload.new, ...prev]);
+        setNotifications((prev) => [`🔄 New transaction: ${payload.new.amount} BNB`, ...prev]);
+      })
+      .subscribe();
   };
-
-  const updateFee = async (type) => {
-    if (!newFees[type]) return;
-
-    try {
-      await axios.post("/api/admin/updateFee", { type, value: parseFloat(newFees[type]) });
-      setStatusMessage(`✅ ${type.toUpperCase()} Fee Updated to ${newFees[type]}%`);
-      fetchAdminData();
-    } catch (error) {
-      console.error("❌ Error updating fee:", error);
-    }
-  };
-
-  if (!isAdmin) {
-    return (
-      <div className="admin-controls">
-        <h2>🚨 Access Denied</h2>
-        <p>🔒 You are not authorized to view this section.</p>
-      </div>
-    );
-  }
 
   return (
-    <div className="admin-controls">
-      <h1>⚙️ Admin Dashboard</h1>
-      <p className="admin-status">Welcome, <strong>{account}</strong></p>
+    <Box className="admin-container p-6">
+      <Typography variant="h4" className="text-center mb-6">🛠️ Admin Panel</Typography>
+      
+      {/* Live System Monitoring */}
+      <Box className="live-status mb-6 p-4 text-center">
+        <Typography variant="h6">🌍 System Status: {systemStatus}</Typography>
+        <Typography variant="h6">💰 BNB Price: ${bnbPrice}</Typography>
+      </Box>
 
       {loading ? (
-        <p className="loading-text">🔄 Loading admin data...</p>
+        <Typography variant="h6" className="text-center">⏳ Loading data...</Typography>
       ) : (
         <>
-          {/* 📊 Sistemos metrika */}
-          <div className="stats-container">
-            <div className="stat-box">
-              <h3>👥 Active Users</h3>
-              <p>{userStats.activeUsers}</p>
-            </div>
-            <div className="stat-box">
-              <h3>💳 Total Transactions</h3>
-              <p>{userStats.totalTransactions}</p>
-            </div>
-            <div className="stat-box">
-              <h3>📊 Total Volume</h3>
-              <p>{userStats.totalVolume} BNB</p>
-            </div>
-          </div>
+          {/* Notifications */}
+          {notifications.length > 0 && (
+            <Snackbar open autoHideDuration={5000} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+              <Alert severity="info">{notifications[0]}</Alert>
+            </Snackbar>
+          )}
 
-          {/* 📈 Rinkos duomenys */}
-          <div className="market-data">
-            <h3>📈 Market Overview</h3>
-            <p>BNB Price: ${marketData.bnbPrice}</p>
-          </div>
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={6}>
+              <Card className="glass-card">
+                <CardContent>
+                  <Typography variant="h5">👤 Total Users</Typography>
+                  <Typography variant="h4">{users.length}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
 
-          {/* 🔐 2FA Valdymas */}
-          <div className="section">
-            <h3>🔐 2FA Authentication</h3>
-            <button className="toggle-2fa" onClick={toggle2FA}>
-              {is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}
-            </button>
-          </div>
+            <Grid item xs={12} md={6}>
+              <Card className="glass-card">
+                <CardContent>
+                  <Typography variant="h5">💳 Total Transactions</Typography>
+                  <Typography variant="h4">{transactions.length}</Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
 
-          {/* 💰 Mokesčių Valdymas */}
-          <div className="fee-controls">
-            <h3>💰 Fee Management</h3>
-            {Object.keys(fees).map((type) => (
-              <div key={type} className="fee-item">
-                <label>{type.toUpperCase()} Fee: {fees[type]}%</label>
-                <input
-                  type="number"
-                  placeholder={`New ${type} Fee`}
-                  value={newFees[type]}
-                  onChange={(e) => setNewFees({ ...newFees, [type]: e.target.value })}
-                />
-                <button className="update-btn" onClick={() => updateFee(type)}>Update</button>
-              </div>
-            ))}
-          </div>
+          {/* Users Table */}
+          <Box className="table-container mt-6">
+            <Typography variant="h5" className="mb-4">👤 Users List</Typography>
+            <TableContainer component={Paper} className="glass-table">
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>ID</TableCell>
+                    <TableCell>Wallet</TableCell>
+                    <TableCell>Balance (BNB)</TableCell>
+                    <TableCell>Joined</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell>{user.id.substring(0, 6)}...</TableCell>
+                      <TableCell>{user.wallet.substring(0, 6)}...{user.wallet.slice(-4)}</TableCell>
+                      <TableCell>{user.balance}</TableCell>
+                      <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
 
-          {/* 🚫 Ban/Unban Naudotojai */}
-          <AdminSecurity />
-
-          {/* 📜 Security Logs */}
-          <div className="section">
-            <h3>📜 Security Logs</h3>
-            <ul>
-              {logs.map((log, index) => (
-                <li key={index}>{log}</li>
-              ))}
-            </ul>
-          </div>
-
-          {statusMessage && <p className="status-message">{statusMessage}</p>}
+          {/* Transactions Table */}
+          <Box className="table-container mt-6">
+            <Typography variant="h5" className="mb-4">🔄 Transactions</Typography>
+            <TableContainer component={Paper} className="glass-table">
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>From</TableCell>
+                    <TableCell>To</TableCell>
+                    <TableCell>Amount (BNB)</TableCell>
+                    <TableCell>Status</TableCell>
+                    <TableCell>Timestamp</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {transactions.map((tx) => (
+                    <TableRow key={tx.id}>
+                      <TableCell>{tx.from.substring(0, 6)}...{tx.from.slice(-4)}</TableCell>
+                      <TableCell>{tx.to.substring(0, 6)}...{tx.to.slice(-4)}</TableCell>
+                      <TableCell>{tx.amount}</TableCell>
+                      <TableCell>{tx.status}</TableCell>
+                      <TableCell>{new Date(tx.timestamp).toLocaleString()}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Box>
         </>
       )}
-    </div>
+    </Box>
   );
 }
