@@ -1,196 +1,198 @@
-/* ======== Global Styles ======== */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Inter', sans-serif;
+/* 🔥 GLOBAL SETTINGS */
+:root {
+  --primary-color: #0a1f44;
+  --secondary-color: #ffd700;
+  --background-dark: #0d1117;
+  --background-light: #ffffff;
+  --text-dark: #ffffff;
+  --text-light: #000000;
+  --border-radius: 8px;
+  --shadow-light: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  --shadow-dark: 0px 4px 8px rgba(255, 255, 255, 0.1);
 }
 
 body {
-  background-color: #0A1F44; /* Tamsiai mėlyna */
-  color: #ffffff;
-  font-size: 16px;
-  line-height: 1.6;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  text-align: center;
+  font-family: "Inter", sans-serif;
+  background-color: var(--background-dark);
+  color: var(--text-dark);
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s, color 0.3s;
 }
 
-/* ======== Links ======== */
-a {
-  color: #FFD700; /* Auksinė */
-  text-decoration: none;
-  transition: all 0.3s ease-in-out;
+/* 🔹 LIGHT MODE */
+[data-theme="light"] {
+  --background-dark: var(--background-light);
+  --text-dark: var(--text-light);
+  --shadow-dark: var(--shadow-light);
 }
 
-a:hover {
-  text-decoration: underline;
-}
-
-/* ======== Buttons ======== */
+/* 🔥 BUTTONS */
 button {
-  background: linear-gradient(135deg, #FFD700, #FFB800);
-  color: #0A1F44;
-  padding: 12px 20px;
+  background: var(--primary-color);
+  color: var(--text-dark);
   border: none;
-  border-radius: 10px;
-  font-size: 16px;
+  padding: 12px 18px;
+  border-radius: var(--border-radius);
   cursor: pointer;
-  transition: all 0.3s ease;
+  font-weight: 600;
+  transition: all 0.3s ease-in-out;
 }
 
 button:hover {
-  background: linear-gradient(135deg, #FFB800, #FFD700);
-  transform: scale(1.05);
+  background: var(--secondary-color);
+  color: var(--background-dark);
 }
 
-button:active {
-  transform: scale(0.98);
-}
-
-/* ======== Wallet Buttons ======== */
-.wallet-buttons {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  margin-top: 20px;
-}
-
-.wallet-connect-btn {
-  background: #1A2B6B;
-  color: #FFD700;
-  border: 2px solid #FFD700;
-  padding: 12px 18px;
-  border-radius: 8px;
-  font-weight: bold;
-  transition: all 0.3s ease-in-out;
-}
-
-.wallet-connect-btn:hover {
-  background: #FFD700;
-  color: #1A2B6B;
-}
-
-/* ======== Wallet Info ======== */
-.wallet-info {
-  background: rgba(255, 215, 0, 0.1);
-  border: 2px solid #FFD700;
-  padding: 15px;
-  border-radius: 10px;
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+/* 🔥 WALLET BUTTONS */
+.wallet-buttons button {
+  margin: 10px;
+  width: 220px;
 }
 
 .wallet-address {
-  font-size: 18px;
   font-weight: bold;
-  color: #FFD700;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 10px;
+  border-radius: var(--border-radius);
+  text-align: center;
 }
 
-/* ======== QR Code ======== */
-.qr-section {
-  margin-top: 20px;
-  padding: 20px;
-  background: rgba(255, 215, 0, 0.1);
-  border: 1px solid #FFD700;
-  border-radius: 12px;
-  display: inline-block;
-}
-
-/* ======== Tables & Lists ======== */
-table {
-  width: 90%;
-  max-width: 800px;
-  border-collapse: collapse;
-  margin-top: 20px;
-  background: rgba(255, 215, 0, 0.1);
-  border: 2px solid #FFD700;
-  border-radius: 12px;
-}
-
-th, td {
-  padding: 12px;
-  border-bottom: 1px solid #FFD700;
-}
-
-th {
-  background: #FFD700;
-  color: #0A1F44;
-}
-
-tr:hover {
-  background: rgba(255, 215, 0, 0.2);
-}
-
-/* ======== Navbar & Footer ======== */
+/* 🔹 NAVBAR */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
-  padding: 15px 30px;
-  background: #1A2B6B;
-  box-shadow: 0 4px 10px rgba(255, 215, 0, 0.2);
+  background: var(--primary-color);
+  padding: 15px 20px;
+  box-shadow: var(--shadow-dark);
 }
 
-.menu {
-  display: flex;
-  gap: 20px;
-}
-
-.menu a {
-  font-size: 18px;
+.navbar a {
+  color: var(--text-dark);
+  text-decoration: none;
   font-weight: bold;
+  padding: 10px 15px;
+  transition: all 0.3s;
 }
 
+.navbar a:hover {
+  color: var(--secondary-color);
+}
+
+/* 🔥 FOOTER */
 .footer {
-  margin-top: 50px;
-  width: 100%;
-  padding: 20px 0;
   text-align: center;
-  background: #1A2B6B;
-  color: #FFD700;
-  border-top: 2px solid #FFD700;
+  padding: 20px;
+  background: var(--primary-color);
+  color: var(--text-dark);
 }
 
-/* ======== Forms & Inputs ======== */
+/* 🔹 TABLES */
+.table-container {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-dark);
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+th {
+  background: var(--primary-color);
+  color: var(--text-dark);
+}
+
+/* 🔥 FORMS */
 input, select {
   width: 100%;
-  max-width: 300px;
   padding: 10px;
-  margin-top: 10px;
-  border: 2px solid #FFD700;
-  border-radius: 8px;
-  background: transparent;
-  color: #FFD700;
-  font-size: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--border-radius);
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-dark);
+  margin-bottom: 15px;
 }
 
-input::placeholder {
-  color: rgba(255, 215, 0, 0.5);
+input:focus, select:focus {
+  border-color: var(--secondary-color);
+  outline: none;
 }
 
-select {
-  cursor: pointer;
+/* 🔹 TRANSACTIONS */
+.transaction {
+  display: flex;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: var(--border-radius);
+  margin-bottom: 10px;
 }
 
-.invalid {
-  border-color: red;
+.transaction.success {
+  border-left: 5px solid #4caf50;
 }
 
-/* ======== Mobile Styles ======== */
-@media (max-width: 768px) {
-  .menu {
-    flex-direction: column;
-    align-items: center;
-  }
+.transaction.failed {
+  border-left: 5px solid #ff3b3b;
+}
 
-  .wallet-buttons {
-    flex-direction: column;
-  }
+/* 🔹 MODALS */
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--background-dark);
+  padding: 20px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-dark);
+  z-index: 1000;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 999;
+}
+
+/* 🔹 QR CODES */
+.qr-code {
+  display: block;
+  margin: 20px auto;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-dark);
+}
+
+/* 🔥 CHARTS */
+.chart-container {
+  width: 100%;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-dark);
+}
+
+/* 🔹 ANIMATIONS */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
 }
