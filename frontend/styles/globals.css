@@ -1,198 +1,113 @@
-/* 🔥 GLOBAL SETTINGS */
+/* 🌍 GLOBAL VARIABLES */
 :root {
-  --primary-color: #0a1f44;
-  --secondary-color: #ffd700;
-  --background-dark: #0d1117;
-  --background-light: #ffffff;
-  --text-dark: #ffffff;
-  --text-light: #000000;
+  --primary-color: #0a1f44; /* NordBaltic Blue */
+  --secondary-color: #ffd700; /* Gold */
+  --bg-dark: #0b0f19;
+  --bg-light: #ffffff;
+  --text-light: #ffffff;
+  --text-dark: #0a1f44;
+  --card-bg: rgba(255, 255, 255, 0.1);
+  --button-gradient: linear-gradient(135deg, #ffd700, #ffb300);
   --border-radius: 8px;
-  --shadow-light: 0px 4px 8px rgba(0, 0, 0, 0.1);
-  --shadow-dark: 0px 4px 8px rgba(255, 255, 255, 0.1);
+  --transition-fast: 0.2s ease-in-out;
+  --shadow-lg: 0px 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-body {
-  font-family: "Inter", sans-serif;
-  background-color: var(--background-dark);
-  color: var(--text-dark);
-  margin: 0;
-  padding: 0;
-  transition: background-color 0.3s, color 0.3s;
+/* 🌙 DARK MODE */
+[data-theme="dark"] {
+  --bg-color: var(--bg-dark);
+  --text-color: var(--text-light);
+  --card-bg: rgba(255, 255, 255, 0.1);
+  --button-bg: var(--button-gradient);
 }
 
-/* 🔹 LIGHT MODE */
+/* ☀️ LIGHT MODE */
 [data-theme="light"] {
-  --background-dark: var(--background-light);
-  --text-dark: var(--text-light);
-  --shadow-dark: var(--shadow-light);
+  --bg-color: var(--bg-light);
+  --text-color: var(--text-dark);
+  --card-bg: rgba(0, 0, 0, 0.05);
+  --button-bg: #ffd700;
 }
 
-/* 🔥 BUTTONS */
-button {
-  background: var(--primary-color);
-  color: var(--text-dark);
-  border: none;
+/* 🎨 GLOBAL RESET */
+body {
+  font-family: "Poppins", sans-serif;
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: var(--transition-fast);
+}
+
+/* 🔘 BUTTONS */
+.button {
+  background: var(--button-bg);
+  color: #000;
   padding: 12px 18px;
+  border: none;
   border-radius: var(--border-radius);
   cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s ease-in-out;
-}
-
-button:hover {
-  background: var(--secondary-color);
-  color: var(--background-dark);
-}
-
-/* 🔥 WALLET BUTTONS */
-.wallet-buttons button {
-  margin: 10px;
-  width: 220px;
-}
-
-.wallet-address {
   font-weight: bold;
-  background: rgba(255, 255, 255, 0.1);
-  padding: 10px;
-  border-radius: var(--border-radius);
-  text-align: center;
+  box-shadow: var(--shadow-lg);
+  transition: var(--transition-fast);
+}
+.button:hover {
+  opacity: 0.8;
 }
 
-/* 🔹 NAVBAR */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: var(--primary-color);
-  padding: 15px 20px;
-  box-shadow: var(--shadow-dark);
-}
-
-.navbar a {
-  color: var(--text-dark);
-  text-decoration: none;
-  font-weight: bold;
-  padding: 10px 15px;
-  transition: all 0.3s;
-}
-
-.navbar a:hover {
-  color: var(--secondary-color);
-}
-
-/* 🔥 FOOTER */
-.footer {
-  text-align: center;
+/* 🔲 CARDS */
+.card {
+  background: var(--card-bg);
   padding: 20px;
-  background: var(--primary-color);
-  color: var(--text-dark);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-lg);
 }
 
-/* 🔹 TABLES */
-.table-container {
-  overflow-x: auto;
-}
-
-table {
+/* 📊 TABLES */
+.table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  margin: 20px 0;
   border-radius: var(--border-radius);
-  box-shadow: var(--shadow-dark);
+  overflow: hidden;
 }
-
-th, td {
-  padding: 12px;
+.table th, .table td {
+  padding: 15px;
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
-
-th {
-  background: var(--primary-color);
-  color: var(--text-dark);
+.table th {
+  background: var(--secondary-color);
+  color: #000;
 }
-
-/* 🔥 FORMS */
-input, select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--border-radius);
+.table tr:nth-child(even) {
   background: rgba(255, 255, 255, 0.1);
-  color: var(--text-dark);
-  margin-bottom: 15px;
 }
 
-input:focus, select:focus {
-  border-color: var(--secondary-color);
-  outline: none;
+/* 🔄 LOADING SPINNER */
+.loader {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid var(--secondary-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
-/* 🔹 TRANSACTIONS */
-.transaction {
-  display: flex;
-  justify-content: space-between;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 15px;
-  border-radius: var(--border-radius);
-  margin-bottom: 10px;
+/* 🛑 ERROR TEXT */
+.error-text {
+  color: red;
+  font-size: 14px;
 }
 
-.transaction.success {
-  border-left: 5px solid #4caf50;
-}
-
-.transaction.failed {
-  border-left: 5px solid #ff3b3b;
-}
-
-/* 🔹 MODALS */
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: var(--background-dark);
-  padding: 20px;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-dark);
-  z-index: 1000;
-}
-
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 999;
-}
-
-/* 🔹 QR CODES */
-.qr-code {
-  display: block;
-  margin: 20px auto;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-dark);
-}
-
-/* 🔥 CHARTS */
-.chart-container {
-  width: 100%;
-  height: 300px;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 15px;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow-dark);
-}
-
-/* 🔹 ANIMATIONS */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.fade-in {
-  animation: fadeIn 0.5s ease-in-out;
+/* 📱 RESPONSIVE */
+@media screen and (max-width: 768px) {
+  .table th, .table td {
+    padding: 10px;
+    font-size: 14px;
+  }
+  .button {
+    padding: 10px;
+  }
 }
