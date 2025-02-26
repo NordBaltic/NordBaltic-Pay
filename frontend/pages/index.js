@@ -13,13 +13,16 @@ export default function Home() {
   const [walletType, setWalletType] = useState(localStorage.getItem("walletType") || null);
   const [bnbPrice, setBnbPrice] = useState(null);
   const [currency, setCurrency] = useState("USD");
+  const [darkMode, setDarkMode] = useState(localStorage.getItem("darkMode") === "true");
+  const [transactions, setTransactions] = useState([]);
   const router = useRouter();
 
   useEffect(() => {
     fetchBnbPrice();
+    fetchRecentTransactions();
     if (account) {
       setTimeout(() => {
-        router.push("/dashboard"); // 🔥 Auto redirect jei jau prisijungęs!
+        router.push("/dashboard");
       }, 2000);
     }
   }, [account]);
@@ -30,6 +33,15 @@ export default function Home() {
       setBnbPrice(response.data.binancecoin);
     } catch (error) {
       console.error("Error fetching BNB price:", error);
+    }
+  };
+
+  const fetchRecentTransactions = async () => {
+    try {
+      const response = await axios.get("https://api.bscscan.com/api?module=account&action=txlist&address=latest&sort=desc&apikey=YOUR_BSCSCAN_API_KEY");
+      setTransactions(response.data.result.slice(0, 5)); // Tik 5 paskutiniai sandoriai
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
     }
   };
 
@@ -68,10 +80,16 @@ export default function Home() {
   };
 
   return (
-    <div className="home-container">
+    <div className={`home-container ${darkMode ? "dark-mode" : ""}`}>
       <header className="hero">
         <h1 className="hero-title">🚀 Welcome to NordBaltic Pay</h1>
         <p className="hero-subtitle">The next-gen Web3 financial ecosystem.</p>
+        <button className="dark-mode-toggle" onClick={() => {
+          setDarkMode(!darkMode);
+          localStorage.setItem("darkMode", !darkMode);
+        }}>
+          {darkMode ? "🌞 Light Mode" : "🌙 Dark Mode"}
+        </button>
         <div className="wallet-buttons">
           <button className="wallet-connect-btn" onClick={() => connectWallet("WalletConnect")}>🔗 Connect WalletConnect</button>
           <button className="wallet-connect-btn" onClick={() => connectWallet("MetaMask")}>🦊 Connect MetaMask</button>
@@ -82,7 +100,6 @@ export default function Home() {
       {account ? (
         <div className="account-section">
           <p className="wallet-address">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)} ({walletType})</p>
-          <p className="network-status">🌍 Binance Smart Chain</p>
           <QRCode value={account} size={150} className="qr-code" />
           {bnbPrice && (
             <p className="bnb-price">1 BNB ≈ {bnbPrice[currency.toLowerCase()]} {currency}</p>
@@ -93,22 +110,21 @@ export default function Home() {
         <p className="connect-notice">👆 Please connect your wallet to continue.</p>
       )}
 
-      <section className="features">
-        <h2>🌟 Why NordBaltic Pay?</h2>
-        <div className="features-grid">
-          <div className="feature-card">💳 Secure & Fast Transactions</div>
-          <div className="feature-card">🔄 Automated Staking Rewards</div>
-          <div className="feature-card">📊 Real-Time Token & Portfolio Tracking</div>
-          <div className="feature-card">🌍 Supports Global Charities</div>
-          <div className="feature-card">🔐 Decentralized & Non-Custodial</div>
-          <div className="feature-card">🚀 Built for Web3 & The Future</div>
-        </div>
-      </section>
-
-      <section className="cta-section">
-        <h2>📲 Get Started Today!</h2>
-        <p>Join the decentralized financial revolution with NordBaltic Pay.</p>
-        <button className="cta-btn" onClick={() => router.push("/dashboard")}>Start Now 🚀</button>
+      <section className="transactions">
+        <h2>📡 Live Transactions</h2>
+        <ul>
+          {transactions.length > 0 ? transactions.map((tx) => (
+            <li key={tx.hash}>
+              <strong>From:</strong> {tx.from.substring(0, 6)}...{tx.from.slice(-4)}
+              <br />
+              <strong>To:</strong> {tx.to.substring(0, 6)}...{tx.to.slice(-4)}
+              <br />
+              <strong>Amount:</strong> {parseFloat(tx.value) / 10 ** 18} BNB
+              <br />
+              <a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank" rel="noopener noreferrer">🔍 View on BSCScan</a>
+            </li>
+          )) : <p>No recent transactions.</p>}
+        </ul>
       </section>
 
       <footer className="footer">
