@@ -1,74 +1,86 @@
-// 📂 /components/Charts.js - MAX PREMIUM BALANCE CHART
 import { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import axios from "axios";
 import "chart.js/auto";
 
-export default function Charts({ account, currency }) {
-  const [timeframe, setTimeframe] = useState("24h");
-  const [chartData, setChartData] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [exchangeRate, setExchangeRate] = useState(1);
+export default function Charts({ data }) {
+  const [chartData, setChartData] = useState(null);
+  const [selectedPeriod, setSelectedPeriod] = useState("24h");
 
   useEffect(() => {
-    if (!account) return;
-    fetchBalanceHistory();
-    fetchExchangeRate();
-  }, [account, timeframe, currency]);
+    fetchChartData(selectedPeriod);
+    const interval = setInterval(() => fetchChartData(selectedPeriod), 30000);
+    return () => clearInterval(interval);
+  }, [selectedPeriod]);
 
-  const fetchBalanceHistory = async () => {
-    setLoading(true);
+  const fetchChartData = async (period) => {
     try {
-      const apiKey = process.env.NEXT_PUBLIC_BSCSCAN_API_KEY;
-      const url = `https://api.bscscan.com/api?module=account&action=balancehistory&address=${account}&apikey=${apiKey}`;
-      const response = await axios.get(url);
-      
-      if (response.data.status === "1") {
-        const history = response.data.result;
-        const formattedData = history.map((entry) => ({
-          time: new Date(entry.timestamp * 1000).toLocaleDateString(),
-          balance: parseFloat(entry.balance) / 10 ** 18, // Konvertuoja iš wei į BNB
-        }));
+      const response = await axios.get(`/api/chart-data?period=${period}`);
+      const { prices, volumes, labels } = response.data;
 
-        setChartData({
-          labels: formattedData.map((entry) => entry.time),
-          datasets: [
-            {
-              label: `Balance (${currency})`,
-              data: formattedData.map((entry) => entry.balance * exchangeRate),
-              borderColor: "rgba(0, 123, 255, 1)",
-              backgroundColor: "rgba(0, 123, 255, 0.2)",
-              tension: 0.4,
-            },
-          ],
-        });
-
-        setLoading(false);
-      }
+      setChartData({
+        labels: labels,
+        datasets: [
+          {
+            label: "💰 BNB Price (USD)",
+            data: prices,
+            borderColor: "#FFD700",
+            backgroundColor: "rgba(255, 215, 0, 0.3)",
+            borderWidth: 2,
+            tension: 0.4,
+          },
+          {
+            label: "📊 Volume (BNB)",
+            data: volumes,
+            borderColor: "#1E90FF",
+            backgroundColor: "rgba(30, 144, 255, 0.3)",
+            borderWidth: 2,
+            tension: 0.4,
+          },
+        ],
+      });
     } catch (error) {
-      console.error("Error fetching balance history:", error);
-      setLoading(false);
-    }
-  };
-
-  const fetchExchangeRate = async () => {
-    try {
-      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=${currency.toLowerCase()}`);
-      setExchangeRate(response.data.binancecoin[currency.toLowerCase()]);
-    } catch (error) {
-      console.error("Error fetching exchange rate:", error);
+      console.error("📉 Chart data fetch error:", error);
     }
   };
 
   return (
     <div className="chart-container">
-      <h3>📈 Balance Change</h3>
-      <div className="timeframe-buttons">
-        <button onClick={() => setTimeframe("24h")}>24H</button>
-        <button onClick={() => setTimeframe("1w")}>1W</button>
-        <button onClick={() => setTimeframe("1m")}>1M</button>
+      <h2>📊 Market Overview</h2>
+
+      <div className="chart-filters">
+        <label>Select Period:</label>
+        <select value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.target.value)}>
+          <option value="24h">Last 24 Hours</option>
+          <option value="7d">Last 7 Days</option>
+          <option value="30d">Last 30 Days</option>
+        </select>
       </div>
-      {loading ? <p>Loading chart...</p> : <Line data={chartData} />}
+
+      {chartData ? (
+        <Line
+          data={chartData}
+          options={{
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: "top",
+              },
+            },
+            scales: {
+              x: {
+                grid: { display: false },
+              },
+              y: {
+                grid: { color: "#444" },
+              },
+            },
+          }}
+        />
+      ) : (
+        <p>📡 Loading chart data...</p>
+      )}
     </div>
   );
-      }
+}
