@@ -1,4 +1,4 @@
-/* 🎨 TEMOS KINTAMIEJI */
+/* 🎨 THEME STYLES – MAXIMUM PREMIUM DESIGN */
 :root {
   --primary-color: #4CAF50;
   --secondary-color: #2E7D32;
@@ -7,10 +7,8 @@
   --bg-light: #F5F5F5;
   --text-dark: #FFFFFF;
   --text-light: #0A1F44;
-  --card-bg-dark: rgba(255, 255, 255, 0.05);
-  --card-bg-light: rgba(0, 0, 0, 0.05);
   --border-radius: 12px;
-  --shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   --transition: all 0.3s ease-in-out;
 }
 
@@ -18,7 +16,7 @@
 [data-theme="dark"] {
   --bg-color: var(--bg-dark);
   --text-color: var(--text-dark);
-  --card-bg: var(--card-bg-dark);
+  --card-bg: rgba(255, 255, 255, 0.05);
   --card-border: rgba(255, 255, 255, 0.1);
 }
 
@@ -26,11 +24,18 @@
 [data-theme="light"] {
   --bg-color: var(--bg-light);
   --text-color: var(--text-light);
-  --card-bg: var(--card-bg-light);
+  --card-bg: rgba(0, 0, 0, 0.05);
   --card-border: rgba(0, 0, 0, 0.1);
 }
 
-/* 🔥 TEMOS PERJUNGIMAS SU ANIMACIJA */
+/* 🌟 GLOBAL ELEMENTS */
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  transition: var(--transition);
+}
+
+/* 🎛️ THEME SWITCHER */
 .theme-switcher {
   background: var(--card-bg);
   border: 2px solid var(--card-border);
@@ -39,30 +44,22 @@
   cursor: pointer;
   font-size: 18px;
   transition: var(--transition);
-  box-shadow: var(--shadow);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .theme-switcher:hover {
   background: var(--accent-color);
   color: var(--bg-color);
-  transform: scale(1.05);
 }
 
-/* 🏦 NAVBAR */
+/* 🏦 NAVIGATION BAR */
 .navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
   padding: 15px 20px;
   box-shadow: var(--shadow);
   border-radius: var(--border-radius);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 1000;
 }
 
 .navbar a {
@@ -76,7 +73,6 @@
 
 .navbar a:hover {
   opacity: 0.8;
-  transform: translateY(-2px);
 }
 
 /* 📊 DASHBOARD */
@@ -85,7 +81,6 @@
   margin: auto;
   padding: 20px;
   background: var(--card-bg);
-  border: 1px solid var(--card-border);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
   transition: var(--transition);
@@ -96,8 +91,6 @@
   font-weight: bold;
   text-align: center;
   margin-bottom: 20px;
-  color: var(--text-color);
-  animation: fadeIn 1s ease-in-out;
 }
 
 .dashboard-buttons a {
@@ -109,12 +102,10 @@
   transition: var(--transition);
   text-decoration: none;
   font-weight: bold;
-  box-shadow: var(--shadow);
 }
 
 .dashboard-buttons a:hover {
   background: var(--accent-color);
-  transform: scale(1.05);
 }
 
 /* 📜 TRANSACTION HISTORY */
@@ -138,7 +129,6 @@
 
 .transaction-history tr:hover {
   background: var(--card-bg);
-  transform: scale(1.01);
 }
 
 /* ⚡ ADMIN PANEL */
@@ -155,7 +145,6 @@
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 10px;
-  color: var(--text-color);
 }
 
 .admin-container table {
@@ -179,6 +168,33 @@
   background: var(--card-bg);
 }
 
+/* ⚙️ SETTINGS */
+.settings-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  background: var(--card-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+.settings-section {
+  margin-bottom: 20px;
+}
+
+.settings-section h3 {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.settings-container select {
+  padding: 8px;
+  border-radius: var(--border-radius);
+  font-size: 16px;
+  background: var(--card-bg);
+  color: var(--text-color);
+}
+
 /* 📉 CHARTS */
 .chart-container {
   background: var(--card-bg);
@@ -186,7 +202,6 @@
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
   margin-top: 20px;
-  animation: fadeIn 1s ease-in-out;
 }
 
 /* 🔥 FOOTER */
@@ -200,19 +215,7 @@
   margin-top: 20px;
 }
 
-/* 🔥 ANIMACIJOS */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* 🛠 RESPONSIVE DESIGN */
+/* 🛠 RESPONSIVE */
 @media (max-width: 768px) {
   .navbar .menu {
     flex-direction: column;
