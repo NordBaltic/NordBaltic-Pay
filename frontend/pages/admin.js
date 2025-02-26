@@ -1,36 +1,37 @@
 import { useEffect, useState } from "react";
-import Admin from "../components/Admin";
-import Analytics from "../components/Analytics";
-import Security from "../components/Security";
 import { useRouter } from "next/router";
+import Admin from "../components/Admin";
+import "../styles/globals.css";
 
 export default function AdminPage() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [account, setAccount] = useState(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET;
     const storedAccount = localStorage.getItem("walletAccount");
-
-    if (storedAccount && storedAccount.toLowerCase() === adminWallet.toLowerCase()) {
-      setIsAuthenticated(true);
+    if (storedAccount) {
+      setAccount(storedAccount);
+      checkAdminStatus(storedAccount);
     } else {
-      router.push("/"); // ✅ Jei ne admin, peradresuojame į pagrindinį puslapį
+      router.push("/");
     }
   }, []);
 
+  const checkAdminStatus = async (wallet) => {
+    const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET;
+    if (wallet.toLowerCase() === adminWallet.toLowerCase()) {
+      setIsAdmin(true);
+    } else {
+      alert("🚫 Access Denied: You are not an admin!");
+      router.push("/");
+    }
+  };
+
   return (
     <div className="admin-page">
-      {isAuthenticated ? (
-        <>
-          <h1>🔧 Admin Panel</h1>
-          <Admin />
-          <Analytics />
-          <Security /> {/* ✅ Pridėta saugumo sistema */}
-        </>
-      ) : (
-        <p className="error-text">⏳ Loading...</p>
-      )}
+      <h1>🔧 Admin Dashboard</h1>
+      {isAdmin ? <Admin /> : <p>⏳ Verifying admin access...</p>}
     </div>
   );
-}
+      }
