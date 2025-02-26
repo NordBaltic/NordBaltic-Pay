@@ -1,6 +1,6 @@
-import { useTheme } from "../context/ThemeContext";
-import { FaSun, FaMoon } from "react-icons/fa"; // Importuojame ikonėles
-import "../styles/globals.css"; // Užtikriname, kad CSS bus naudojamas
+import { useTheme } from "../components/ThemeContext";
+import { FaSun, FaMoon } from "react-icons/fa";
+import "../styles/globals.css";
 
 const ThemeSwitcher = () => {
   const { theme, setTheme } = useTheme();
