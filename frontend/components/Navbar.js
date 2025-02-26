@@ -1,10 +1,15 @@
-// 📂 /components/Navbar.js – Ultimate Premium Navbar 🚀
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import QRCode from "qrcode.react";
 import { useTheme } from "./ThemeContext";
+import { AppBar, Toolbar, IconButton, Button, Menu, MenuItem, Typography, Box, Select } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import DarkModeIcon from "@mui/icons-material/NightsStay";
+import LightModeIcon from "@mui/icons-material/WbSunny";
+import LogoutIcon from "@mui/icons-material/Logout";
 import "../styles/globals.css";
 
 export default function Navbar() {
@@ -14,7 +19,7 @@ export default function Navbar() {
   const [balance, setBalance] = useState("0.00");
   const [convertedBalance, setConvertedBalance] = useState(null);
   const [currency, setCurrency] = useState("USD");
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuAnchor, setMenuAnchor] = useState(null);
   const { theme, setTheme } = useTheme();
 
   useEffect(() => {
@@ -45,9 +50,7 @@ export default function Navbar() {
 
   const fetchConversionRate = async (bnbAmount) => {
     try {
-      const response = await fetch(
-        `https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`
-      );
+      const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`);
       const data = await response.json();
       setConvertedBalance({
         usd: (bnbAmount * data.binancecoin.usd).toFixed(2),
@@ -103,67 +106,73 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="navbar">
-      <div className="logo">
+    <AppBar position="static" className="navbar glass-navbar">
+      <Toolbar className="flex justify-between">
+        {/* LOGOTIPAS */}
         <Link href="/">
-          <a>🏦 NordBaltic Pay</a>
+          <Typography variant="h6" className="cursor-pointer text-white font-bold">
+            🏦 NordBaltic Pay
+          </Typography>
         </Link>
-      </div>
 
-      {/* 📌 NAVIGATION MENU */}
-      <div className={`menu ${menuOpen ? "open" : ""}`}>
-        <Link href="/dashboard"><a>📊 Dashboard</a></Link>
-        <Link href="/staking"><a>💸 Staking</a></Link>
-        <Link href="/transactions"><a>📜 Transactions</a></Link>
-        <Link href="/swap"><a>🔄 Swap</a></Link>
-        <Link href="/donations"><a>❤️ Donations</a></Link>
-        <Link href="/admin"><a>🛠️ Admin</a></Link>
-      </div>
+        {/* NAVIGACIJOS MYGTUKAI */}
+        <Box className="hidden md:flex space-x-4">
+          <Link href="/dashboard"><Button color="inherit">📊 Dashboard</Button></Link>
+          <Link href="/staking"><Button color="inherit">💸 Staking</Button></Link>
+          <Link href="/transactions"><Button color="inherit">📜 Transactions</Button></Link>
+          <Link href="/swap"><Button color="inherit">🔄 Swap</Button></Link>
+          <Link href="/donations"><Button color="inherit">❤️ Donations</Button></Link>
+          <Link href="/admin"><Button color="inherit">🛠️ Admin</Button></Link>
+        </Box>
 
-      {/* 🔗 WALLET CONNECTION */}
-      <div className="wallet-section">
+        {/* WALLET PRISIJUNGIMAS */}
         {account ? (
-          <div className="wallet-info">
-            <p className="wallet-address">
+          <Box className="flex items-center space-x-4">
+            <Typography variant="body2" className="text-white">
               ✅ {account.substring(0, 6)}...{account.slice(-4)}
-            </p>
-            <p className="network-status">{network}</p>
-            <p className="wallet-balance">💰 {balance} BNB</p>
+            </Typography>
+            <Typography variant="body2" className="text-white">{network}</Typography>
+            <Typography variant="body2" className="text-white">💰 {balance} BNB</Typography>
             {convertedBalance && (
-              <p className="converted-balance">
+              <Typography variant="body2" className="text-white">
                 ≈ {currency === "USD" ? convertedBalance.usd : convertedBalance.eur} {currency}
-              </p>
+              </Typography>
             )}
-            <select onChange={(e) => setCurrency(e.target.value)} value={currency}>
-              <option value="USD">💵 USD</option>
-              <option value="EUR">💶 EUR</option>
-            </select>
-            <QRCode value={account} size={50} />
-            <button className="wallet-disconnect-btn" onClick={disconnectWallet}>
-              ❌ Disconnect
-            </button>
-          </div>
+            <Select
+              value={currency}
+              onChange={(e) => setCurrency(e.target.value)}
+              className="bg-gray-900 text-white border border-gray-600 rounded px-2 py-1"
+            >
+              <MenuItem value="USD">💵 USD</MenuItem>
+              <MenuItem value="EUR">💶 EUR</MenuItem>
+            </Select>
+            <IconButton color="inherit" onClick={disconnectWallet}><LogoutIcon /></IconButton>
+          </Box>
         ) : (
-          <div className="wallet-buttons">
-            <button className="wallet-connect-btn" onClick={connectWalletConnect}>
-              🔗 WalletConnect
-            </button>
-            <button className="wallet-connect-btn" onClick={connectMetaMask}>
-              🦊 MetaMask
-            </button>
-          </div>
+          <Box className="flex space-x-2">
+            <Button variant="contained" color="primary" onClick={connectWalletConnect}>🔗 WalletConnect</Button>
+            <Button variant="contained" color="secondary" onClick={connectMetaMask}>🦊 MetaMask</Button>
+          </Box>
         )}
-      </div>
 
-      {/* 🌙 THEME SWITCHER */}
-      <button className="theme-switcher" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-        {theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}
-      </button>
+        {/* TEMOS PERJUNGIMAS */}
+        <IconButton color="inherit" onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+          {theme === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
+        </IconButton>
 
-      {/* ☰ MOBILE MENU TOGGLE */}
-      <div className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
-        ☰
-      </div>
-    </nav>
+        {/* MOBILI NAVIGACIJA */}
+        <IconButton color="inherit" onClick={(e) => setMenuAnchor(e.currentTarget)}>
+          <MenuIcon />
+        </IconButton>
+        <Menu anchorEl={menuAnchor} open={Boolean(menuAnchor)} onClose={() => setMenuAnchor(null)}>
+          <Link href="/dashboard"><MenuItem>📊 Dashboard</MenuItem></Link>
+          <Link href="/staking"><MenuItem>💸 Staking</MenuItem></Link>
+          <Link href="/transactions"><MenuItem>📜 Transactions</MenuItem></Link>
+          <Link href="/swap"><MenuItem>🔄 Swap</MenuItem></Link>
+          <Link href="/donations"><MenuItem>❤️ Donations</MenuItem></Link>
+          <Link href="/admin"><MenuItem>🛠️ Admin</MenuItem></Link>
+        </Menu>
+      </Toolbar>
+    </AppBar>
   );
 }
