@@ -7,11 +7,13 @@ export default function TransactionsPage() {
     <div className="transactions-page">
       <div className="header">
         <h1>📜 Transaction History</h1>
-        <p>Track all your BNB transactions in real-time.</p>
+        <p>📊 Track all your BNB transactions in real-time with live conversion rates.</p>
       </div>
 
+      {/* 🔹 TRANSACTION HISTORY COMPONENT */}
       <TransactionHistory />
 
+      {/* 🔹 NAVIGATION BUTTONS */}
       <div className="navigation">
         <Link href="/dashboard">
           <button className="nav-btn">🏠 Go to Dashboard</button>
@@ -21,6 +23,9 @@ export default function TransactionsPage() {
         </Link>
         <Link href="/receive">
           <button className="nav-btn">📥 Receive Crypto</button>
+        </Link>
+        <Link href="/swap">
+          <button className="nav-btn">🔄 Swap Crypto</button>
         </Link>
       </div>
     </div>
