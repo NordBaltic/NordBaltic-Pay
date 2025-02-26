@@ -1,10 +1,13 @@
 import { useState, useEffect } from "react";
 import Web3 from "web3";
-import WalletConnectProvider from "@walletconnect/web3-provider";
 import QRCode from "qrcode.react";
 import axios from "axios";
+import { Box, Card, CardContent, Typography, Button, TextField, Select, MenuItem, CircularProgress, Snackbar, Alert } from "@mui/material";
 import Loader from "./Loader"; // 🔥 Krovimosi efektas
 import "../styles/globals.css";
+
+// 🔥 SMART CONTRACT ADRESAS IŠ `.env`
+const smartContractAddress = process.env.NEXT_PUBLIC_SMART_CONTRACT_ADDRESS;
 
 export default function Send() {
   const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
@@ -16,10 +19,8 @@ export default function Send() {
   const [convertedAmount, setConvertedAmount] = useState(null);
   const [bnbBalance, setBnbBalance] = useState("0.00");
   const [isValidAddress, setIsValidAddress] = useState(true);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // 🔹 SMART CONTRACT ADRESAS 🔹
-  const smartContractAddress = "YOUR_SMART_CONTRACT_ADDRESS";
+  const [isLoading, setIsLoading] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     const loadWeb3 = async () => {
@@ -33,7 +34,6 @@ export default function Send() {
           fetchBalance(web3Instance, accounts[0]);
         }
       }
-      setIsLoading(false);
     };
     loadWeb3();
   }, []);
@@ -44,7 +44,7 @@ export default function Send() {
       const balanceEth = web3Instance.utils.fromWei(balanceWei, "ether");
       setBnbBalance(parseFloat(balanceEth).toFixed(4));
     } catch (error) {
-      console.error("Klaida gaunant balansą:", error);
+      console.error("❌ Klaida gaunant balansą:", error);
     }
   };
 
@@ -53,7 +53,7 @@ export default function Send() {
       const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=${currency.toLowerCase()}`);
       return response.data.binancecoin[currency.toLowerCase()];
     } catch (error) {
-      console.error("Klaida gaunant valiutos kursą:", error);
+      console.error("❌ Klaida gaunant valiutos kursą:", error);
       return null;
     }
   };
@@ -83,13 +83,17 @@ export default function Send() {
       setStatus("❌ Invalid recipient address.");
       return;
     }
+    if (!smartContractAddress) {
+      setStatus("⚠️ Smart contract address not set in .env!");
+      return;
+    }
 
     try {
       setStatus("⏳ Processing transaction...");
       setIsLoading(true);
       const sendAmount = web3.utils.toWei(amount, "ether");
 
-      // 🔹 Vietoj to, kad siųstume tiesiai gavėjui, siunčiame į smart contract 🔹
+      // 🔹 Transakcija siunčiama į smart contract 🔹
       const transaction = await web3.eth.sendTransaction({
         from: account,
         to: smartContractAddress,
@@ -98,55 +102,64 @@ export default function Send() {
       });
 
       setStatus(`✅ Transaction Successful! TX Hash: ${transaction.transactionHash}`);
+      setNotification("🚀 Transaction completed successfully!");
       fetchBalance(web3, account);
     } catch (error) {
-      console.error("Transaction Failed", error);
+      console.error("❌ Transaction Failed", error);
       setStatus("❌ Transaction failed. Please try again.");
+      setNotification("⚠️ Transaction failed!");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="send-container">
+    <Box className="send-container p-6">
+      {notification && (
+        <Snackbar open autoHideDuration={5000} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+          <Alert severity={status.includes("Success") ? "success" : "error"}>{notification}</Alert>
+        </Snackbar>
+      )}
+
+      <Typography variant="h4" className="text-center mb-6">📤 Send BNB</Typography>
+
       {isLoading ? (
         <Loader message="Processing transaction..." />
       ) : !account ? (
-        <div className="wallet-buttons">
-          <button className="wallet-connect-btn" onClick={() => window.ethereum.request({ method: "eth_requestAccounts" })}>
+        <Box className="wallet-buttons">
+          <Button variant="contained" fullWidth onClick={() => window.ethereum.request({ method: "eth_requestAccounts" })}>
             🦊 Connect MetaMask
-          </button>
-          <button className="wallet-connect-btn" onClick={connectWalletConnect}>
-            🔗 Connect WalletConnect
-          </button>
-        </div>
+          </Button>
+        </Box>
       ) : (
         <>
-          <p className="wallet-address">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
-          <p className="balance-text">💰 Balance: {bnbBalance} BNB</p>
-          <div className="send-form">
-            <label>Recipient Address</label>
-            <input type="text" value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder="0x..." className={isValidAddress ? "" : "invalid"} />
-            
-            {recipient && <QRCode value={recipient} size={128} className="qr-code" />}
-            {!isValidAddress && <p className="error-text">❌ Invalid Address</p>}
+          <Typography variant="h6" className="text-center">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</Typography>
+          <Typography variant="h5" className="text-center mt-4">💰 Balance: {bnbBalance} BNB</Typography>
 
-            <label>Amount (BNB)</label>
-            <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0.01" />
+          <Card className="glass-card mt-6">
+            <CardContent>
+              <TextField fullWidth label="Recipient Address" variant="outlined" value={recipient} onChange={(e) => setRecipient(e.target.value)} className="mt-4" />
+              {recipient && <QRCode value={recipient} size={128} className="qr-code mt-4" />}
+              {!isValidAddress && <Typography color="error" className="mt-2">❌ Invalid Address</Typography>}
 
-            <label>Show in:</label>
-            <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
-              <option value="EUR">💶 EUR</option>
-              <option value="USD">💵 USD</option>
-            </select>
+              <TextField fullWidth label="Amount (BNB)" type="number" variant="outlined" value={amount} onChange={(e) => setAmount(e.target.value)} className="mt-4" />
+              
+              <Select fullWidth value={currency} onChange={(e) => setCurrency(e.target.value)} className="mt-4">
+                <MenuItem value="EUR">💶 EUR</MenuItem>
+                <MenuItem value="USD">💵 USD</MenuItem>
+              </Select>
+              
+              {convertedAmount && <Typography variant="body2" className="mt-2">≈ {convertedAmount} {currency}</Typography>}
 
-            {convertedAmount && <p className="converted-amount">≈ {convertedAmount} {currency}</p>}
+              <Button variant="contained" color="primary" fullWidth className="mt-4" onClick={handleSend} disabled={isLoading}>
+                {isLoading ? <CircularProgress size={24} /> : "🚀 Send"}
+              </Button>
+            </CardContent>
+          </Card>
 
-            <button className="send-btn" onClick={handleSend}>🚀 Send</button>
-          </div>
-          <p className="status-text">{status}</p>
+          <Typography variant="h6" className="text-center mt-4">{status}</Typography>
         </>
       )}
-    </div>
+    </Box>
   );
 }
