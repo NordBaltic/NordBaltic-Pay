@@ -1,0 +1,60 @@
+/* Teminės spalvos */
+:root {
+  --gradient-primary: linear-gradient(135deg, #0A1F44, #1A3A7E);
+  --gradient-secondary: linear-gradient(135deg, #FFD700, #FFC700);
+  --shadow-light: 0px 4px 10px rgba(255, 215, 0, 0.3);
+  --shadow-dark: 0px 4px 10px rgba(0, 0, 0, 0.6);
+  --border-glow: 0 0 10px rgba(255, 215, 0, 0.6);
+}
+
+/* Gradientiniai fonai */
+.bg-primary {
+  background: var(--gradient-primary);
+}
+
+.bg-secondary {
+  background: var(--gradient-secondary);
+}
+
+/* Švytintys efektai */
+.glow-border {
+  border: 2px solid var(--secondary-color);
+  box-shadow: var(--border-glow);
+}
+
+.shadow-light {
+  box-shadow: var(--shadow-light);
+}
+
+.shadow-dark {
+  box-shadow: var(--shadow-dark);
+}
+
+/* Animacijos */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 1);
+  }
+  100% {
+    box-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+  }
+}
+
+.pulse-animation {
+  animation: pulse 2s infinite alternate;
+}
+
+/* Responsyvumas */
+@media (max-width: 768px) {
+  .container {
+    padding: 15px;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+}
