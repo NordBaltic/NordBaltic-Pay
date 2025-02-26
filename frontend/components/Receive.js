@@ -4,14 +4,12 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 import QRCode from "qrcode.react";
 import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
-import { Box, Card, CardContent, Typography, Button, Select, MenuItem, CircularProgress } from "@mui/material";
+import { Box, Card, CardContent, Typography, Button, Select, MenuItem, CircularProgress, Snackbar, Alert } from "@mui/material";
+import { motion } from "framer-motion";
 import "../styles/globals.css";
 
-// 🔥 Supabase setup
+// 🔥 Supabase Setup
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
-
-// 🔹 SMART CONTRACT ADRESAS IŠ `.env`
-const smartContractAddress = process.env.NEXT_PUBLIC_SMART_CONTRACT_ADDRESS;
 
 export default function Receive() {
   const [account, setAccount] = useState(null);
@@ -19,10 +17,13 @@ export default function Receive() {
   const [bnbBalance, setBnbBalance] = useState("0.00");
   const [convertedAmount, setConvertedAmount] = useState({ usd: "0.00", eur: "0.00" });
   const [currency, setCurrency] = useState("EUR");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [transactionAlert, setTransactionAlert] = useState(false);
+  const [lastTransaction, setLastTransaction] = useState(null);
 
   useEffect(() => {
     fetchUserAccount();
+    listenForTransactions();
   }, []);
 
   useEffect(() => {
@@ -35,29 +36,34 @@ export default function Receive() {
 
   // 🔵 Fetch user account from Supabase
   const fetchUserAccount = async () => {
-    const { data, error } = await supabase.from("users").select("wallet, balance").single();
+    const { data, error } = await supabase.from("users").select("wallet").single();
     if (data && data.wallet) {
       setAccount(data.wallet);
-      setBnbBalance(data.balance || "0.00");
+      fetchBalance(web3, data.wallet);
     } else if (error) {
       console.error("❌ Klaida gaunant vartotojo duomenis iš Supabase:", error);
     }
   };
 
+  // 💰 Fetch Balance and Conversion Rate
   const fetchBalance = async (web3Instance, account) => {
     try {
+      setLoading(true);
       const balanceWei = await web3Instance.eth.getBalance(account);
       const balanceEth = web3Instance.utils.fromWei(balanceWei, "ether");
       setBnbBalance(parseFloat(balanceEth).toFixed(4));
-      fetchConversionRate(balanceEth);
 
-      // 📌 Atnaujinti balansą Supabase
+      await fetchConversionRate(balanceEth);
       await supabase.from("users").update({ balance: balanceEth }).eq("wallet", account);
+
+      setLoading(false);
     } catch (error) {
       console.error("❌ Klaida gaunant balansą:", error);
+      setLoading(false);
     }
   };
 
+  // 💱 Fetch BNB to Fiat Rates
   const fetchConversionRate = async (bnbAmount) => {
     try {
       const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`);
@@ -71,6 +77,20 @@ export default function Receive() {
     }
   };
 
+  // 🔄 Realaus Laiko Transakcijų Stebėjimas
+  const listenForTransactions = async () => {
+    const { data } = supabase
+      .channel("transactions")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "transactions" }, (payload) => {
+        if (payload.new.to === account) {
+          setTransactionAlert(true);
+          setLastTransaction(payload.new);
+        }
+      })
+      .subscribe();
+  };
+
+  // 🦊 Connect MetaMask
   const connectMetaMask = async () => {
     if (window.ethereum) {
       try {
@@ -79,7 +99,6 @@ export default function Receive() {
         const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
         setAccount(accounts[0]);
 
-        // 📌 Išsaugoti vartotojo piniginę Supabase, jei jos dar nėra
         await supabase.from("users").upsert({ wallet: accounts[0] });
 
         fetchBalance(web3Instance, accounts[0]);
@@ -91,35 +110,17 @@ export default function Receive() {
     }
   };
 
-  const connectWalletConnect = async () => {
-    try {
-      const provider = new WalletConnectProvider({
-        rpc: { 56: "https://bsc-dataseed.binance.org/" },
-      });
-      await provider.enable();
-      const web3Instance = new Web3(provider);
-      setWeb3(web3Instance);
-      const accounts = await web3Instance.eth.getAccounts();
-      setAccount(accounts[0]);
-
-      // 📌 Išsaugoti vartotojo piniginę Supabase, jei jos dar nėra
-      await supabase.from("users").upsert({ wallet: accounts[0] });
-
-      fetchBalance(web3Instance, accounts[0]);
-    } catch (error) {
-      console.error("❌ WalletConnect klaida:", error);
-    }
-  };
-
   return (
-    <Box className="receive-container p-6">
-      <Typography variant="h4" className="text-center mb-6">📥 Receive Crypto</Typography>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+      className="receive-container glass-card p-6"
+    >
+      <Typography variant="h4" className="text-center mb-6 neon-text">📥 Receive Crypto</Typography>
 
       {!account ? (
         <Box className="wallet-buttons">
-          <Button variant="contained" fullWidth onClick={connectWalletConnect} className="mt-2">
-            🔗 Connect WalletConnect
-          </Button>
           <Button variant="contained" fullWidth onClick={connectMetaMask} className="mt-2">
             🦊 Connect MetaMask
           </Button>
@@ -127,7 +128,7 @@ export default function Receive() {
       ) : (
         <>
           <Typography variant="h6" className="text-center">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</Typography>
-          <Typography variant="h5" className="text-center mt-4">💰 Balance: {bnbBalance} BNB</Typography>
+          {loading ? <CircularProgress className="mt-4" /> : <Typography variant="h5" className="text-center mt-4">💰 Balance: {bnbBalance} BNB</Typography>}
 
           <Card className="glass-card mt-6">
             <CardContent className="text-center">
@@ -148,8 +149,14 @@ export default function Receive() {
               1 BNB ≈ {currency === "EUR" ? convertedAmount.eur : convertedAmount.usd} {currency}
             </Typography>
           )}
+
+          {transactionAlert && (
+            <Snackbar open autoHideDuration={5000} onClose={() => setTransactionAlert(false)}>
+              <Alert severity="success">✅ Received {lastTransaction?.amount} BNB!</Alert>
+            </Snackbar>
+          )}
         </>
       )}
-    </Box>
+    </motion.div>
   );
 }
