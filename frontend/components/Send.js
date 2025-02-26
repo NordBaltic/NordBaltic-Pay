@@ -3,6 +3,7 @@ import Web3 from "web3";
 import QRCode from "qrcode.react";
 import axios from "axios";
 import { Box, Card, CardContent, Typography, Button, TextField, Select, MenuItem, CircularProgress, Snackbar, Alert } from "@mui/material";
+import { motion } from "framer-motion";
 import Loader from "./Loader"; // 🔥 Krovimosi efektas
 import "../styles/globals.css";
 
@@ -23,20 +24,21 @@ export default function Send() {
   const [notification, setNotification] = useState(null);
 
   useEffect(() => {
-    const loadWeb3 = async () => {
-      if (window.ethereum) {
-        const web3Instance = new Web3(window.ethereum);
-        setWeb3(web3Instance);
-        const accounts = await web3Instance.eth.getAccounts();
-        if (accounts.length > 0) {
-          setAccount(accounts[0]);
-          localStorage.setItem("walletAccount", accounts[0]);
-          fetchBalance(web3Instance, accounts[0]);
-        }
-      }
-    };
     loadWeb3();
   }, []);
+
+  const loadWeb3 = async () => {
+    if (window.ethereum) {
+      const web3Instance = new Web3(window.ethereum);
+      setWeb3(web3Instance);
+      const accounts = await web3Instance.eth.getAccounts();
+      if (accounts.length > 0) {
+        setAccount(accounts[0]);
+        localStorage.setItem("walletAccount", accounts[0]);
+        fetchBalance(web3Instance, accounts[0]);
+      }
+    }
+  };
 
   const fetchBalance = async (web3Instance, account) => {
     try {
@@ -114,14 +116,14 @@ export default function Send() {
   };
 
   return (
-    <Box className="send-container p-6">
+    <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="send-container p-6 glass-card">
       {notification && (
         <Snackbar open autoHideDuration={5000} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
           <Alert severity={status.includes("Success") ? "success" : "error"}>{notification}</Alert>
         </Snackbar>
       )}
 
-      <Typography variant="h4" className="text-center mb-6">📤 Send BNB</Typography>
+      <Typography variant="h4" className="text-center mb-6 neon-text">📤 Send BNB</Typography>
 
       {isLoading ? (
         <Loader message="Processing transaction..." />
@@ -160,6 +162,6 @@ export default function Send() {
           <Typography variant="h6" className="text-center mt-4">{status}</Typography>
         </>
       )}
-    </Box>
+    </motion.div>
   );
 }
