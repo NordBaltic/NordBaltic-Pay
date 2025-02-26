@@ -1,126 +1,147 @@
 import { useState, useEffect } from "react";
-import { 
-  banWallet, 
-  unbanWallet, 
-  freezeWalletFunds, 
-  unfreezeWalletFunds, 
-  adminManualTransfer, 
-  adminWithdrawFunds, 
-  getUserStatus 
-} from "../utils/security";
 import Web3 from "web3";
+import axios from "axios";
+import "../styles/globals.css";
 
-export default function AdminPanel() {
+export default function Admin() {
+  const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
-  const [adminWallet, setAdminWallet] = useState("");
-  const [targetWallet, setTargetWallet] = useState("");
-  const [amount, setAmount] = useState("");
-  const [status, setStatus] = useState({ isBanned: false, isFrozen: false });
-  const [message, setMessage] = useState("");
+  const [userList, setUserList] = useState([]);
+  const [bannedUsers, setBannedUsers] = useState([]);
+  const [freezeList, setFreezeList] = useState([]);
+  const [adminWallet, setAdminWallet] = useState(process.env.NEXT_PUBLIC_ADMIN_WALLET);
 
   useEffect(() => {
-    if (window.ethereum) {
-      const web3Instance = new Web3(window.ethereum);
-      setWeb3(web3Instance);
-      web3Instance.eth.getAccounts().then((accounts) => {
-        setAdminWallet(accounts[0]);
-      });
+    const storedAccount = localStorage.getItem("walletAccount");
+    if (storedAccount) {
+      setAccount(storedAccount);
+      initializeWeb3();
     }
   }, []);
 
-  const checkStatus = async () => {
-    if (!targetWallet) {
-      setMessage("❌ Enter a valid wallet address!");
-      return;
+  const initializeWeb3 = async () => {
+    if (window.ethereum) {
+      const web3Instance = new Web3(window.ethereum);
+      setWeb3(web3Instance);
     }
-    const result = await getUserStatus(targetWallet);
-    setStatus(result);
   };
 
-  const handleBan = async () => {
-    if (!targetWallet) return setMessage("❌ Enter a valid wallet address!");
-    const response = await banWallet(targetWallet);
-    setMessage(response);
-    checkStatus();
+  const fetchUsers = async () => {
+    try {
+      const response = await axios.get(`/api/users`);
+      setUserList(response.data.users);
+      setBannedUsers(response.data.bannedUsers);
+      setFreezeList(response.data.frozenAccounts);
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
   };
 
-  const handleUnban = async () => {
-    if (!targetWallet) return setMessage("❌ Enter a valid wallet address!");
-    const response = await unbanWallet(targetWallet);
-    setMessage(response);
-    checkStatus();
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const banUser = async (user) => {
+    try {
+      await axios.post(`/api/ban`, { user });
+      setBannedUsers([...bannedUsers, user]);
+    } catch (error) {
+      console.error("Error banning user:", error);
+    }
   };
 
-  const handleFreeze = async () => {
-    if (!targetWallet) return setMessage("❌ Enter a valid wallet address!");
-    const response = await freezeWalletFunds(targetWallet);
-    setMessage(response);
-    checkStatus();
+  const unbanUser = async (user) => {
+    try {
+      await axios.post(`/api/unban`, { user });
+      setBannedUsers(bannedUsers.filter((u) => u !== user));
+    } catch (error) {
+      console.error("Error unbanning user:", error);
+    }
   };
 
-  const handleUnfreeze = async () => {
-    if (!targetWallet) return setMessage("❌ Enter a valid wallet address!");
-    const response = await unfreezeWalletFunds(targetWallet);
-    setMessage(response);
-    checkStatus();
+  const freezeFunds = async (user) => {
+    try {
+      await axios.post(`/api/freeze`, { user });
+      setFreezeList([...freezeList, user]);
+    } catch (error) {
+      console.error("Error freezing funds:", error);
+    }
   };
 
-  const handleAdminTransfer = async () => {
-    if (!targetWallet || !amount) return setMessage("❌ Enter valid wallet and amount!");
-    const response = await adminManualTransfer(targetWallet, amount);
-    setMessage(response);
+  const unfreezeFunds = async (user) => {
+    try {
+      await axios.post(`/api/unfreeze`, { user });
+      setFreezeList(freezeList.filter((u) => u !== user));
+    } catch (error) {
+      console.error("Error unfreezing funds:", error);
+    }
   };
 
-  const handleAdminWithdraw = async () => {
-    if (!targetWallet || !amount) return setMessage("❌ Enter valid wallet and amount!");
-    const response = await adminWithdrawFunds(targetWallet, amount);
-    setMessage(response);
+  const transferFunds = async (to, amount) => {
+    try {
+      if (!web3) return;
+      const value = web3.utils.toWei(amount, "ether");
+      await web3.eth.sendTransaction({
+        from: adminWallet,
+        to,
+        value,
+      });
+      alert(`✅ Successfully transferred ${amount} BNB to ${to}`);
+    } catch (error) {
+      console.error("Error transferring funds:", error);
+      alert("❌ Transaction failed");
+    }
   };
 
   return (
     <div className="admin-container">
-      <h1>🔧 Admin Panel</h1>
-
-      {/* 🔹 Vartotojo valdymas */}
+      <h2>🔧 Admin Control Panel</h2>
+      
+      {/* Ban/Unban */}
       <div className="admin-section">
-        <h2>👤 User Management</h2>
-        <input
-          type="text"
-          placeholder="Enter Wallet Address"
-          value={targetWallet}
-          onChange={(e) => setTargetWallet(e.target.value)}
-        />
-        <button onClick={checkStatus}>🔍 Check Status</button>
-        {status.isBanned ? <p>🚨 User is BANNED</p> : <p>✅ User is Active</p>}
-        {status.isFrozen ? <p>❄️ Funds are FROZEN</p> : <p>💰 Funds are Active</p>}
-
-        <button onClick={handleBan} className="danger-btn">🚫 Ban User</button>
-        <button onClick={handleUnban} className="success-btn">✅ Unban User</button>
-
-        <button onClick={handleFreeze} className="danger-btn">❄️ Freeze Funds</button>
-        <button onClick={handleUnfreeze} className="success-btn">🔥 Unfreeze Funds</button>
+        <h3>🚫 Ban/Unban Users</h3>
+        {userList.map((user) => (
+          <div key={user} className="user-item">
+            <span>{user}</span>
+            {bannedUsers.includes(user) ? (
+              <button className="unban-btn" onClick={() => unbanUser(user)}>✅ Unban</button>
+            ) : (
+              <button className="ban-btn" onClick={() => banUser(user)}>🚫 Ban</button>
+            )}
+          </div>
+        ))}
       </div>
 
-      {/* 🔹 Lėšų valdymas */}
+      {/* Freeze/Unfreeze Funds */}
       <div className="admin-section">
-        <h2>💸 Fund Management</h2>
-        <input
-          type="text"
-          placeholder="Enter Wallet Address"
-          value={targetWallet}
-          onChange={(e) => setTargetWallet(e.target.value)}
-        />
-        <input
-          type="number"
-          placeholder="Amount in BNB"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
-        <button onClick={handleAdminTransfer} className="send-btn">🚀 Send Funds</button>
-        <button onClick={handleAdminWithdraw} className="danger-btn">💰 Withdraw Funds</button>
+        <h3>🧊 Freeze/Unfreeze Funds</h3>
+        {userList.map((user) => (
+          <div key={user} className="user-item">
+            <span>{user}</span>
+            {freezeList.includes(user) ? (
+              <button className="unfreeze-btn" onClick={() => unfreezeFunds(user)}>✅ Unfreeze</button>
+            ) : (
+              <button className="freeze-btn" onClick={() => freezeFunds(user)}>🧊 Freeze</button>
+            )}
+          </div>
+        ))}
       </div>
 
-      <p className="status-message">{message}</p>
+      {/* Transfer Funds */}
+      <div className="admin-section">
+        <h3>💸 Transfer Funds</h3>
+        <input type="text" placeholder="Recipient Address" id="recipient" />
+        <input type="number" placeholder="Amount (BNB)" id="amount" />
+        <button 
+          className="transfer-btn"
+          onClick={() => transferFunds(
+            document.getElementById("recipient").value, 
+            document.getElementById("amount").value
+          )}
+        >
+          🚀 Send Funds
+        </button>
+      </div>
     </div>
   );
-        }
+}
