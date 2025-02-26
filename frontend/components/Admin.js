@@ -4,110 +4,154 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 import axios from "axios";
 import "../styles/globals.css";
 
-export default function Admin() {
-  const [adminAccount, setAdminAccount] = useState(null);
+export default function Admin({ adminAccount }) {
   const [web3, setWeb3] = useState(null);
-  const [stakeFeeDeposit, setStakeFeeDeposit] = useState("4");
-  const [stakeFeeWithdraw, setStakeFeeWithdraw] = useState("4");
-  const [sendFee, setSendFee] = useState("3");
-  const [swapFee, setSwapFee] = useState("0.2");
-  const [donateFee, setDonateFee] = useState("3");
-  const [stakingContract, setStakingContract] = useState("");
-  const [swapContract, setSwapContract] = useState("");
-  const [donateContract, setDonateContract] = useState("");
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [contract, setContract] = useState(null);
+  const [blockedUsers, setBlockedUsers] = useState([]);
+  const [freezeBalances, setFreezeBalances] = useState([]);
+  const [userToBan, setUserToBan] = useState("");
+  const [userToUnban, setUserToUnban] = useState("");
+  const [userToFreeze, setUserToFreeze] = useState("");
+  const [userToUnfreeze, setUserToUnfreeze] = useState("");
+  const [refundAddress, setRefundAddress] = useState("");
+  const [refundAmount, setRefundAmount] = useState("");
+  const contractAddress = process.env.NEXT_PUBLIC_ADMIN_CONTRACT;
 
   useEffect(() => {
-    const checkAdmin = async () => {
-      const storedAdmin = process.env.NEXT_PUBLIC_ADMIN_WALLET.toLowerCase();
-      if (adminAccount && adminAccount.toLowerCase() === storedAdmin) {
-        setIsAdmin(true);
-      }
-    };
-    checkAdmin();
-  }, [adminAccount]);
+    const loadContract = async () => {
+      const web3Instance = new Web3(window.ethereum);
+      setWeb3(web3Instance);
 
-  const connectAdminWallet = async () => {
-    if (window.ethereum) {
-      try {
-        const web3Instance = new Web3(window.ethereum);
-        setWeb3(web3Instance);
-        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-        setAdminAccount(accounts[0]);
-      } catch (error) {
-        console.error("Admin Wallet Error:", error);
-      }
-    } else {
-      alert("MetaMask not detected!");
-    }
+      const contractABI = [
+        // 🔹 Smart contract funkcijų ABI (reikia pritaikyti pagal tikrą kontraktą)
+        {
+          "constant": false,
+          "inputs": [{ "name": "_user", "type": "address" }],
+          "name": "banUser",
+          "outputs": [],
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [{ "name": "_user", "type": "address" }],
+          "name": "unbanUser",
+          "outputs": [],
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [{ "name": "_user", "type": "address" }],
+          "name": "freezeFunds",
+          "outputs": [],
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [{ "name": "_user", "type": "address" }],
+          "name": "unfreezeFunds",
+          "outputs": [],
+          "type": "function"
+        },
+        {
+          "constant": false,
+          "inputs": [{ "name": "_to", "type": "address" }, { "name": "_amount", "type": "uint256" }],
+          "name": "refund",
+          "outputs": [],
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [],
+          "name": "getBannedUsers",
+          "outputs": [{ "name": "", "type": "address[]" }],
+          "type": "function"
+        },
+        {
+          "constant": true,
+          "inputs": [],
+          "name": "getFrozenBalances",
+          "outputs": [{ "name": "", "type": "address[]" }],
+          "type": "function"
+        }
+      ];
+
+      const contractInstance = new web3Instance.eth.Contract(contractABI, contractAddress);
+      setContract(contractInstance);
+
+      const bannedUsers = await contractInstance.methods.getBannedUsers().call();
+      setBlockedUsers(bannedUsers);
+
+      const frozenBalances = await contractInstance.methods.getFrozenBalances().call();
+      setFreezeBalances(frozenBalances);
+    };
+
+    loadContract();
+  }, []);
+
+  const handleBanUser = async () => {
+    if (!web3 || !contract) return;
+    await contract.methods.banUser(userToBan).send({ from: adminAccount });
+    setBlockedUsers([...blockedUsers, userToBan]);
+    setUserToBan("");
   };
 
-  const updateContractSettings = async () => {
-    try {
-      await axios.post(process.env.NEXT_PUBLIC_ADMIN_API_URL, {
-        adminWallet: adminAccount,
-        stakeFeeDeposit,
-        stakeFeeWithdraw,
-        sendFee,
-        swapFee,
-        donateFee,
-        stakingContract,
-        swapContract,
-        donateContract,
-      });
-      alert("✅ Settings Updated Successfully!");
-    } catch (error) {
-      console.error("Error updating settings:", error);
-    }
+  const handleUnbanUser = async () => {
+    if (!web3 || !contract) return;
+    await contract.methods.unbanUser(userToUnban).send({ from: adminAccount });
+    setBlockedUsers(blockedUsers.filter(user => user !== userToUnban));
+    setUserToUnban("");
+  };
+
+  const handleFreezeFunds = async () => {
+    if (!web3 || !contract) return;
+    await contract.methods.freezeFunds(userToFreeze).send({ from: adminAccount });
+    setFreezeBalances([...freezeBalances, userToFreeze]);
+    setUserToFreeze("");
+  };
+
+  const handleUnfreezeFunds = async () => {
+    if (!web3 || !contract) return;
+    await contract.methods.unfreezeFunds(userToUnfreeze).send({ from: adminAccount });
+    setFreezeBalances(freezeBalances.filter(user => user !== userToUnfreeze));
+    setUserToUnfreeze("");
+  };
+
+  const handleRefund = async () => {
+    if (!web3 || !contract) return;
+    const amountInWei = web3.utils.toWei(refundAmount, "ether");
+    await contract.methods.refund(refundAddress, amountInWei).send({ from: adminAccount });
+    setRefundAddress("");
+    setRefundAmount("");
   };
 
   return (
     <div className="admin-container">
-      <h1 className="admin-title">👑 Admin Panel</h1>
+      <h2>👑 Admin Panel</h2>
 
-      {!adminAccount ? (
-        <div className="wallet-buttons">
-          <button className="wallet-connect-btn" onClick={connectAdminWallet}>
-            🦊 Connect Admin Wallet
-          </button>
-        </div>
-      ) : isAdmin ? (
-        <>
-          <p className="wallet-address">✅ Connected as: {adminAccount.substring(0, 6)}...{adminAccount.slice(-4)}</p>
+      <div className="admin-section">
+        <h3>🚫 Ban / Unban Users</h3>
+        <input type="text" placeholder="User Address" value={userToBan} onChange={(e) => setUserToBan(e.target.value)} />
+        <button onClick={handleBanUser}>Ban User</button>
+        <input type="text" placeholder="User Address" value={userToUnban} onChange={(e) => setUserToUnban(e.target.value)} />
+        <button onClick={handleUnbanUser}>Unban User</button>
+        <p>Banned Users: {blockedUsers.join(", ") || "None"}</p>
+      </div>
 
-          <div className="admin-controls">
-            <h2>🔧 Fees Management</h2>
-            <label>📥 Staking Fee (Deposit %)</label>
-            <input type="number" value={stakeFeeDeposit} onChange={(e) => setStakeFeeDeposit(e.target.value)} />
-            
-            <label>📤 Staking Fee (Withdraw %)</label>
-            <input type="number" value={stakeFeeWithdraw} onChange={(e) => setStakeFeeWithdraw(e.target.value)} />
+      <div className="admin-section">
+        <h3>❄️ Freeze / Unfreeze Funds</h3>
+        <input type="text" placeholder="User Address" value={userToFreeze} onChange={(e) => setUserToFreeze(e.target.value)} />
+        <button onClick={handleFreezeFunds}>Freeze Funds</button>
+        <input type="text" placeholder="User Address" value={userToUnfreeze} onChange={(e) => setUserToUnfreeze(e.target.value)} />
+        <button onClick={handleUnfreezeFunds}>Unfreeze Funds</button>
+        <p>Frozen Accounts: {freezeBalances.join(", ") || "None"}</p>
+      </div>
 
-            <label>📨 Send Fee (%)</label>
-            <input type="number" value={sendFee} onChange={(e) => setSendFee(e.target.value)} />
-
-            <label>🔄 Swap Fee (%)</label>
-            <input type="number" value={swapFee} onChange={(e) => setSwapFee(e.target.value)} />
-
-            <label>🎗️ Donation Fee (%)</label>
-            <input type="number" value={donateFee} onChange={(e) => setDonateFee(e.target.value)} />
-            
-            <h2>⚙️ Contract Management</h2>
-            <label>📜 Staking Contract</label>
-            <input type="text" value={stakingContract} onChange={(e) => setStakingContract(e.target.value)} placeholder="0x..." />
-
-            <label>🔄 Swap Contract</label>
-            <input type="text" value={swapContract} onChange={(e) => setSwapContract(e.target.value)} placeholder="0x..." />
-
-            <label>🎗️ Donation Contract</label>
-            <input type="text" value={donateContract} onChange={(e) => setDonateContract(e.target.value)} placeholder="0x..." />
-
-            <button className="update-btn" onClick={updateContractSettings}>🚀 Update Settings</button>
-          </div>
-        </>
-      ) : (
-        <p className="error-text">⛔ Access Denied! You are not the admin.</p>
-      )}
+      <div className="admin-section">
+        <h3>💸 Refund</h3>
+        <input type="text" placeholder="Recipient Address" value={refundAddress} onChange={(e) => setRefundAddress(e.target.value)} />
+        <input type="number" placeholder="Amount in BNB" value={refundAmount} onChange={(e) => setRefundAmount(e.target.value)} />
+        <button onClick={handleRefund}>Send Refund</button>
+      </div>
     </div>
   );
 }
