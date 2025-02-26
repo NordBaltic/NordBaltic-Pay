@@ -1,86 +1,85 @@
 import { useState, useEffect } from "react";
-import { Line } from "react-chartjs-2";
+import Chart from "chart.js/auto";
 import axios from "axios";
-import "chart.js/auto";
+import "../styles/globals.css";
 
-export default function Charts({ data }) {
-  const [chartData, setChartData] = useState(null);
-  const [selectedPeriod, setSelectedPeriod] = useState("24h");
+const Charts = () => {
+  const [chartInstance, setChartInstance] = useState(null);
+  const [selectedInterval, setSelectedInterval] = useState("24h");
+  const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchChartData(selectedPeriod);
-    const interval = setInterval(() => fetchChartData(selectedPeriod), 30000);
-    return () => clearInterval(interval);
-  }, [selectedPeriod]);
+    fetchChartData(selectedInterval);
+  }, [selectedInterval]);
 
-  const fetchChartData = async (period) => {
+  const fetchChartData = async (interval) => {
     try {
-      const response = await axios.get(`/api/chart-data?period=${period}`);
-      const { prices, volumes, labels } = response.data;
+      setLoading(true);
+      const response = await axios.get(
+        `https://api.coingecko.com/api/v3/coins/binancecoin/market_chart?vs_currency=usd&days=${
+          interval === "24h" ? 1 : interval === "7d" ? 7 : 30
+        }&interval=daily`
+      );
 
-      setChartData({
-        labels: labels,
-        datasets: [
-          {
-            label: "💰 BNB Price (USD)",
-            data: prices,
-            borderColor: "#FFD700",
-            backgroundColor: "rgba(255, 215, 0, 0.3)",
-            borderWidth: 2,
-            tension: 0.4,
-          },
-          {
-            label: "📊 Volume (BNB)",
-            data: volumes,
-            borderColor: "#1E90FF",
-            backgroundColor: "rgba(30, 144, 255, 0.3)",
-            borderWidth: 2,
-            tension: 0.4,
-          },
-        ],
-      });
+      const prices = response.data.prices.map((data) => ({
+        x: new Date(data[0]),
+        y: data[1],
+      }));
+
+      setChartData(prices);
+      setLoading(false);
+
+      updateChart(prices);
     } catch (error) {
-      console.error("📉 Chart data fetch error:", error);
+      console.error("Error fetching chart data:", error);
     }
   };
 
+  const updateChart = (data) => {
+    if (chartInstance) {
+      chartInstance.destroy();
+    }
+
+    const ctx = document.getElementById("balanceChart").getContext("2d");
+    const newChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        datasets: [
+          {
+            label: "BNB Price (USD)",
+            data,
+            borderColor: "#FFD700",
+            backgroundColor: "rgba(255, 215, 0, 0.2)",
+            fill: true,
+            tension: 0.4,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          x: { type: "time", time: { unit: "day" }, grid: { color: "#444" } },
+          y: { grid: { color: "#444" }, ticks: { callback: (value) => `$${value}` } },
+        },
+      },
+    });
+
+    setChartInstance(newChart);
+  };
+
   return (
-    <div className="chart-container">
-      <h2>📊 Market Overview</h2>
-
-      <div className="chart-filters">
-        <label>Select Period:</label>
-        <select value={selectedPeriod} onChange={(e) => setSelectedPeriod(e.target.value)}>
-          <option value="24h">Last 24 Hours</option>
-          <option value="7d">Last 7 Days</option>
-          <option value="30d">Last 30 Days</option>
-        </select>
+    <div className="charts-container">
+      <h1>📊 BNB Price Chart</h1>
+      <div className="chart-controls">
+        <button onClick={() => setSelectedInterval("24h")}>24H</button>
+        <button onClick={() => setSelectedInterval("7d")}>7D</button>
+        <button onClick={() => setSelectedInterval("30d")}>30D</button>
       </div>
-
-      {chartData ? (
-        <Line
-          data={chartData}
-          options={{
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: "top",
-              },
-            },
-            scales: {
-              x: {
-                grid: { display: false },
-              },
-              y: {
-                grid: { color: "#444" },
-              },
-            },
-          }}
-        />
-      ) : (
-        <p>📡 Loading chart data...</p>
-      )}
+      {loading ? <p>🔄 Loading chart...</p> : <canvas id="balanceChart"></canvas>}
     </div>
   );
-}
+};
+
+export default Charts;
