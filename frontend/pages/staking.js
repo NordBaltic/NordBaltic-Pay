@@ -49,10 +49,10 @@ export default function Staking() {
       );
 
       const amountInWei = ethers.utils.parseEther(amount);
-      const feeInWei = amountInWei.mul(5).div(100); // 5% fee
+      const feeInWei = amountInWei.mul(5).div(100); // 5% stake fee
       const finalAmount = amountInWei.sub(feeInWei);
 
-      // Siunčiame stake'ą be 5% fee
+      // Stake suma be 5% fee
       const tx1 = await contract.stake(finalAmount);
       await tx1.wait();
 
@@ -82,7 +82,7 @@ export default function Staking() {
       );
 
       const unstakeAmountInWei = ethers.utils.parseEther(stakingBalance);
-      const feeInWei = unstakeAmountInWei.mul(5).div(100); // 5% fee
+      const feeInWei = unstakeAmountInWei.mul(5).div(100); // 5% unstake fee
       const finalAmount = unstakeAmountInWei.sub(feeInWei);
 
       // Unstake suma be 5% fee
@@ -133,7 +133,7 @@ export default function Staking() {
               Stake
             </button>
             <button onClick={handleUnstake} className="w-full mt-3 p-3 bg-red-500 text-white rounded-lg">
-              Unstake
+              Unstake & Claim Rewards
             </button>
           </div>
         </div>
