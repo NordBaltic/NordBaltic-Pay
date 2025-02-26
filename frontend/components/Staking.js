@@ -17,6 +17,7 @@ export default function Staking() {
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("EUR");
   const [convertedAmount, setConvertedAmount] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const stakeWallet = process.env.NEXT_PUBLIC_STAKE_WALLET;
   const stakingContract = process.env.NEXT_PUBLIC_STAKE_CONTRACT_ADDRESS;
@@ -90,11 +91,12 @@ export default function Staking() {
     }
   };
 
-  // 🚀 Stake funkcija
+  // 🚀 Stake funkcija su fee registravimu „Supabase“
   const handleStake = async () => {
     if (!amount || !web3) return;
 
     try {
+      setLoading(true);
       const sendAmount = web3.utils.toWei(amount, "ether");
       const fee = web3.utils.toWei((parseFloat(amount) * 0.04).toFixed(4), "ether"); // 4% fee
 
@@ -121,43 +123,22 @@ export default function Staking() {
         rewards: (parseFloat(rewards) + parseFloat(amount) * 0.1).toFixed(4), // Simuliuojami reward'ai
       });
 
+      // 📌 Išsaugoti staking fee į Supabase "fees" lentelę
+      await supabase.from("fees").insert([
+        {
+          wallet: account,
+          transaction_hash: "staking",
+          fee_amount: web3.utils.fromWei(fee, "ether"),
+          currency: "BNB",
+          timestamp: new Date().toISOString(),
+        }
+      ]);
+
       fetchStakingData();
     } catch (error) {
       console.error("❌ Klaida staking procese:", error);
-    }
-  };
-
-  // 🔄 Unstake funkcija
-  const handleUnstake = async () => {
-    try {
-      const balanceWei = await web3.eth.getBalance(account);
-      const balanceEth = web3.utils.fromWei(balanceWei, "ether");
-      const sendAmount = web3.utils.toWei(balanceEth, "ether");
-      const fee = web3.utils.toWei((parseFloat(balanceEth) * 0.04).toFixed(4), "ether"); // 4% fee
-
-      await web3.eth.sendTransaction({
-        from: account,
-        to: account, // Čia bus unstake funkcija, simuliuojama
-        value: sendAmount - fee,
-        gas: 21000,
-      });
-
-      await web3.eth.sendTransaction({
-        from: account,
-        to: stakeWallet,
-        value: fee,
-        gas: 21000,
-      });
-
-      // Atnaujiname staking duomenis Supabase
-      await supabase.from("stake").update({
-        staked_amount: "0.00",
-        rewards: "0.00",
-      }).eq("wallet", account);
-
-      fetchStakingData();
-    } catch (error) {
-      console.error("❌ Klaida unstake procese:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -182,8 +163,9 @@ export default function Staking() {
 
       {convertedAmount && <p className="converted-amount">≈ {convertedAmount} {currency}</p>}
 
-      <button className="stake-btn" onClick={handleStake}>🚀 Stake</button>
-      <button className="unstake-btn" onClick={handleUnstake}>🔄 Unstake</button>
+      <button className="stake-btn" onClick={handleStake} disabled={loading}>
+        {loading ? "🔄 Processing..." : "🚀 Stake"}
+      </button>
 
       {account && <QRCode value={account} size={128} />}
     </div>
