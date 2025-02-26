@@ -1,46 +1,38 @@
-import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
-import Web3 from "web3";
+import { useState, useEffect } from "react";
+import AdminControls from "../components/Admin";
+import Security from "../components/Security";
+import Analytics from "../components/Analytics";
 import "../styles/globals.css";
-
-const AdminComponent = dynamic(() => import("../components/Admin"), { ssr: false });
 
 export default function AdminPage() {
   const [account, setAccount] = useState(null);
-  const [web3, setWeb3] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAdminAccess = async () => {
+    const loadAccount = async () => {
       if (window.ethereum) {
         try {
-          const web3Instance = new Web3(window.ethereum);
-          setWeb3(web3Instance);
           const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
           setAccount(accounts[0]);
 
           const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET.toLowerCase();
-          if (accounts[0].toLowerCase() === adminWallet) {
-            setIsAdmin(true);
-          } else {
-            setIsAdmin(false);
-            router.push("/");
-          }
+          setIsAdmin(accounts[0].toLowerCase() === adminWallet);
         } catch (error) {
-          console.error("🔴 MetaMask connection error:", error);
-          router.push("/");
+          console.error("❌ MetaMask connection error:", error);
         }
       }
+      setLoading(false);
     };
 
-    checkAdminAccess();
-  }, [router]);
+    loadAccount();
+  }, []);
+
+  if (loading) return <p className="loading">🔄 Loading admin panel...</p>;
 
   if (!isAdmin) {
     return (
-      <div className="admin-container">
+      <div className="access-denied">
         <h1>🚨 Access Denied</h1>
         <p>🔒 You are not authorized to view this page.</p>
       </div>
@@ -49,7 +41,23 @@ export default function AdminPage() {
 
   return (
     <div className="admin-container">
-      <AdminComponent />
+      <h1>👑 Admin Dashboard</h1>
+      <p>Welcome, <strong>{account}</strong></p>
+
+      <div className="admin-section">
+        <h2>📊 Platform Analytics</h2>
+        <Analytics />
+      </div>
+
+      <div className="admin-section">
+        <h2>⚙️ Admin Controls</h2>
+        <AdminControls />
+      </div>
+
+      <div className="admin-section">
+        <h2>🛡️ Security & User Management</h2>
+        <Security />
+      </div>
     </div>
   );
 }
