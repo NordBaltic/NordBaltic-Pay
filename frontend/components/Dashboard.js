@@ -20,6 +20,7 @@ export default function Dashboard() {
   const [balanceChange, setBalanceChange] = useState({ "24h": 0, "1w": 0, "1m": 0 });
   const [currency, setCurrency] = useState("USD");
   const [convertedBalance, setConvertedBalance] = useState(null);
+  const [stakingRewards, setStakingRewards] = useState("0.00");
   const [chartData, setChartData] = useState(null);
   const [timeframe, setTimeframe] = useState("1w");
 
@@ -34,14 +35,18 @@ export default function Dashboard() {
       fetchBalance(web3Instance, account);
       fetchBalanceChange();
       fetchChartData(timeframe);
+      fetchStakingRewards();
     }
   }, [account, timeframe]);
 
   // 🔵 Fetch user account from Supabase
   const fetchUserAccount = async () => {
-    const { data } = await supabase.from("users").select("wallet").single();
+    const { data, error } = await supabase.from("users").select("wallet, balance").single();
     if (data && data.wallet) {
       setAccount(data.wallet);
+      setBalance(data.balance || "0.00");
+    } else if (error) {
+      console.error("🔴 Klaida gaunant vartotojo duomenis:", error);
     }
   };
 
@@ -60,6 +65,7 @@ export default function Dashboard() {
         fetchBalance(web3Instance, userWallet);
         fetchBalanceChange();
         fetchChartData(timeframe);
+        fetchStakingRewards();
       } catch (error) {
         console.error("🔴 MetaMask error:", error);
       }
@@ -115,6 +121,18 @@ export default function Dashboard() {
     }
   };
 
+  // 📊 Fetch staking rewards from Supabase
+  const fetchStakingRewards = async () => {
+    if (!account) return;
+    
+    const { data, error } = await supabase.from("stake").select("rewards").eq("wallet", account).single();
+    if (data) {
+      setStakingRewards(data.rewards || "0.00");
+    } else if (error) {
+      console.error("🔴 Klaida gaunant staking reward'us:", error);
+    }
+  };
+
   // 📊 Fetch chart data
   const fetchChartData = async (selectedTimeframe) => {
     const days = selectedTimeframe === "24h" ? 1 : selectedTimeframe === "1w" ? 7 : 30;
@@ -151,17 +169,12 @@ export default function Dashboard() {
         <>
           <p className="wallet-address">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
           <p className="wallet-balance">💰 {balance} BNB</p>
+          <p className="staking-rewards">🏆 Staking Rewards: {stakingRewards} BNB</p>
           <QRCode value={account} size={128} />
-
-          <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
-            <option value="USD">💵 USD</option>
-            <option value="EUR">💶 EUR</option>
-          </select>
-          {convertedBalance && <p>≈ {currency === "USD" ? convertedBalance.usd : convertedBalance.eur} {currency}</p>}
 
           <h3>📊 Balance Chart</h3>
           {chartData && <Line data={chartData} />}
-          
+
           <div className="dashboard-buttons">
             <Link href="/send"><a>📤 Send</a></Link>
             <Link href="/staking"><a>💸 Stake</a></Link>
@@ -171,4 +184,4 @@ export default function Dashboard() {
       )}
     </div>
   );
-          }
+      }
