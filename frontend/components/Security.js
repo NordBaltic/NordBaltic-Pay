@@ -8,6 +8,9 @@ const Security = () => {
   const [web3, setWeb3] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userList, setUserList] = useState([]);
+  const [logs, setLogs] = useState([]);
+  const [is2FAEnabled, setIs2FAEnabled] = useState(false);
+  const [newBanAddress, setNewBanAddress] = useState("");
   const [loading, setLoading] = useState(true);
   const [statusMessage, setStatusMessage] = useState("");
 
@@ -23,7 +26,7 @@ const Security = () => {
           const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET.toLowerCase();
           setIsAdmin(accounts[0].toLowerCase() === adminWallet);
 
-          fetchUsers();
+          fetchSecurityData();
         } catch (error) {
           console.error("🔴 MetaMask connection error:", error);
         }
@@ -34,20 +37,24 @@ const Security = () => {
     loadAccount();
   }, []);
 
-  const fetchUsers = async () => {
+  const fetchSecurityData = async () => {
     try {
-      const response = await axios.get("/api/users"); // 🔹 Pakeisti su realiu API
-      setUserList(response.data);
+      const response = await axios.get("/api/security", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+      });
+      setUserList(response.data.bannedUsers);
+      setLogs(response.data.logs);
+      setIs2FAEnabled(response.data.is2FAEnabled);
     } catch (error) {
-      console.error("❌ Error fetching users:", error);
+      console.error("⚠️ Security data fetch error:", error);
     }
   };
 
   const handleBanUnban = async (userAddress, isBanned) => {
     try {
-      await axios.post("/api/admin/ban", { userAddress, isBanned }); // 🔹 API sujungimas
+      await axios.post("/api/admin/ban", { userAddress, isBanned });
       setStatusMessage(`✅ User ${isBanned ? "banned" : "unbanned"} successfully.`);
-      fetchUsers();
+      fetchSecurityData();
     } catch (error) {
       console.error("❌ Error updating user status:", error);
       setStatusMessage("❌ Error processing request.");
@@ -56,9 +63,9 @@ const Security = () => {
 
   const handleFreezeUnfreeze = async (userAddress, isFrozen) => {
     try {
-      await axios.post("/api/admin/freeze", { userAddress, isFrozen }); // 🔹 API sujungimas
+      await axios.post("/api/admin/freeze", { userAddress, isFrozen });
       setStatusMessage(`✅ Funds ${isFrozen ? "frozen" : "unfrozen"} successfully.`);
-      fetchUsers();
+      fetchSecurityData();
     } catch (error) {
       console.error("❌ Error updating funds status:", error);
       setStatusMessage("❌ Error processing request.");
@@ -67,12 +74,25 @@ const Security = () => {
 
   const handleRefund = async (userAddress, amount) => {
     try {
-      await axios.post("/api/admin/refund", { userAddress, amount }); // 🔹 API sujungimas
+      await axios.post("/api/admin/refund", { userAddress, amount });
       setStatusMessage(`✅ Refunded ${amount} BNB to ${userAddress}`);
-      fetchUsers();
+      fetchSecurityData();
     } catch (error) {
       console.error("❌ Error processing refund:", error);
       setStatusMessage("❌ Refund failed.");
+    }
+  };
+
+  const toggle2FA = async () => {
+    try {
+      await axios.post(
+        "/api/security/toggle-2fa",
+        {},
+        { headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` } }
+      );
+      setIs2FAEnabled(!is2FAEnabled);
+    } catch (error) {
+      console.error("🔒 2FA toggle error:", error);
     }
   };
 
@@ -92,6 +112,23 @@ const Security = () => {
       <h1>🛡️ Security & User Management</h1>
       <p className="admin-status">Welcome, <strong>{account}</strong></p>
 
+      {/* 2FA Valdymas */}
+      <h3>🔄 2FA Authentication</h3>
+      <button onClick={toggle2FA}>
+        {is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}
+      </button>
+
+      {/* Ban/Unban */}
+      <h3>🚫 Ban Users</h3>
+      <input
+        type="text"
+        placeholder="Enter wallet address..."
+        value={newBanAddress}
+        onChange={(e) => setNewBanAddress(e.target.value)}
+      />
+      <button onClick={() => handleBanUnban(newBanAddress, true)}>Ban User</button>
+
+      {/* User Table */}
       <table className="user-table">
         <thead>
           <tr>
@@ -126,7 +163,7 @@ const Security = () => {
               <td>
                 <button
                   className="refund-btn"
-                  onClick={() => handleRefund(user.address, 0.1)} // 🔹 Pakeisti su realiu įvedimu
+                  onClick={() => handleRefund(user.address, 0.1)}
                 >
                   💸 Refund
                 </button>
@@ -135,6 +172,14 @@ const Security = () => {
           ))}
         </tbody>
       </table>
+
+      {/* Security Logs */}
+      <h3>📜 Security Logs</h3>
+      <ul>
+        {logs.map((log, index) => (
+          <li key={index}>{log}</li>
+        ))}
+      </ul>
 
       {statusMessage && <p className="status-message">{statusMessage}</p>}
     </div>
