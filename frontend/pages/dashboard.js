@@ -1,130 +1,166 @@
+// 📂 /frontend/pages/dashboard.js - MAX PREMIUM DASHBOARD SU GRAFIKA
 import { useState, useEffect } from "react";
 import Web3 from "web3";
-import WalletConnectProvider from "@walletconnect/web3-provider";
-import CoinbaseWalletSDK from "@coinbase/wallet-sdk";
-import QRCode from "qrcode.react";
 import axios from "axios";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-
-const Charts = dynamic(() => import("../components/Charts"), { ssr: false });
+import QRCode from "qrcode.react";
+import { Line } from "react-chartjs-2";
+import { useTheme } from "../context/ThemeContext";
+import "../styles/globals.css";
+import "chart.js/auto";
 
 export default function Dashboard() {
   const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
   const [web3, setWeb3] = useState(null);
-  const [bnbBalance, setBnbBalance] = useState("0.00");
-  const [convertedBalance, setConvertedBalance] = useState("0.00");
-  const [currency, setCurrency] = useState(process.env.NEXT_PUBLIC_DEFAULT_CURRENCY || "EUR");
-  const [stakingStatus, setStakingStatus] = useState("Not Staked");
-  const [donationTotal, setDonationTotal] = useState("0.00");
-  const [isLoading, setIsLoading] = useState(true);
+  const [balance, setBalance] = useState("0.00");
+  const [balanceChange, setBalanceChange] = useState({ "24h": 0, "1w": 0, "1m": 0 });
+  const [currency, setCurrency] = useState("USD");
+  const [convertedBalance, setConvertedBalance] = useState(null);
+  const [chartData, setChartData] = useState(null);
+  const [timeframe, setTimeframe] = useState("1w"); // 🔹 Numatyta 1 savaitė
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (account) {
       const web3Instance = new Web3(window.ethereum);
       setWeb3(web3Instance);
       fetchBalance(web3Instance, account);
-      fetchStakingStatus(account);
-      fetchDonationStatus();
+      fetchBalanceChange();
+      fetchChartData(timeframe);
     }
-  }, [account]);
+  }, [account, timeframe]);
 
   const fetchBalance = async (web3Instance, account) => {
     try {
       const balanceWei = await web3Instance.eth.getBalance(account);
       const balanceEth = web3Instance.utils.fromWei(balanceWei, "ether");
-      setBnbBalance(parseFloat(balanceEth).toFixed(4));
-
-      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=${currency.toLowerCase()}`);
-      setConvertedBalance((parseFloat(balanceEth) * response.data.binancecoin[currency.toLowerCase()]).toFixed(2));
-      
-      setIsLoading(false);
+      setBalance(parseFloat(balanceEth).toFixed(4));
+      fetchConversionRate(balanceEth);
     } catch (error) {
-      console.error("Klaida gaunant balansą:", error);
+      console.error("🔴 Error fetching balance:", error);
     }
   };
 
-  const fetchStakingStatus = async (account) => {
+  const fetchBalanceChange = async () => {
     try {
-      const stakingContract = new web3.eth.Contract([
-        { name: "getStakeInfo", type: "function", inputs: [{ type: "address" }], outputs: [{ type: "uint256" }] }
-      ], process.env.NEXT_PUBLIC_STAKE_CONTRACT_ADDRESS);
-      
-      const stakedAmount = await stakingContract.methods.getStakeInfo(account).call();
-      setStakingStatus(`${web3.utils.fromWei(stakedAmount, "ether")} BNB Staked`);
+      const response = await axios.get("https://api.coingecko.com/api/v3/coins/binancecoin/market_chart?vs_currency=usd&days=30");
+      const prices = response.data.prices;
+      setBalanceChange({
+        "24h": ((prices[prices.length - 1][1] / prices[prices.length - 2][1] - 1) * 100).toFixed(2),
+        "1w": ((prices[prices.length - 1][1] / prices[prices.length - 8][1] - 1) * 100).toFixed(2),
+        "1m": ((prices[prices.length - 1][1] / prices[0][1] - 1) * 100).toFixed(2),
+      });
     } catch (error) {
-      console.error("Klaida gaunant staking informaciją:", error);
+      console.error("🔴 Error fetching price change:", error);
     }
   };
 
-  const fetchDonationStatus = async () => {
+  const fetchConversionRate = async (bnbAmount) => {
     try {
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_DONATION_API_URL}`);
-      setDonationTotal(response.data.totalDonated);
+      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`);
+      const rates = response.data.binancecoin;
+      setConvertedBalance({
+        usd: (bnbAmount * rates.usd).toFixed(2),
+        eur: (bnbAmount * rates.eur).toFixed(2),
+      });
     } catch (error) {
-      console.error("Klaida gaunant donation informaciją:", error);
+      console.error("🔴 Error fetching exchange rates:", error);
     }
   };
 
-  const connectWallet = async (walletType) => {
-    let provider;
-    if (walletType === "MetaMask" && window.ethereum) {
-      provider = window.ethereum;
-    } else if (walletType === "WalletConnect") {
-      provider = new WalletConnectProvider({ rpc: { 56: process.env.NEXT_PUBLIC_BSC_RPC_URL } });
-      await provider.enable();
-    } else if (walletType === "Coinbase") {
-      const coinbaseWallet = new CoinbaseWalletSDK({ appName: "NordBaltic Pay" });
-      provider = coinbaseWallet.makeWeb3Provider(process.env.NEXT_PUBLIC_BSC_RPC_URL, 56);
+  const fetchChartData = async (selectedTimeframe) => {
+    const days = selectedTimeframe === "24h" ? 1 : selectedTimeframe === "1w" ? 7 : 30;
+    try {
+      const response = await axios.get(`https://api.coingecko.com/api/v3/coins/binancecoin/market_chart?vs_currency=usd&days=${days}`);
+      const prices = response.data.prices;
+      setChartData({
+        labels: prices.map((entry) => new Date(entry[0]).toLocaleDateString()),
+        datasets: [
+          {
+            label: "BNB Price",
+            data: prices.map((entry) => entry[1]),
+            borderColor: "#4CAF50",
+            backgroundColor: "rgba(76, 175, 80, 0.2)",
+            fill: true,
+            tension: 0.4,
+          },
+        ],
+      });
+    } catch (error) {
+      console.error("🔴 Error fetching chart data:", error);
     }
+  };
 
-    if (provider) {
-      const web3Instance = new Web3(provider);
-      setWeb3(web3Instance);
-      const accounts = await web3Instance.eth.getAccounts();
-      setAccount(accounts[0]);
-      localStorage.setItem("walletAccount", accounts[0]);
-      fetchBalance(web3Instance, accounts[0]);
+  const connectMetaMask = async () => {
+    if (window.ethereum) {
+      try {
+        const web3Instance = new Web3(window.ethereum);
+        setWeb3(web3Instance);
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        setAccount(accounts[0]);
+        localStorage.setItem("walletAccount", accounts[0]);
+        fetchBalance(web3Instance, accounts[0]);
+        fetchBalanceChange();
+        fetchChartData(timeframe);
+      } catch (error) {
+        console.error("🔴 MetaMask error:", error);
+      }
     } else {
-      alert("Wallet not found!");
+      alert("🚨 MetaMask not found!");
     }
   };
 
   return (
-    <div className="dashboard-container">
-      <h1 className="dashboard-title">🏠 Dashboard</h1>
-      
+    <div className={`dashboard-container ${theme}`}>
+      <h1 className="dashboard-title">📊 Dashboard</h1>
+
       {!account ? (
         <div className="wallet-buttons">
-          <button className="wallet-connect-btn" onClick={() => connectWallet("MetaMask")}>🦊 Connect MetaMask</button>
-          <button className="wallet-connect-btn" onClick={() => connectWallet("WalletConnect")}>🔗 Connect WalletConnect</button>
-          <button className="wallet-connect-btn" onClick={() => connectWallet("Coinbase")}>🏦 Connect Coinbase Wallet</button>
+          <button className="wallet-connect-btn" onClick={connectMetaMask}>🦊 Connect MetaMask</button>
         </div>
       ) : (
         <>
           <p className="wallet-address">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
-          <p className="balance-text">💰 Balance: {bnbBalance} BNB (~{convertedBalance} {currency})</p>
+          <p className="wallet-balance">💰 {balance} BNB</p>
 
-          <div className="actions">
-            <Link href="/send"><button className="action-btn">📤 Send</button></Link>
-            <Link href="/receive"><button className="action-btn">📥 Receive</button></Link>
-            <Link href="/staking"><button className="action-btn">💸 Stake</button></Link>
-            <Link href="/donations"><button className="action-btn">❤️ Donate</button></Link>
-            <Link href="/swap"><button className="action-btn">🔄 Swap</button></Link>
+          {/* Balanso pokytis */}
+          <div className="balance-change">
+            <p>📈 24h: <span className={balanceChange["24h"] > 0 ? "positive" : "negative"}>{balanceChange["24h"]}%</span></p>
+            <p>📈 1w: <span className={balanceChange["1w"] > 0 ? "positive" : "negative"}>{balanceChange["1w"]}%</span></p>
+            <p>📈 1m: <span className={balanceChange["1m"] > 0 ? "positive" : "negative"}>{balanceChange["1m"]}%</span></p>
           </div>
 
-          <div className="status-section">
-            <p className="staking-status">💰 Staking: {stakingStatus}</p>
-            <p className="donation-status">🎗️ Total Donated: {donationTotal} BNB</p>
-          </div>
-
-          <Charts account={account} />
-
-          <label>🔄 Show in:</label>
+          {/* Konvertuotas balansas */}
+          <label>Show in:</label>
           <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
-            <option value="EUR">💶 EUR</option>
             <option value="USD">💵 USD</option>
+            <option value="EUR">💶 EUR</option>
           </select>
+          {convertedBalance && <p className="converted-balance">≈ {currency === "USD" ? convertedBalance.usd : convertedBalance.eur} {currency}</p>}
+
+          {/* 📊 Balanso pokyčių grafikas */}
+          <h3>📊 Balance Chart</h3>
+          <select onChange={(e) => setTimeframe(e.target.value)}>
+            <option value="24h">Last 24h</option>
+            <option value="1w">Last 1 week</option>
+            <option value="1m">Last 1 month</option>
+          </select>
+          {chartData && <Line data={chartData} />}
+
+          {/* QR kodas */}
+          <div className="qr-section">
+            <QRCode value={account} size={150} />
+            <p className="small-text">Scan to receive crypto.</p>
+          </div>
+
+          {/* Funkciniai mygtukai */}
+          <div className="dashboard-buttons">
+            <Link href="/send"><a className="dashboard-btn">📤 Send</a></Link>
+            <Link href="/receive"><a className="dashboard-btn">📥 Receive</a></Link>
+            <Link href="/staking"><a className="dashboard-btn">💸 Stake</a></Link>
+            <Link href="/swap"><a className="dashboard-btn">🔄 Swap</a></Link>
+            <Link href="/donations"><a className="dashboard-btn">❤️ Donate</a></Link>
+          </div>
         </>
       )}
     </div>
