@@ -3,6 +3,7 @@ import Web3 from "web3";
 import axios from "axios";
 import QRCode from "qrcode.react";
 import { createClient } from "@supabase/supabase-js";
+import { Box, Card, CardContent, Typography, Button, Grid, TextField, Select, MenuItem, Snackbar, Alert, CircularProgress } from "@mui/material";
 import "../styles/globals.css";
 
 // 🔥 Supabase setup
@@ -18,6 +19,7 @@ export default function Staking() {
   const [currency, setCurrency] = useState("EUR");
   const [convertedAmount, setConvertedAmount] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
   const stakeWallet = process.env.NEXT_PUBLIC_STAKE_WALLET;
   const stakingContract = process.env.NEXT_PUBLIC_STAKE_CONTRACT_ADDRESS;
@@ -43,7 +45,7 @@ export default function Staking() {
     }
   };
 
-  // 📊 Gauti staking duomenis iš „Supabase“
+  // 📊 Fetch staking data from „Supabase“
   const fetchStakingData = async () => {
     if (!account) return;
     
@@ -59,7 +61,7 @@ export default function Staking() {
     }
   };
 
-  // 🔄 Gauti APY
+  // 🔄 Fetch APY
   const fetchApy = async () => {
     try {
       const response = await axios.get(`${process.env.NEXT_PUBLIC_STAKING_PROVIDER_URL}/apy`);
@@ -69,7 +71,7 @@ export default function Staking() {
     }
   };
 
-  // 💵 Valiutos konvertavimas
+  // 💵 Currency Conversion
   useEffect(() => {
     if (!amount) return;
     const convert = async () => {
@@ -91,7 +93,7 @@ export default function Staking() {
     }
   };
 
-  // 🚀 Stake funkcija su fee registravimu „Supabase“
+  // 🚀 Stake function with fee tracking in Supabase
   const handleStake = async () => {
     if (!amount || !web3) return;
 
@@ -100,7 +102,7 @@ export default function Staking() {
       const sendAmount = web3.utils.toWei(amount, "ether");
       const fee = web3.utils.toWei((parseFloat(amount) * 0.04).toFixed(4), "ether"); // 4% fee
 
-      // Siunčiame staking į kontraktą
+      // Send staking transaction
       await web3.eth.sendTransaction({
         from: account,
         to: stakingContract,
@@ -108,7 +110,7 @@ export default function Staking() {
         gas: 21000,
       });
 
-      // Siunčiame fee į staking pool
+      // Send fee to staking pool
       await web3.eth.sendTransaction({
         from: account,
         to: stakeWallet,
@@ -116,14 +118,14 @@ export default function Staking() {
         gas: 21000,
       });
 
-      // Atnaujiname staking duomenis Supabase
+      // Update staking data in Supabase
       await supabase.from("stake").upsert({
         wallet: account,
         staked_amount: parseFloat(stakedBalance) + parseFloat(amount),
-        rewards: (parseFloat(rewards) + parseFloat(amount) * 0.1).toFixed(4), // Simuliuojami reward'ai
+        rewards: (parseFloat(rewards) + parseFloat(amount) * 0.1).toFixed(4),
       });
 
-      // 📌 Išsaugoti staking fee į Supabase "fees" lentelę
+      // 📌 Save staking fee in Supabase "fees" table
       await supabase.from("fees").insert([
         {
           wallet: account,
@@ -134,6 +136,7 @@ export default function Staking() {
         }
       ]);
 
+      setNotifications((prev) => [`🚀 Successfully staked ${amount} BNB`, ...prev]);
       fetchStakingData();
     } catch (error) {
       console.error("❌ Klaida staking procese:", error);
@@ -143,31 +146,54 @@ export default function Staking() {
   };
 
   return (
-    <div className="staking-container">
-      <h2>💸 Staking</h2>
-      <p>Stake your BNB and earn passive income! Current APY: <strong>{apy}</strong></p>
+    <Box className="staking-container p-6">
+      <Typography variant="h4" className="text-center mb-6">💸 Staking</Typography>
 
-      <div className="balance-info">
-        <p>💰 Staked Balance: {stakedBalance} BNB</p>
-        <p>🏆 Earned Rewards: {rewards} BNB</p>
-      </div>
+      {notifications.length > 0 && (
+        <Snackbar open autoHideDuration={5000} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
+          <Alert severity="success">{notifications[0]}</Alert>
+        </Snackbar>
+      )}
 
-      <label>Amount to Stake (BNB)</label>
-      <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount" />
+      <Card className="glass-card mb-6">
+        <CardContent>
+          <Typography variant="h5">🌟 APY: {apy}</Typography>
+          <Typography variant="body1">Stake your BNB and earn passive income.</Typography>
+        </CardContent>
+      </Card>
 
-      <label>Show in:</label>
-      <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
-        <option value="EUR">💶 EUR</option>
-        <option value="USD">💵 USD</option>
-      </select>
+      <Grid container spacing={4}>
+        <Grid item xs={6}>
+          <Card className="glass-card">
+            <CardContent>
+              <Typography variant="h5">💰 Staked Balance</Typography>
+              <Typography variant="h4">{stakedBalance} BNB</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
 
-      {convertedAmount && <p className="converted-amount">≈ {convertedAmount} {currency}</p>}
+        <Grid item xs={6}>
+          <Card className="glass-card">
+            <CardContent>
+              <Typography variant="h5">🏆 Earned Rewards</Typography>
+              <Typography variant="h4">{rewards} BNB</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
 
-      <button className="stake-btn" onClick={handleStake} disabled={loading}>
-        {loading ? "🔄 Processing..." : "🚀 Stake"}
-      </button>
+      <TextField fullWidth label="Amount to Stake (BNB)" type="number" variant="outlined" value={amount} onChange={(e) => setAmount(e.target.value)} className="mt-4" />
+      <Select fullWidth value={currency} onChange={(e) => setCurrency(e.target.value)} className="mt-4">
+        <MenuItem value="EUR">💶 EUR</MenuItem>
+        <MenuItem value="USD">💵 USD</MenuItem>
+      </Select>
+      {convertedAmount && <Typography variant="body2" className="mt-2">≈ {convertedAmount} {currency}</Typography>}
 
-      {account && <QRCode value={account} size={128} />}
-    </div>
+      <Button variant="contained" color="primary" fullWidth className="mt-4" onClick={handleStake} disabled={loading}>
+        {loading ? <CircularProgress size={24} /> : "🚀 Stake"}
+      </Button>
+
+      {account && <QRCode value={account} size={128} className="mt-6" />}
+    </Box>
   );
       }
