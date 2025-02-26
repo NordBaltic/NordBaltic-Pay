@@ -1,163 +1,143 @@
 import { useState, useEffect } from "react";
-import Web3 from "web3";
-import axios from "axios";
+import { createClient } from "@supabase/supabase-js";
+import {
+  Box, Card, CardContent, Typography, Button, Grid,
+  Snackbar, Alert, Switch, CircularProgress
+} from "@mui/material";
 import "../styles/globals.css";
+
+// 🔥 Supabase Setup
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 export default function AdminControls() {
   const [account, setAccount] = useState(null);
   const [isAdmin, setIsAdmin] = useState(false);
-  const [fees, setFees] = useState({ send: 3, swap: 0.2, stake: 4, donation: 3 });
-  const [newFees, setNewFees] = useState({ send: "", swap: "", stake: "", donation: "" });
-  const [userList, setUserList] = useState([]);
-  const [logs, setLogs] = useState([]);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
-  const [statusMessage, setStatusMessage] = useState("");
+  const [authDisabled, setAuthDisabled] = useState(false);
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [notification, setNotification] = useState("");
 
   useEffect(() => {
-    const loadAccount = async () => {
-      if (window.ethereum) {
-        try {
-          const web3Instance = new Web3(window.ethereum);
-          const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-          setAccount(accounts[0]);
-
-          const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET.toLowerCase();
-          setIsAdmin(accounts[0].toLowerCase() === adminWallet);
-
-          fetchAdminData();
-        } catch (error) {
-          console.error("🔴 MetaMask connection error:", error);
-        }
-      }
-    };
-
     loadAccount();
+    fetchAdminData();
+    subscribeToChanges();
   }, []);
+
+  const loadAccount = async () => {
+    if (window.ethereum) {
+      try {
+        const web3 = new Web3(window.ethereum);
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        setAccount(accounts[0]);
+
+        const adminWallet = process.env.NEXT_PUBLIC_ADMIN_WALLET.toLowerCase();
+        setIsAdmin(accounts[0].toLowerCase() === adminWallet);
+      } catch (error) {
+        console.error("🔴 MetaMask connection error:", error);
+      }
+    }
+  };
 
   const fetchAdminData = async () => {
     try {
-      const response = await axios.get("/api/admin");
-      setUserList(response.data.bannedUsers);
-      setLogs(response.data.logs);
-      setIs2FAEnabled(response.data.is2FAEnabled);
-      setFees(response.data.fees);
+      const { data, error } = await supabase.from("admin_settings").select("*").single();
+      if (error) throw error;
+      setIs2FAEnabled(data.is2FAEnabled);
+      setAuthDisabled(data.authDisabled);
+      setLoading(false);
     } catch (error) {
       console.error("⚠️ Admin data fetch error:", error);
     }
   };
 
-  const handleBanUnban = async (userAddress, isBanned) => {
-    try {
-      await axios.post("/api/admin/ban", { userAddress, isBanned });
-      setStatusMessage(`✅ User ${isBanned ? "banned" : "unbanned"} successfully.`);
-      fetchAdminData();
-    } catch (error) {
-      console.error("❌ Error updating user status:", error);
-    }
+  const subscribeToChanges = () => {
+    supabase.channel("admin_settings")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "admin_settings" }, (payload) => {
+        setIs2FAEnabled(payload.new.is2FAEnabled);
+        setAuthDisabled(payload.new.authDisabled);
+        setNotification("⚡ Settings updated in real-time!");
+      })
+      .subscribe();
   };
 
-  const handleFreezeUnfreeze = async (userAddress, isFrozen) => {
+  const toggleAuth = async () => {
     try {
-      await axios.post("/api/admin/freeze", { userAddress, isFrozen });
-      setStatusMessage(`✅ Funds ${isFrozen ? "frozen" : "unfrozen"} successfully.`);
-      fetchAdminData();
+      const { error } = await supabase
+        .from("admin_settings")
+        .update({ authDisabled: !authDisabled })
+        .eq("id", 1);
+      if (error) throw error;
+      setAuthDisabled(!authDisabled);
+      setNotification(`✅ Authentication ${authDisabled ? "Enabled" : "Disabled"}!`);
     } catch (error) {
-      console.error("❌ Error updating funds status:", error);
-    }
-  };
-
-  const handleRefund = async (userAddress, amount) => {
-    try {
-      await axios.post("/api/admin/refund", { userAddress, amount });
-      setStatusMessage(`✅ Refunded ${amount} BNB to ${userAddress}`);
-      fetchAdminData();
-    } catch (error) {
-      console.error("❌ Refund failed:", error);
+      console.error("❌ Error toggling authentication:", error);
     }
   };
 
   const toggle2FA = async () => {
     try {
-      await axios.post("/api/admin/toggle-2fa");
+      const { error } = await supabase
+        .from("admin_settings")
+        .update({ is2FAEnabled: !is2FAEnabled })
+        .eq("id", 1);
+      if (error) throw error;
       setIs2FAEnabled(!is2FAEnabled);
     } catch (error) {
       console.error("🔒 2FA toggle error:", error);
     }
   };
 
-  const updateFee = async (type) => {
-    if (!newFees[type]) return;
-
-    try {
-      await axios.post("/api/admin/updateFee", { type, value: parseFloat(newFees[type]) });
-      setStatusMessage(`✅ ${type.toUpperCase()} Fee Updated to ${newFees[type]}%`);
-      fetchAdminData();
-    } catch (error) {
-      console.error("❌ Error updating fee:", error);
-    }
-  };
-
   if (!isAdmin) {
     return (
-      <div className="admin-controls">
-        <h2>🚨 Access Denied</h2>
-        <p>🔒 You are not authorized to view this section.</p>
-      </div>
+      <Box className="admin-controls">
+        <Typography variant="h4" className="text-center">🚨 Access Denied</Typography>
+        <Typography variant="body1" className="text-center">🔒 You are not authorized to view this section.</Typography>
+      </Box>
     );
   }
 
   return (
-    <div className="admin-controls">
-      <h2>⚙️ Admin Controls</h2>
-      <p className="admin-status">Welcome, <strong>{account}</strong></p>
+    <Box className="admin-container p-6">
+      <Typography variant="h4" className="text-center neon-text">⚙️ Admin Controls</Typography>
 
       {/* 🔐 2FA Valdymas */}
-      <div className="section">
-        <h3>🔐 2FA Authentication</h3>
-        <button className="toggle-2fa" onClick={toggle2FA}>
-          {is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}
-        </button>
-      </div>
+      <Card className="glass-card mt-4 p-4">
+        <Typography variant="h5">🔐 2FA Authentication</Typography>
+        <Switch checked={is2FAEnabled} onChange={toggle2FA} />
+        <Typography variant="body2">{is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}</Typography>
+      </Card>
 
-      {/* 💰 Mokesčių Valdymas */}
-      <div className="fee-controls">
-        <h3>💰 Fee Management</h3>
-        {Object.keys(fees).map((type) => (
-          <div key={type} className="fee-item">
-            <label>{type.toUpperCase()} Fee: {fees[type]}%</label>
-            <input
-              type="number"
-              placeholder={`New ${type} Fee`}
-              value={newFees[type]}
-              onChange={(e) => setNewFees({ ...newFees, [type]: e.target.value })}
-            />
-            <button className="update-btn" onClick={() => updateFee(type)}>Update</button>
-          </div>
-        ))}
-      </div>
-
-      {/* 🚫 Ban/Unban Naudotojai */}
-      <div className="section">
-        <h3>🚫 Ban Users</h3>
-        <input
-          type="text"
-          placeholder="Enter wallet address..."
-          onChange={(e) => setNewFees(e.target.value)}
-        />
-        <button onClick={() => handleBanUnban(newFees, true)}>Ban User</button>
-      </div>
+      {/* 🚀 FTW MODE - Disable Authentication */}
+      <Card className={`glass-card mt-4 p-4 ${authDisabled ? "error-bg" : ""}`}>
+        <Typography variant="h5">🚀 FTW Mode: Disable Authentication</Typography>
+        <Switch checked={authDisabled} onChange={toggleAuth} />
+        <Typography variant="body2" className={authDisabled ? "text-red-500" : "text-green-500"}>
+          {authDisabled ? "🛑 Authentication Disabled (FTW Mode)" : "✅ Authentication Enabled"}
+        </Typography>
+      </Card>
 
       {/* 📜 Security Logs */}
-      <div className="section">
-        <h3>📜 Security Logs</h3>
-        <ul>
-          {logs.map((log, index) => (
-            <li key={index}>{log}</li>
-          ))}
-        </ul>
-      </div>
+      <Card className="glass-card mt-4 p-4">
+        <Typography variant="h5">📜 Security Logs</Typography>
+        {loading ? (
+          <CircularProgress size={24} />
+        ) : (
+          <Box className="security-logs">
+            {logs.slice(0, 5).map((log, index) => (
+              <Typography key={index} variant="body2">{log.action} - {new Date(log.timestamp).toLocaleString()}</Typography>
+            ))}
+          </Box>
+        )}
+      </Card>
 
-      {statusMessage && <p className="status-message">{statusMessage}</p>}
-    </div>
+      {/* Snackbar Notifications */}
+      <Snackbar open={!!notification} autoHideDuration={4000} onClose={() => setNotification("")}>
+        <Alert severity="info">{notification}</Alert>
+      </Snackbar>
+    </Box>
   );
-      }
+}
