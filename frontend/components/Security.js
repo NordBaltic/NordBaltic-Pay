@@ -39,9 +39,7 @@ const Security = () => {
 
   const fetchSecurityData = async () => {
     try {
-      const response = await axios.get("/api/security", {
-        headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
-      });
+      const response = await axios.get("/api/security");
       setUserList(response.data.bannedUsers);
       setLogs(response.data.logs);
       setIs2FAEnabled(response.data.is2FAEnabled);
@@ -86,7 +84,7 @@ const Security = () => {
   const toggle2FA = async () => {
     try {
       await axios.post(
-        "/api/security/toggle-2fa",
+        "/api/admin/toggle-2fa",
         {},
         { headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` } }
       );
@@ -113,7 +111,7 @@ const Security = () => {
       <p className="admin-status">Welcome, <strong>{account}</strong></p>
 
       {/* 2FA Valdymas */}
-      <h3>🔄 2FA Authentication</h3>
+      <h3>🔐 2FA Authentication</h3>
       <button onClick={toggle2FA}>
         {is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}
       </button>
