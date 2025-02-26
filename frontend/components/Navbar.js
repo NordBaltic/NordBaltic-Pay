@@ -1,8 +1,9 @@
-// 📂 /frontend/components/Navbar.js - Pagrindinė navigacija
+// 📂 /frontend/components/Navbar.js - Pagrindinė navigacija (MAX PREMIUM)
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
+import QRCode from "qrcode.react";
 
 export default function Navbar() {
   const [account, setAccount] = useState(null);
@@ -65,7 +66,12 @@ export default function Navbar() {
       </div>
       <div className="wallet-section">
         {account ? (
-          <p className="wallet-address">Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
+          <div className="wallet-info">
+            <p className="wallet-address">
+              ✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}
+            </p>
+            <QRCode value={account} size={60} />
+          </div>
         ) : (
           <div className="wallet-buttons">
             <button className="wallet-connect-btn" onClick={connectWalletConnect}>
