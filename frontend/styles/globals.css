@@ -1,16 +1,16 @@
-/* 🎨 GLOBAL STYLES – ELITE UI/UX */
+/* 🎨 GLOBAL STYLES – PREMIUM LUXURY UI */
 :root {
-  --primary-color: #4CAF50;
+  --primary-color: #FFD700; /* Auksinė */
   --secondary-color: #2E7D32;
-  --accent-color: #FFC107;
+  --accent-color: #29B6F6; /* Neoninis mėlynas */
   --bg-dark: #0A1F44;
   --bg-light: #F5F5F5;
   --text-dark: #FFFFFF;
   --text-light: #0A1F44;
-  --card-bg-dark: rgba(255, 255, 255, 0.07);
+  --card-bg-dark: rgba(255, 255, 255, 0.1);
   --card-bg-light: rgba(0, 0, 0, 0.05);
-  --border-radius: 14px;
-  --shadow: 0 6px 14px rgba(0, 0, 0, 0.15);
+  --border-radius: 16px;
+  --shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
   --transition: all 0.3s ease-in-out;
 }
 
@@ -20,6 +20,7 @@
   --text-color: var(--text-dark);
   --card-bg: var(--card-bg-dark);
   --card-border: rgba(255, 255, 255, 0.15);
+  --button-glow: 0 0 15px rgba(255, 215, 0, 0.8);
 }
 
 /* ☀️ LIGHT MODE */
@@ -28,6 +29,7 @@
   --text-color: var(--text-light);
   --card-bg: var(--card-bg-light);
   --card-border: rgba(0, 0, 0, 0.1);
+  --button-glow: 0 0 12px rgba(41, 182, 246, 0.7);
 }
 
 /* 🌟 BODY STYLE */
@@ -83,36 +85,36 @@ body {
 
 /* 📊 DASHBOARD */
 .dashboard-container {
-  max-width: 900px;
+  max-width: 1000px;
   margin: auto;
   padding: 24px;
   background: var(--card-bg);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
   transition: var(--transition);
+  backdrop-filter: blur(10px);
 }
 
-.dashboard-title {
-  font-size: 28px;
-  font-weight: bold;
-  text-align: center;
-  margin-bottom: 24px;
-}
-
-.dashboard-buttons a {
-  display: inline-block;
-  padding: 14px 24px;
+/* 💎 LUXURY BUTTONS */
+button {
   background: var(--primary-color);
   color: white;
+  font-size: 16px;
+  padding: 12px 20px;
   border-radius: var(--border-radius);
+  border: none;
+  cursor: pointer;
   transition: var(--transition);
-  text-decoration: none;
-  font-weight: bold;
+  box-shadow: var(--button-glow);
 }
 
-.dashboard-buttons a:hover {
+button:hover {
   background: var(--accent-color);
   box-shadow: var(--shadow);
+}
+
+button:active {
+  transform: scale(0.98);
 }
 
 /* 📜 TRANSACTION HISTORY */
@@ -120,6 +122,8 @@ body {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
 }
 
 .transaction-history th, .transaction-history td {
@@ -135,94 +139,36 @@ body {
 }
 
 .transaction-history tr:hover {
-  background: var(--card-bg);
-}
-
-/* 📈 LOADING BALANCE ANIMATION */
-@keyframes loading {
-  0% { opacity: 0.3; }
-  50% { opacity: 1; }
-  100% { opacity: 0.3; }
-}
-
-.balance-loading {
-  width: 110px;
-  height: 24px;
-  background: var(--card-bg);
-  border-radius: var(--border-radius);
-  animation: loading 1.5s infinite;
-}
-
-/* 📉 CHARTS */
-.chart-container {
-  background: var(--card-bg);
-  padding: 24px;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-  margin-top: 20px;
-}
-
-/* ⚡ ADMIN PANEL */
-.admin-container {
-  max-width: 850px;
-  margin: auto;
-  padding: 24px;
-  background: var(--card-bg);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-}
-
-.admin-container table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 24px;
-}
-
-.admin-container th, .admin-container td {
-  padding: 14px;
-  text-align: center;
-  border-bottom: 1px solid var(--card-border);
-}
-
-.admin-container th {
-  background: var(--primary-color);
-  color: white;
-}
-
-.admin-container tr:hover {
-  background: var(--card-bg);
-}
-
-/* 💎 PREMIUM BUTTON STYLES */
-button {
-  background: var(--primary-color);
-  color: white;
-  font-size: 16px;
-  padding: 12px 20px;
-  border-radius: var(--border-radius);
-  border: none;
-  cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
   transition: var(--transition);
 }
 
-button:hover {
-  background: var(--accent-color);
-  box-shadow: var(--shadow);
-}
-
-button:active {
-  transform: scale(0.98);
-}
-
-/* 💠 MODAL BLUR EFFECT */
+/* 🔥 MODAL STYLES */
 .modal {
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(10px);
   padding: 24px;
   border-radius: var(--border-radius);
+  animation: fadeIn 0.3s ease-in-out;
 }
 
-/* 🔥 FOOTER */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* 💠 LOADING ANIMATION */
+@keyframes glowing {
+  0% { box-shadow: 0 0 10px var(--primary-color); }
+  50% { box-shadow: 0 0 20px var(--primary-color); }
+  100% { box-shadow: 0 0 10px var(--primary-color); }
+}
+
+.loading {
+  animation: glowing 1.5s infinite alternate;
+}
+
+/* 💡 FOOTER */
 .footer {
   text-align: center;
   padding: 24px;
@@ -231,6 +177,7 @@ button:active {
   font-size: 16px;
   font-weight: bold;
   margin-top: 20px;
+  border-radius: var(--border-radius);
 }
 
 /* 🛠 RESPONSIVE DESIGN */
@@ -239,12 +186,11 @@ button:active {
     flex-direction: column;
   }
 
-  .transaction-history th, .transaction-history td,
-  .admin-container th, .admin-container td {
+  .transaction-history th, .transaction-history td {
     font-size: 14px;
   }
 
-  .dashboard-container, .admin-container, .settings-container {
+  .dashboard-container, .admin-container {
     width: 90%;
     padding: 18px;
   }
