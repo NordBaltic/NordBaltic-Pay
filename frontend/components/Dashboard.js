@@ -18,7 +18,6 @@ export default function Dashboard() {
   const [account, setAccount] = useState(null);
   const [web3, setWeb3] = useState(null);
   const [balance, setBalance] = useState("0.00");
-  const [balanceChange, setBalanceChange] = useState({ "24h": 0, "1w": 0, "1m": 0 });
   const [stakingRewards, setStakingRewards] = useState("0.00");
   const [chartData, setChartData] = useState(null);
   const [lastTransaction, setLastTransaction] = useState(null);
@@ -33,8 +32,7 @@ export default function Dashboard() {
       const web3Instance = new Web3(window.ethereum);
       setWeb3(web3Instance);
       fetchBalance(web3Instance, account);
-      fetchBalanceChange();
-      fetchChartData("1w");
+      fetchChartData("7d");
       fetchStakingRewards();
       fetchLastTransaction();
     }
@@ -43,7 +41,7 @@ export default function Dashboard() {
   // 🔵 Fetch user account from Supabase
   const fetchUserAccount = async () => {
     const { data, error } = await supabase.from("users").select("wallet, balance").single();
-    if (data && data.wallet) {
+    if (data?.wallet) {
       setAccount(data.wallet);
       setBalance(data.balance || "0.00");
     } else if (error) {
@@ -63,16 +61,37 @@ export default function Dashboard() {
     }
   };
 
-  // 📈 Fetch balance changes
-  const fetchBalanceChange = async () => {
+  // 📈 Fetch chart data
+  const fetchChartData = async (interval) => {
     try {
-      const response = await axios.get("https://api.coingecko.com/api/v3/coins/binancecoin/market_chart?vs_currency=usd&days=1");
-      const prices = response.data.prices;
-      setBalanceChange({
-        "24h": ((prices[prices.length - 1][1] / prices[0][1] - 1) * 100).toFixed(2),
-      });
+      const { data, error } = await supabase
+        .from("bnb_price_history")
+        .select("*")
+        .eq("interval", interval)
+        .order("timestamp", { ascending: false })
+        .limit(1);
+
+      if (!error && data.length > 0) {
+        console.log("🔹 Naudojami duomenys iš Supabase DB");
+        setChartData(JSON.parse(data[0].data));
+        return;
+      }
+
+      const response = await axios.get(
+        `https://api.coingecko.com/api/v3/coins/binancecoin/market_chart?vs_currency=usd&days=${
+          interval === "24h" ? 1 : interval === "7d" ? 7 : 30
+        }&interval=daily`
+      );
+
+      const prices = response.data.prices.map((data) => ({
+        x: new Date(data[0]),
+        y: data[1],
+      }));
+
+      setChartData(prices);
+      await supabase.from("bnb_price_history").insert([{ interval, data: JSON.stringify(prices) }]);
     } catch (error) {
-      console.error("🔴 Klaida gaunant kainų pokytį:", error);
+      console.error("🔴 Klaida gaunant kainų duomenis:", error);
     }
   };
 
@@ -90,7 +109,14 @@ export default function Dashboard() {
   // 🔄 Fetch last transaction
   const fetchLastTransaction = async () => {
     if (!account) return;
-    const { data, error } = await supabase.from("transactions").select("*").eq("from", account).order("timestamp", { ascending: false }).limit(1).single();
+    const { data, error } = await supabase
+      .from("transactions")
+      .select("*")
+      .eq("from", account)
+      .order("timestamp", { ascending: false })
+      .limit(1)
+      .single();
+      
     if (data) {
       setLastTransaction(data);
     } else if (error) {
@@ -116,11 +142,6 @@ export default function Dashboard() {
                 <CardContent>
                   <Typography variant="h5">💰 Balance</Typography>
                   <Typography variant="h4">{balance} BNB</Typography>
-                  <Typography variant="body2" color="textSecondary">
-                    24h Change: <span className={balanceChange["24h"] >= 0 ? "positive" : "negative"}>
-                      {balanceChange["24h"]}%
-                    </span>
-                  </Typography>
                 </CardContent>
               </Card>
             </Grid>
