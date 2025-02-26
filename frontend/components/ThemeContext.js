@@ -2,7 +2,10 @@ import { useState, useEffect, createContext, useContext } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 // 🔥 Supabase setup
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
 
 // 🌙 Temų konteksto sukūrimas
 const ThemeContext = createContext();
@@ -45,8 +48,18 @@ export const ThemeProvider = ({ children, user }) => {
     }
   }, [theme, user, mounted]);
 
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    setTheme(newTheme);
+
+    // 🌍 Išsaugoti Supabase duomenų bazėje (jeigu yra prisijungęs vartotojas)
+    if (user) {
+      supabase.from("users").update({ theme: newTheme }).eq("id", user.id);
+    }
+  };
+
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
