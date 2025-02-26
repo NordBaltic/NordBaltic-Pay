@@ -90,6 +90,7 @@ body {
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.2);
+  margin-top: 20px;
 }
 
 .token-list h2 {
@@ -111,12 +112,6 @@ body {
   border-bottom: 1px solid rgba(255, 215, 0, 0.2);
 }
 
-.token-icon {
-  width: 30px;
-  height: 30px;
-  margin-right: 10px;
-}
-
 .balance {
   font-weight: bold;
   color: #FFD700;
@@ -128,6 +123,7 @@ body {
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0px 4px 10px rgba(255, 215, 0, 0.2);
+  margin-top: 20px;
 }
 
 .transaction-history h2 {
