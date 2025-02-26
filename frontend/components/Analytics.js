@@ -3,94 +3,102 @@ import axios from "axios";
 import Chart from "chart.js/auto";
 import "../styles/globals.css";
 
-export default function Analytics() {
-  const [data, setData] = useState(null);
+const Analytics = () => {
+  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [timeFrame, setTimeFrame] = useState("24h");
+  const [activeUsers, setActiveUsers] = useState([]);
+  const [transactions, setTransactions] = useState([]);
+  const [swapVolume, setSwapVolume] = useState(0);
   const [chartInstance, setChartInstance] = useState(null);
 
   useEffect(() => {
     fetchAnalytics();
-    const interval = setInterval(fetchAnalytics, 30000); // ⏳ Automatinis atnaujinimas kas 30s
+    const interval = setInterval(fetchAnalytics, 60000); // 🔄 Atnaujina kas 60s
     return () => clearInterval(interval);
-  }, [timeFrame]);
+  }, []);
 
   const fetchAnalytics = async () => {
     try {
-      const response = await axios.get(`/api/analytics?timeFrame=${timeFrame}`);
-      setData(response.data);
-      setLoading(false);
+      const response = await axios.get("/api/analytics", {
+        headers: { Authorization: `Bearer ${localStorage.getItem("jwt")}` },
+      });
+
+      setStats(response.data);
+      setActiveUsers(response.data.activeUsers);
+      setTransactions(response.data.transactions);
+      setSwapVolume(response.data.swapVolume);
+
       updateChart(response.data);
+      setLoading(false);
     } catch (error) {
-      console.error("❌ Klaida gaunant analitiką:", error);
+      console.error("⚠️ Analytics fetch error:", error);
       setLoading(false);
     }
   };
 
-  const updateChart = (analyticsData) => {
-    if (!analyticsData || !analyticsData.transactions) return;
+  const updateChart = (data) => {
+    if (chartInstance) chartInstance.destroy();
 
-    const ctx = document.getElementById("analyticsChart");
-    if (chartInstance) {
-      chartInstance.destroy(); // 🔄 Išvalyti seną diagramą prieš kuriant naują
-    }
-
+    const ctx = document.getElementById("analyticsChart").getContext("2d");
     const newChartInstance = new Chart(ctx, {
-      type: "line",
+      type: "bar",
       data: {
-        labels: analyticsData.transactions.map((tx) => tx.date),
+        labels: ["Swaps", "Transactions", "Active Users"],
         datasets: [
           {
-            label: "📈 Transakcijos",
-            data: analyticsData.transactions.map((tx) => tx.amount),
-            borderColor: "rgba(75, 192, 192, 1)",
-            backgroundColor: "rgba(75, 192, 192, 0.2)",
-            borderWidth: 2,
-            tension: 0.3,
+            label: "Activity",
+            data: [data.swapVolume, data.transactions.length, data.activeUsers.length],
+            backgroundColor: ["#4CAF50", "#2196F3", "#FFC107"],
           },
         ],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: true },
-        },
-        scales: {
-          x: { display: true },
-          y: { beginAtZero: true },
-        },
       },
     });
 
     setChartInstance(newChartInstance);
   };
 
+  if (loading) return <p className="loading">🔄 Loading analytics...</p>;
+
   return (
     <div className="analytics-container">
-      <h1>📊 Platform Analytics</h1>
+      <h1>📊 System Analytics</h1>
 
-      {/* ⏳ Laiko filtro pasirinkimas */}
-      <div className="time-filter">
-        <button onClick={() => setTimeFrame("24h")} className={timeFrame === "24h" ? "active" : ""}>24h</button>
-        <button onClick={() => setTimeFrame("7d")} className={timeFrame === "7d" ? "active" : ""}>7d</button>
-        <button onClick={() => setTimeFrame("1m")} className={timeFrame === "1m" ? "active" : ""}>1m</button>
+      <div className="chart-container">
+        <canvas id="analyticsChart"></canvas>
       </div>
 
-      {/* 📈 Analitikos rodikliai */}
-      {loading ? (
-        <p>🔄 Loading analytics...</p>
-      ) : (
-        <>
-          <div className="analytics-summary">
-            <p>🤑 Total Volume: <strong>{data.totalVolume} BNB</strong></p>
-            <p>🔄 Total Transactions: <strong>{data.totalTransactions}</strong></p>
-            <p>👥 Active Users: <strong>{data.activeUsers}</strong></p>
-          </div>
+      <h3>👥 Active Users: {activeUsers.length}</h3>
+      <ul>
+        {activeUsers.map((user, index) => (
+          <li key={index}>{user}</li>
+        ))}
+      </ul>
 
-          {/* 📉 Diagrama */}
-          <canvas id="analyticsChart"></canvas>
-        </>
-      )}
+      <h3>💰 Total Swap Volume: {swapVolume} BNB</h3>
+
+      <h3>🔄 Recent Transactions</h3>
+      <table className="transactions-table">
+        <thead>
+          <tr>
+            <th>Tx Hash</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          {transactions.slice(0, 10).map((tx, index) => (
+            <tr key={index}>
+              <td>{tx.hash.substring(0, 10)}...</td>
+              <td>{tx.from.substring(0, 6)}...{tx.from.slice(-4)}</td>
+              <td>{tx.to.substring(0, 6)}...{tx.to.slice(-4)}</td>
+              <td>{tx.amount} BNB</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-}
+};
+
+export default Analytics;
