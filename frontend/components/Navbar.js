@@ -1,10 +1,9 @@
-// 📂 /frontend/components/Navbar.js - MAX PREMIUM NAVBAR
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import QRCode from "qrcode.react";
-import { useTheme } from "../context/ThemeContext"; // 🎨 Theme Switcher Integracija
+import ThemeSwitcher from "./ThemeSwitcher"; // ✅ Pridedame temos perjungiklį
 
 export default function Navbar() {
   const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
@@ -12,7 +11,6 @@ export default function Navbar() {
   const [network, setNetwork] = useState("");
   const [balance, setBalance] = useState("0.00");
   const [menuOpen, setMenuOpen] = useState(false);
-  const { theme, setTheme } = useTheme(); // 🎨 Paimame temą iš ThemeContext
 
   useEffect(() => {
     if (account) {
@@ -96,9 +94,7 @@ export default function Navbar() {
         <Link href="/staking"><a>💸 Staking</a></Link>
         <Link href="/transactions"><a>📜 Transactions</a></Link>
         <Link href="/donations"><a>❤️ Donations</a></Link>
-        <Link href="/swap"><a>🔄 Swap</a></Link>
         <Link href="/admin"><a>🛠️ Admin</a></Link>
-        <Link href="/settings"><a>⚙️ Settings</a></Link>
       </div>
 
       <div className="wallet-section">
@@ -126,13 +122,8 @@ export default function Navbar() {
         )}
       </div>
 
-      {/* 🌙🌞 Tema Keitiklis */}
-      <button 
-        className="theme-toggle"
-        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      >
-        {theme === "dark" ? "☀️" : "🌙"}
-      </button>
+      {/* ✅ PRIDEDAME TEMOS PERJUNGIMĄ */}
+      <ThemeSwitcher />
 
       <div className="menu-toggle" onClick={() => setMenuOpen(!menuOpen)}>
         ☰
