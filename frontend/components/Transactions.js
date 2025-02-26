@@ -1,125 +1,195 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import Web3 from "web3";
+import axios from "axios";
+import { createClient } from "@supabase/supabase-js";
 import "../styles/globals.css";
 
-const Transactions = () => {
-  const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
+// 🔥 Supabase setup
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+
+export default function Transactions() {
+  const [account, setAccount] = useState(null);
+  const [web3, setWeb3] = useState(null);
   const [transactions, setTransactions] = useState([]);
-  const [filteredTransactions, setFilteredTransactions] = useState([]);
-  const [selectedFilter, setSelectedFilter] = useState("all");
+  const [amount, setAmount] = useState("");
+  const [recipient, setRecipient] = useState("");
   const [currency, setCurrency] = useState("USD");
-  const [conversionRates, setConversionRates] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [convertedAmount, setConvertedAmount] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    fetchUserAccount();
+  }, []);
 
   useEffect(() => {
     if (account) {
+      const web3Instance = new Web3(window.ethereum);
+      setWeb3(web3Instance);
       fetchTransactions();
-      fetchConversionRates();
     }
-  }, [account, currency]);
+  }, [account]);
 
-  const fetchTransactions = async () => {
-    try {
-      const response = await axios.get(
-        `https://api.bscscan.com/api?module=account&action=txlist&address=${account}&startblock=0&endblock=99999999&sort=desc&apikey=${process.env.NEXT_PUBLIC_BSCSCAN_API_KEY}`
-      );
-
-      const txs = response.data.result.map(tx => ({
-        hash: tx.hash,
-        type: determineTxType(tx),
-        value: Web3.utils.fromWei(tx.value, "ether"),
-        timestamp: new Date(tx.timeStamp * 1000).toLocaleString(),
-        to: tx.to,
-        from: tx.from,
-      }));
-
-      setTransactions(txs);
-      setFilteredTransactions(txs);
-      setLoading(false);
-    } catch (error) {
-      console.error("🔴 Error fetching transactions:", error);
+  // 🔵 Fetch user account from Supabase
+  const fetchUserAccount = async () => {
+    const { data } = await supabase.from("users").select("wallet").single();
+    if (data && data.wallet) {
+      setAccount(data.wallet);
     }
   };
 
-  const fetchConversionRates = async () => {
+  // 📜 Fetch transactions from Supabase
+  const fetchTransactions = async () => {
+    if (!account) return;
+    
+    const { data, error } = await supabase.from("transactions").select("*").eq("from", account).order("timestamp", { ascending: false });
+    if (error) {
+      console.error("🔴 Klaida gaunant transakcijas:", error);
+      return;
+    }
+    
+    setTransactions(data || []);
+  };
+
+  // 💵 Valiutos konvertavimas
+  useEffect(() => {
+    if (!amount) return;
+    const convert = async () => {
+      const rate = await fetchConversionRate();
+      if (rate) {
+        setConvertedAmount((parseFloat(amount) * rate).toFixed(2));
+      }
+    };
+    convert();
+  }, [amount, currency]);
+
+  const fetchConversionRate = async () => {
     try {
       const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd,eur`);
-      setConversionRates(response.data.binancecoin);
+      return response.data.binancecoin[currency.toLowerCase()];
     } catch (error) {
-      console.error("🔴 Error fetching conversion rates:", error);
+      console.error("❌ Klaida gaunant valiutos kursą:", error);
+      return null;
     }
   };
 
-  const determineTxType = (tx) => {
-    if (tx.to.toLowerCase() === account.toLowerCase()) return "receive";
-    if (tx.from.toLowerCase() === account.toLowerCase()) return "send";
-    return "other";
-  };
+  // 🚀 Send Transaction
+  const handleSendTransaction = async () => {
+    if (!amount || !recipient || !web3) return;
 
-  const handleFilterChange = (filter) => {
-    setSelectedFilter(filter);
-    if (filter === "all") {
-      setFilteredTransactions(transactions);
-    } else {
-      setFilteredTransactions(transactions.filter(tx => tx.type === filter));
+    try {
+      setLoading(true);
+      const sendAmount = web3.utils.toWei(amount, "ether");
+
+      const tx = await web3.eth.sendTransaction({
+        from: account,
+        to: recipient,
+        value: sendAmount,
+        gas: 21000,
+      });
+
+      console.log("✅ Transaction successful:", tx);
+
+      // 📌 Save transaction to Supabase
+      await supabase.from("transactions").insert([
+        {
+          from: account,
+          to: recipient,
+          amount: amount,
+          currency: "BNB",
+          converted_amount: convertedAmount,
+          converted_currency: currency,
+          status: "Success",
+          hash: tx.transactionHash,
+          timestamp: new Date().toISOString(),
+        }
+      ]);
+
+      fetchTransactions();
+    } catch (error) {
+      console.error("❌ Klaida siunčiant transakciją:", error);
+      
+      // 📌 Save failed transaction
+      await supabase.from("transactions").insert([
+        {
+          from: account,
+          to: recipient,
+          amount: amount,
+          currency: "BNB",
+          converted_amount: convertedAmount,
+          converted_currency: currency,
+          status: "Failed",
+          hash: "N/A",
+          timestamp: new Date().toISOString(),
+        }
+      ]);
+    } finally {
+      setLoading(false);
     }
   };
-
-  if (loading) return <p className="loading">🔄 Loading transactions...</p>;
 
   return (
     <div className="transactions-container">
-      <h1>📜 Transaction History</h1>
-      <p>Connected Wallet: {account.substring(0, 6)}...{account.slice(-4)}</p>
+      <h2>🔄 Transactions</h2>
 
-      <div className="transaction-controls">
-        <label>Filter:</label>
-        <select onChange={(e) => handleFilterChange(e.target.value)}>
-          <option value="all">📂 All Transactions</option>
-          <option value="send">📤 Sent</option>
-          <option value="receive">📥 Received</option>
-        </select>
+      <div className="send-transaction">
+        <label>Recipient Address</label>
+        <input type="text" value={recipient} onChange={(e) => setRecipient(e.target.value)} placeholder="Enter recipient address" />
+
+        <label>Amount (BNB)</label>
+        <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Enter amount" />
 
         <label>Show in:</label>
         <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
           <option value="USD">💵 USD</option>
           <option value="EUR">💶 EUR</option>
         </select>
+
+        {convertedAmount && <p className="converted-amount">≈ {convertedAmount} {currency}</p>}
+
+        <button className="send-btn" onClick={handleSendTransaction} disabled={loading}>
+          {loading ? "🔄 Sending..." : "🚀 Send"}
+        </button>
       </div>
 
-      <table className="transactions-table">
+      <h3>📜 Transaction History</h3>
+      <table className="transaction-table">
         <thead>
           <tr>
-            <th>Hash</th>
-            <th>Type</th>
-            <th>Amount (BNB)</th>
-            <th>Converted</th>
+            <th>Timestamp</th>
             <th>From</th>
             <th>To</th>
-            <th>Time</th>
+            <th>Amount (BNB)</th>
+            <th>Converted</th>
+            <th>Status</th>
+            <th>Hash</th>
           </tr>
         </thead>
         <tbody>
-          {filteredTransactions.map((tx, index) => (
-            <tr key={index}>
-              <td><a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank" rel="noopener noreferrer">{tx.hash.substring(0, 10)}...</a></td>
-              <td>{tx.type === "receive" ? "📥 Received" : "📤 Sent"}</td>
-              <td>{tx.value} BNB</td>
-              <td>
-                {conversionRates[currency.toLowerCase()]
-                  ? `≈ ${(tx.value * conversionRates[currency.toLowerCase()]).toFixed(2)} ${currency}`
-                  : "Loading..."}
-              </td>
-              <td>{tx.from.substring(0, 6)}...{tx.from.slice(-4)}</td>
-              <td>{tx.to.substring(0, 6)}...{tx.to.slice(-4)}</td>
-              <td>{tx.timestamp}</td>
+          {transactions.length > 0 ? (
+            transactions.map((tx, index) => (
+              <tr key={index}>
+                <td>{new Date(tx.timestamp).toLocaleString()}</td>
+                <td>{tx.from.substring(0, 6)}...{tx.from.slice(-4)}</td>
+                <td>{tx.to.substring(0, 6)}...{tx.to.slice(-4)}</td>
+                <td>{tx.amount} BNB</td>
+                <td>{tx.converted_amount} {tx.converted_currency}</td>
+                <td className={tx.status === "Success" ? "success" : "failed"}>{tx.status}</td>
+                <td>
+                  {tx.hash !== "N/A" ? (
+                    <a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank" rel="noopener noreferrer">
+                      🔗 View
+                    </a>
+                  ) : "N/A"}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan="7">No transactions found.</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
     </div>
   );
-};
-
-export default Transactions;
+}
