@@ -1,52 +1,69 @@
-// 📂 /frontend/components/TokenList.js - MAX PREMIUM TOKEN LIST
-import { useState, useEffect } from "react";
+// 📂 /frontend/components/TokenList.js - MAX PREMIUM 3.0 TOKEN LIST
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 
 export default function TokenList() {
   const [tokens, setTokens] = useState([]);
-  const [account, setAccount] = useState(null);
+  const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
   const [web3, setWeb3] = useState(null);
   const [tokenPrices, setTokenPrices] = useState({});
   const [currency, setCurrency] = useState("usd");
-  const [isLoading, setIsLoading] = useState(true);
   const [exchangeRates, setExchangeRates] = useState({ usd: 1, eur: 1 });
+  const [network, setNetwork] = useState("");
 
   useEffect(() => {
-    const loadAccount = async () => {
-      if (window.ethereum) {
-        try {
-          const web3Instance = new Web3(window.ethereum);
-          setWeb3(web3Instance);
-          const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-          setAccount(accounts[0]);
-        } catch (error) {
-          console.error("User denied account access", error);
-        }
-      }
-    };
+    if (account) {
+      const web3Instance = new Web3(window.ethereum);
+      setWeb3(web3Instance);
+      detectNetwork(web3Instance);
+    }
+  }, [account]);
 
-    loadAccount();
-  }, []);
+  const detectNetwork = async (web3Instance) => {
+    const netId = await web3Instance.eth.net.getId();
+    setNetwork(netId === 56 ? "BSC Mainnet" : "Unsupported Network");
+  };
+
+  const connectMetaMask = async () => {
+    if (window.ethereum) {
+      try {
+        const web3Instance = new Web3(window.ethereum);
+        setWeb3(web3Instance);
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        setAccount(accounts[0]);
+        localStorage.setItem("walletAccount", accounts[0]); // 🔥 IŠSAUGO PRISIJUNGIMĄ
+        detectNetwork(web3Instance);
+      } catch (error) {
+        console.error("MetaMask klaida:", error);
+      }
+    } else {
+      alert("MetaMask nerastas!");
+    }
+  };
 
   const connectWalletConnect = async () => {
     try {
       const provider = new WalletConnectProvider({
-        rpc: {
-          56: "https://bsc-dataseed.binance.org/",
-        },
+        rpc: { 56: "https://bsc-dataseed.binance.org/" },
       });
 
       await provider.enable();
       const web3Instance = new Web3(provider);
       setWeb3(web3Instance);
-
       const accounts = await web3Instance.eth.getAccounts();
       setAccount(accounts[0]);
+      localStorage.setItem("walletAccount", accounts[0]); // 🔥 IŠSAUGO PRISIJUNGIMĄ
+      detectNetwork(web3Instance);
     } catch (error) {
-      console.error("Error connecting with WalletConnect", error);
+      console.error("WalletConnect klaida:", error);
     }
+  };
+
+  const disconnectWallet = () => {
+    setAccount(null);
+    localStorage.removeItem("walletAccount"); // 🔥 ATJUNGIA IR IŠVALO PRISIJUNGIMĄ
   };
 
   useEffect(() => {
@@ -76,7 +93,7 @@ export default function TokenList() {
   const fetchTokenPrices = async (tokenList) => {
     try {
       const tokenSymbols = tokenList.map(token => token.tokenSymbol.toLowerCase()).join(",");
-      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${tokenSymbols},usd,eur&vs_currencies=usd,eur`);
+      const response = await axios.get(`https://api.coingecko.com/api/v3/simple/price?ids=${tokenSymbols},usd,eur&vs_currencies=usd,eur,market_cap`);
       
       setTokenPrices(response.data);
       setExchangeRates({
@@ -84,35 +101,56 @@ export default function TokenList() {
         eur: response.data.eur?.usd || 1
       });
 
-      setIsLoading(false);
     } catch (error) {
       console.error("Error fetching token prices:", error);
     }
   };
 
+  const formattedTokens = useMemo(() => {
+    return tokens.map(token => {
+      const balance = parseFloat(token.balance) / 10 ** token.tokenDecimal;
+      const price = tokenPrices[token.tokenSymbol.toLowerCase()]?.[currency] || 0;
+      const totalValue = (balance * price).toFixed(2);
+      const marketCap = tokenPrices[token.tokenSymbol.toLowerCase()]?.market_cap || "N/A";
+
+      return {
+        ...token,
+        balance,
+        price,
+        totalValue,
+        marketCap,
+        priceChange: tokenPrices[token.tokenSymbol.toLowerCase()]?.price_change_percentage_24h || 0
+      };
+    });
+  }, [tokens, tokenPrices, currency]);
+
   return (
     <div className="token-list">
       <h2>💰 My Tokens</h2>
+      <p className="network-status">🌐 {network}</p>
       <button className="currency-toggle" onClick={() => setCurrency(currency === "usd" ? "eur" : "usd")}>
         Show in {currency === "usd" ? "EUR" : "USD"}
       </button>
-      
+
       {!account ? (
         <div className="wallet-buttons">
           <button className="wallet-connect-btn" onClick={connectWalletConnect}>
             Connect WalletConnect
           </button>
-          <button className="wallet-connect-btn" onClick={() => window.ethereum.request({ method: "eth_requestAccounts" })}>
+          <button className="wallet-connect-btn" onClick={connectMetaMask}>
             Connect MetaMask
           </button>
         </div>
       ) : (
-        <p className="wallet-address">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
+        <div>
+          <p className="wallet-address">✅ Connected: {account.substring(0, 6)}...{account.slice(-4)}</p>
+          <button className="wallet-disconnect-btn" onClick={disconnectWallet}>
+            Disconnect
+          </button>
+        </div>
       )}
 
-      {isLoading ? (
-        <p>Loading tokens...</p>
-      ) : tokens.length > 0 ? (
+      {tokens.length > 0 ? (
         <table className="token-table">
           <thead>
             <tr>
@@ -121,24 +159,24 @@ export default function TokenList() {
               <th>Balance</th>
               <th>Price ({currency.toUpperCase()})</th>
               <th>Total Value</th>
+              <th>Market Cap</th>
+              <th>24h Change</th>
             </tr>
           </thead>
           <tbody>
-            {tokens.map((token) => {
-              const balance = parseFloat(token.balance) / 10 ** token.tokenDecimal;
-              const price = tokenPrices[token.tokenSymbol.toLowerCase()]?.[currency] || 0;
-              const totalValue = (balance * price).toFixed(2);
-
-              return (
-                <tr key={token.contractAddress}>
-                  <td>{token.tokenName}</td>
-                  <td>{token.tokenSymbol}</td>
-                  <td>{balance}</td>
-                  <td>{currency.toUpperCase()} {price.toFixed(2)}</td>
-                  <td>{currency.toUpperCase()} {totalValue}</td>
-                </tr>
-              );
-            })}
+            {formattedTokens.map((token) => (
+              <tr key={token.contractAddress}>
+                <td>{token.tokenName}</td>
+                <td>{token.tokenSymbol}</td>
+                <td>{token.balance}</td>
+                <td>{currency.toUpperCase()} {token.price.toFixed(2)}</td>
+                <td>{currency.toUpperCase()} {token.totalValue}</td>
+                <td>${token.marketCap.toLocaleString()}</td>
+                <td style={{ color: token.priceChange > 0 ? "green" : "red" }}>
+                  {token.priceChange.toFixed(2)}%
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       ) : (
