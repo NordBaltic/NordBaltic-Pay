@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import TokenList from "../components/TokenList";
 import TransactionHistory from "../components/TransactionHistory";
 import WalletConnectButton from "../components/WalletConnectButton";
+import Link from "next/link"; // Pridėtas Next.js navigacijos linkas
 
 export default function Dashboard() {
   const [walletAddress, setWalletAddress] = useState(null);
@@ -52,6 +53,27 @@ export default function Dashboard() {
 
           {/* Transakcijų istorija */}
           <TransactionHistory />
+        </motion.div>
+      )}
+
+      {/* Receive ir Send Mygtukai */}
+      {walletAddress && (
+        <motion.div
+          className="mt-6 flex justify-center space-x-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1 }}
+        >
+          <Link href="/receive">
+            <button className="p-3 bg-secondary text-background-color rounded-lg">
+              Receive
+            </button>
+          </Link>
+          <Link href="/transactions">
+            <button className="p-3 bg-secondary text-background-color rounded-lg">
+              Send
+            </button>
+          </Link>
         </motion.div>
       )}
 
