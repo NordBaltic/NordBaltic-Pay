@@ -11,10 +11,6 @@ export default function AdminControls() {
   const [userList, setUserList] = useState([]);
   const [logs, setLogs] = useState([]);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
-  const [activeUsers, setActiveUsers] = useState(0);
-  const [totalTransactions, setTotalTransactions] = useState(0);
-  const [totalVolume, setTotalVolume] = useState(0);
-  const [systemHealth, setSystemHealth] = useState({ uptime: "Loading...", nodeStatus: "Checking..." });
   const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
@@ -45,12 +41,47 @@ export default function AdminControls() {
       setLogs(response.data.logs);
       setIs2FAEnabled(response.data.is2FAEnabled);
       setFees(response.data.fees);
-      setActiveUsers(response.data.activeUsers);
-      setTotalTransactions(response.data.totalTransactions);
-      setTotalVolume(response.data.totalVolume);
-      setSystemHealth(response.data.systemHealth);
     } catch (error) {
       console.error("⚠️ Admin data fetch error:", error);
+    }
+  };
+
+  const handleBanUnban = async (userAddress, isBanned) => {
+    try {
+      await axios.post("/api/admin/ban", { userAddress, isBanned });
+      setStatusMessage(`✅ User ${isBanned ? "banned" : "unbanned"} successfully.`);
+      fetchAdminData();
+    } catch (error) {
+      console.error("❌ Error updating user status:", error);
+    }
+  };
+
+  const handleFreezeUnfreeze = async (userAddress, isFrozen) => {
+    try {
+      await axios.post("/api/admin/freeze", { userAddress, isFrozen });
+      setStatusMessage(`✅ Funds ${isFrozen ? "frozen" : "unfrozen"} successfully.`);
+      fetchAdminData();
+    } catch (error) {
+      console.error("❌ Error updating funds status:", error);
+    }
+  };
+
+  const handleRefund = async (userAddress, amount) => {
+    try {
+      await axios.post("/api/admin/refund", { userAddress, amount });
+      setStatusMessage(`✅ Refunded ${amount} BNB to ${userAddress}`);
+      fetchAdminData();
+    } catch (error) {
+      console.error("❌ Refund failed:", error);
+    }
+  };
+
+  const toggle2FA = async () => {
+    try {
+      await axios.post("/api/admin/toggle-2fa");
+      setIs2FAEnabled(!is2FAEnabled);
+    } catch (error) {
+      console.error("🔒 2FA toggle error:", error);
     }
   };
 
@@ -77,27 +108,15 @@ export default function AdminControls() {
 
   return (
     <div className="admin-controls">
-      <h2>⚙️ Admin Panel</h2>
+      <h2>⚙️ Admin Controls</h2>
       <p className="admin-status">Welcome, <strong>{account}</strong></p>
-
-      {/* 📊 Statistika */}
-      <div className="stats-container">
-        <div className="stat-box"><h3>👥 Active Users</h3><p>{activeUsers}</p></div>
-        <div className="stat-box"><h3>💳 Total Transactions</h3><p>{totalTransactions}</p></div>
-        <div className="stat-box"><h3>📊 Total Volume</h3><p>{totalVolume} BNB</p></div>
-      </div>
-
-      {/* 🖥️ Sistemos veikimo būklė */}
-      <div className="system-health">
-        <h3>🖥️ System Health</h3>
-        <p>⏳ Uptime: {systemHealth.uptime}</p>
-        <p>🔗 Node Status: {systemHealth.nodeStatus}</p>
-      </div>
 
       {/* 🔐 2FA Valdymas */}
       <div className="section">
         <h3>🔐 2FA Authentication</h3>
-        <button className="toggle-2fa">{is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}</button>
+        <button className="toggle-2fa" onClick={toggle2FA}>
+          {is2FAEnabled ? "🛑 Disable 2FA" : "✅ Enable 2FA"}
+        </button>
       </div>
 
       {/* 💰 Mokesčių Valdymas */}
@@ -106,16 +125,36 @@ export default function AdminControls() {
         {Object.keys(fees).map((type) => (
           <div key={type} className="fee-item">
             <label>{type.toUpperCase()} Fee: {fees[type]}%</label>
-            <input type="number" placeholder={`New ${type} Fee`} onChange={(e) => setNewFees({ ...newFees, [type]: e.target.value })} />
+            <input
+              type="number"
+              placeholder={`New ${type} Fee`}
+              value={newFees[type]}
+              onChange={(e) => setNewFees({ ...newFees, [type]: e.target.value })}
+            />
             <button className="update-btn" onClick={() => updateFee(type)}>Update</button>
           </div>
         ))}
       </div>
 
+      {/* 🚫 Ban/Unban Naudotojai */}
+      <div className="section">
+        <h3>🚫 Ban Users</h3>
+        <input
+          type="text"
+          placeholder="Enter wallet address..."
+          onChange={(e) => setNewFees(e.target.value)}
+        />
+        <button onClick={() => handleBanUnban(newFees, true)}>Ban User</button>
+      </div>
+
       {/* 📜 Security Logs */}
       <div className="section">
         <h3>📜 Security Logs</h3>
-        <ul>{logs.map((log, index) => (<li key={index}>{log}</li>))}</ul>
+        <ul>
+          {logs.map((log, index) => (
+            <li key={index}>{log}</li>
+          ))}
+        </ul>
       </div>
 
       {statusMessage && <p className="status-message">{statusMessage}</p>}
