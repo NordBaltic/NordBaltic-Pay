@@ -19,6 +19,7 @@
   --text-color: var(--text-dark);
   --card-bg: rgba(255, 255, 255, 0.07);
   --card-border: rgba(255, 255, 255, 0.15);
+  --button-glow: 0 0 15px rgba(255, 215, 0, 0.8);
 }
 
 /* ☀️ LIGHT MODE */
@@ -27,6 +28,23 @@
   --text-color: var(--text-light);
   --card-bg: rgba(0, 0, 0, 0.05);
   --card-border: rgba(0, 0, 0, 0.1);
+  --button-glow: 0 0 12px rgba(41, 182, 246, 0.7);
+}
+
+/* 🔄 ANIMATED GRADIENT BACKGROUND */
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-bg {
+  background: linear-gradient(-45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+  background-size: 400% 400%;
+  animation: gradientBG 10s ease infinite;
+  padding: 24px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
 }
 
 /* 🌟 BODY STYLE */
@@ -66,18 +84,24 @@ body {
 
 /* 🌙 THEME SWITCHER */
 .theme-switcher {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--card-bg);
   border: 2px solid var(--card-border);
-  padding: 12px;
+  padding: 12px 18px;
   border-radius: var(--border-radius);
   cursor: pointer;
   font-size: 18px;
   transition: var(--transition);
+  box-shadow: var(--button-glow);
 }
 
 .theme-switcher:hover {
   background: var(--accent-color);
   color: var(--bg-color);
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
 }
 
 /* 📊 DASHBOARD */
@@ -92,7 +116,22 @@ body {
   backdrop-filter: blur(10px);
 }
 
-/* 💎 LUXURY BUTTONS */
+/* 💎 GLASSMORPHISM EFFECT */
+.glass-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.glass-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 25px rgba(255, 215, 0, 0.3);
+}
+
+/* 💎 NEUMORPHIC BUTTONS */
 button {
   background: var(--primary-color);
   color: white;
@@ -138,45 +177,6 @@ button:active {
 .transaction-history tr:hover {
   background: rgba(255, 255, 255, 0.05);
   transition: var(--transition);
-}
-
-/* 🔄 ANIMATED GRADIENT BACKGROUND */
-@keyframes gradientBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.animated-bg {
-  background: linear-gradient(-45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
-  background-size: 400% 400%;
-  animation: gradientBG 10s ease infinite;
-  padding: 24px;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-}
-
-/* 💠 MODAL BLUR EFFECT */
-.modal {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
-  padding: 24px;
-  border-radius: var(--border-radius);
-}
-
-/* 💎 PREMIUM CARD DESIGN */
-.card {
-  background: var(--card-bg);
-  border: 2px solid var(--card-border);
-  padding: 20px;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-  transition: var(--transition);
-}
-
-.card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 12px 25px rgba(255, 215, 0, 0.3);
 }
 
 /* 💠 CHART STYLES */
