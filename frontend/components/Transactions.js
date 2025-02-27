@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import Web3 from "web3";
 import axios from "axios";
 import { createClient } from "@supabase/supabase-js";
-import { Box, Card, CardContent, Typography, Button, Grid, TextField, Select, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Snackbar, Alert } from "@mui/material";
+import { Box, Card, CardContent, Typography, Button, Grid, TextField, Select, MenuItem, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Snackbar, Alert, CircularProgress } from "@mui/material";
 import "../styles/globals.css";
 
 // 🔥 Supabase setup
@@ -43,7 +43,11 @@ export default function Transactions() {
   // 📜 Fetch transactions from Supabase
   const fetchTransactions = async () => {
     if (!account) return;
-    const { data, error } = await supabase.from("transactions").select("*").eq("from", account).order("timestamp", { ascending: false });
+    const { data, error } = await supabase
+      .from("transactions")
+      .select("*")
+      .eq("from", account)
+      .order("timestamp", { ascending: false });
     if (error) {
       console.error("🔴 Klaida gaunant transakcijas:", error);
       return;
@@ -57,7 +61,7 @@ export default function Transactions() {
       .channel("transactions")
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "transactions" }, (payload) => {
         setTransactions((prev) => [payload.new, ...prev]);
-        setNotifications((prev) => [`🔄 New transaction: ${payload.new.amount} BNB`, ...prev]);
+        setNotifications((prev) => [`🔄 Nauja transakcija: ${payload.new.amount} BNB`, ...prev]);
       })
       .subscribe();
   };
@@ -84,7 +88,7 @@ export default function Transactions() {
     }
   };
 
-  // 🚀 Send Transaction
+  // 🚀 Siųsti transakciją
   const handleSendTransaction = async () => {
     if (!amount || !recipient || !web3) return;
 
@@ -101,9 +105,9 @@ export default function Transactions() {
         gas: 21000,
       });
 
-      console.log("✅ Transaction successful:", tx);
+      console.log("✅ Transakcija sėkminga:", tx);
 
-      // 📌 Save transaction to Supabase
+      // 📌 Išsaugoti transakciją Supabase
       await supabase.from("transactions").insert([
         {
           from: account,
@@ -118,7 +122,7 @@ export default function Transactions() {
         }
       ]);
 
-      // 📌 Save transaction fee
+      // 📌 Išsaugoti transakcijos mokestį
       await supabase.from("fees").insert([
         {
           wallet: account,
@@ -139,7 +143,7 @@ export default function Transactions() {
 
   return (
     <Box className="transactions-container p-6">
-      <Typography variant="h4" className="text-center mb-6">🔄 Transactions</Typography>
+      <Typography variant="h4" className="text-center mb-6">🔄 Transakcijos</Typography>
 
       {notifications.length > 0 && (
         <Snackbar open autoHideDuration={5000} anchorOrigin={{ vertical: "top", horizontal: "right" }}>
@@ -149,48 +153,48 @@ export default function Transactions() {
 
       <Card className="glass-card mb-6">
         <CardContent>
-          <Typography variant="h5">📤 Send Transaction</Typography>
-          <TextField fullWidth label="Recipient Address" variant="outlined" value={recipient} onChange={(e) => setRecipient(e.target.value)} className="mt-4" />
-          <TextField fullWidth label="Amount (BNB)" type="number" variant="outlined" value={amount} onChange={(e) => setAmount(e.target.value)} className="mt-4" />
+          <Typography variant="h5">📤 Siųsti transakciją</Typography>
+          <TextField fullWidth label="Gavėjo adresas" variant="outlined" value={recipient} onChange={(e) => setRecipient(e.target.value)} className="mt-4" />
+          <TextField fullWidth label="Suma (BNB)" type="number" variant="outlined" value={amount} onChange={(e) => setAmount(e.target.value)} className="mt-4" />
           <Select fullWidth value={currency} onChange={(e) => setCurrency(e.target.value)} className="mt-4">
             <MenuItem value="USD">💵 USD</MenuItem>
             <MenuItem value="EUR">💶 EUR</MenuItem>
           </Select>
           {convertedAmount && <Typography variant="body2" className="mt-2">≈ {convertedAmount} {currency}</Typography>}
           <Button variant="contained" color="primary" fullWidth className="mt-4" onClick={handleSendTransaction} disabled={loading}>
-            {loading ? "🔄 Sending..." : "🚀 Send"}
+            {loading ? <CircularProgress size={24} /> : "🚀 Siųsti"}
           </Button>
         </CardContent>
       </Card>
 
-      <Typography variant="h5" className="mb-4">📜 Transaction History</Typography>
+      <Typography variant="h5" className="mb-4">📜 Transakcijų istorija</Typography>
       <TableContainer component={Paper} className="glass-table">
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Timestamp</TableCell>
-              <TableCell>From</TableCell>
-              <TableCell>To</TableCell>
-              <TableCell>Amount (BNB)</TableCell>
-              <TableCell>Converted</TableCell>
-              <TableCell>Fee (BNB)</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell>Data</TableCell>
+              <TableCell>Siuntėjas</TableCell>
+              <TableCell>Gavėjas</TableCell>
+              <TableCell>Suma (BNB)</TableCell>
+              <TableCell>Konvertuota</TableCell>
+              <TableCell>Mokestis (BNB)</TableCell>
+              <TableCell>Statusas</TableCell>
               <TableCell>Hash</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {transactions.length > 0 ? transactions.map((tx, index) => (
+            {transactions.map((tx, index) => (
               <TableRow key={index}>
                 <TableCell>{new Date(tx.timestamp).toLocaleString()}</TableCell>
-                <TableCell>{tx.from.substring(0, 6)}...{tx.from.slice(-4)}</TableCell>
-                <TableCell>{tx.to.substring(0, 6)}...{tx.to.slice(-4)}</TableCell>
-                <TableCell>{tx.amount} BNB</TableCell>
+                <TableCell>{tx.from}</TableCell>
+                <TableCell>{tx.to}</TableCell>
+                <TableCell>{tx.amount}</TableCell>
                 <TableCell>{tx.converted_amount} {tx.converted_currency}</TableCell>
-                <TableCell>{(parseFloat(tx.amount) * 0.005).toFixed(4)} BNB</TableCell>
+                <TableCell>{feeAmount} BNB</TableCell>
                 <TableCell>{tx.status}</TableCell>
-                <TableCell>{tx.hash !== "N/A" ? <a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank">🔗 View</a> : "N/A"}</TableCell>
+                <TableCell><a href={`https://bscscan.com/tx/${tx.hash}`} target="_blank">🔗 Peržiūrėti</a></TableCell>
               </TableRow>
-            )) : <TableRow><TableCell colSpan="8">No transactions found.</TableCell></TableRow>}
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
