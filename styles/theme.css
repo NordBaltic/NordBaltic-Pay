@@ -1,4 +1,4 @@
-/* === ULTRA PREMIUM THEME === */
+/* === ULTIMATE THEME (3D NEON, GLASS) === */
 
 :root {
   --gradient-bg: linear-gradient(145deg, #071A33, #0E274F);
@@ -6,31 +6,16 @@
   --deep-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
 }
 
-/* === 🌟 ULTIMATE CARD DESIGN === */
+/* === 🌟 3D CARD DESIGN === */
 .card {
   background: var(--glass-white);
   box-shadow: var(--deep-shadow);
-  border-radius: 20px;
-  padding: 25px;
+  border-radius: 25px;
+  padding: 35px;
   transition: transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
 }
 
 .card:hover {
   transform: translateY(-10px);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
-}
-
-/* === ⚡ SMOOTH BUTTON EFFECT === */
-.smooth-button {
-  background: var(--secondary-color);
-  padding: 12px 30px;
-  border-radius: 50px;
-  font-size: 18px;
-  font-weight: bold;
-  transition: all 0.4s ease-in-out;
-}
-
-.smooth-button:hover {
-  transform: scale(1.1);
-  box-shadow: 0px 6px 25px rgba(200, 150, 62, 0.8);
 }
