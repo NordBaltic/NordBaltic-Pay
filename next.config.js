@@ -1,4 +1,3 @@
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   compiler: {
@@ -19,10 +18,9 @@ const nextConfig = {
   webpack: (config, { isServer }) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      "@": require("path").resolve(__dirname),
+      "@": require("path").resolve(import.meta.url),
     };
 
-    // ✅ Fix for Vercel builds with optional chaining & nullish coalescing
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -42,4 +40,5 @@ const nextConfig = {
   }
 };
 
-module.exports = nextConfig;
+// ✅ FIX: Naudok `export default` vietoje `module.exports`, jei `type: "module"`
+export default nextConfig;
