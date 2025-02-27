@@ -1,4 +1,4 @@
-/** @type {import('next').NextConfig} */
+// ✅ Jei `package.json` yra `"type": "module"`, naudokite ESM sintaksę:
 const nextConfig = {
   reactStrictMode: true,
   compiler: {
@@ -35,17 +35,15 @@ const nextConfig = {
     return config;
   },
   eslint: {
-    // ✅ Avoid ESLint errors breaking the build (optional)
     ignoreDuringBuilds: true
   },
   typescript: {
-    // ✅ Avoid TypeScript errors breaking the build (optional)
     ignoreBuildErrors: true
   },
   experimental: {
-    // ✅ Enable Edge runtime support for faster execution
     runtime: "edge"
   }
 };
 
-module.exports = nextConfig;
+// ✅ ESM eksportavimas
+export default nextConfig;
