@@ -1,0 +1,95 @@
+/* === LUXURY THEME ELEMENTS === */
+
+:root {
+  --gradient-bg: linear-gradient(145deg, #0A1F44, #1C3A70);
+  --glass-white: rgba(255, 255, 255, 0.2);
+  --deep-shadow: 0 12px 25px rgba(0, 0, 0, 0.6);
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: var(--gradient-bg);
+}
+
+/* === 3D CARD EFFECT === */
+.card {
+  background: var(--glass-white);
+  box-shadow: var(--deep-shadow);
+  border-radius: 20px;
+  padding: 30px;
+  transition: transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+}
+
+/* === ULTRA PREMIUM NAVBAR === */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px;
+  background: rgba(10, 31, 68, 0.9);
+  border-bottom: 2px solid var(--glass-white);
+  backdrop-filter: blur(15px);
+  box-shadow: var(--deep-shadow);
+}
+
+.navbar a {
+  color: var(--text-color);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 18px;
+  transition: color 0.3s ease-in-out;
+}
+
+.navbar a:hover {
+  color: var(--secondary-color);
+}
+
+/* === ULTRA-SMOOTH BUTTON === */
+.smooth-button {
+  background: var(--secondary-color);
+  color: #000;
+  padding: 12px 30px;
+  border-radius: 50px;
+  font-size: 20px;
+  font-weight: bold;
+  transition: all 0.4s ease-in-out;
+  box-shadow: 0px 5px 20px rgba(255, 215, 0, 0.6);
+}
+
+.smooth-button:hover {
+  transform: scale(1.15);
+  box-shadow: 0px 10px 35px rgba(255, 215, 0, 1);
+}
+
+/* === SHADOW HOVER EFFECT === */
+.shadow-hover {
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+.shadow-hover:hover {
+  box-shadow: var(--deep-shadow);
+}
+
+/* === ULTRA MODERN LOADER === */
+@keyframes loader {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.loader {
+  width: 50px;
+  height: 50px;
+  background: var(--secondary-color);
+  border-radius: 50%;
+  box-shadow: var(--gold-glow);
+  animation: loader 1.5s infinite ease-in-out;
+}
