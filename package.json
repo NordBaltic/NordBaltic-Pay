@@ -14,7 +14,8 @@
     "tailwindcss": "latest",
     "react-toastify": "latest",
     "lucide-react": "latest",
-    "recharts": "latest"
+    "recharts": "latest",
+    "tsconfig-paths": "latest"
   },
   "devDependencies": {
     "@types/react": "latest",
