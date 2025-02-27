@@ -1,16 +1,17 @@
-/* === 💎 GLOBAL LUXURY UI STYLES === */
+/* === 💎 ULTIMATE LUXURY UI STYLES === */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 :root {
-  --primary-color: #071A33; /* Tamsiai mėlynas */
+  --primary-color: #071A33; /* Tamsiai mėlyna */
   --secondary-color: #C8963E; /* Tamsesnė auksinė */
   --text-color: #ffffff;
-  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.12);
   --border-color: rgba(255, 215, 0, 0.2);
   --shadow-color: rgba(0, 0, 0, 0.6);
 }
 
+/* === 🚀 BODY & GLOBAL SETTINGS === */
 * {
   margin: 0;
   padding: 0;
@@ -23,7 +24,7 @@ body {
   color: var(--text-color);
 }
 
-/* === 🔥 GLASSMORPHISM EFFECT === */
+/* === 💎 GLASSMORPHISM + NEON GLOW === */
 .glass {
   background: var(--glass-bg);
   border-radius: 15px;
@@ -31,21 +32,16 @@ body {
   border: 1px solid var(--border-color);
   padding: 20px;
   box-shadow: 0 10px 25px var(--shadow-color);
+  transition: all 0.3s ease-in-out;
 }
 
-/* === ⚡ LUXURY CONTAINER === */
-.center-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  width: 100%;
-  text-align: center;
-  padding: 20px;
+.glass:hover {
+  transform: scale(1.02);
+  box-shadow: 0 15px 35px var(--shadow-color);
 }
 
-/* === 🏆 ULTRA-PREMIUM TEXT === */
+/* === 🎯 ULTIMATE TEXT EFFECTS === */
 .gold-text {
   color: var(--secondary-color);
-  text-shadow: 0px 0px 20px var(--secondary-color);
+  text-shadow: 0px 0px 25px var(--secondary-color);
 }
