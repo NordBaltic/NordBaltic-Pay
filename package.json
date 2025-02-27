@@ -1,20 +1,18 @@
 {
   "name": "NordBaltic Pay",
   "version": "1.0.1",
-  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start"
   },
   "dependencies": {
-    "@/components/ui": "latest",
-    "ethers": "^5.7.2",
+    "ethers": "latest",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "tailwindcss": "^3.2.4",
-    "react-toastify": "^9.1.3",
+    "tailwindcss": "latest",
+    "react-toastify": "latest",
     "lucide-react": "latest",
     "recharts": "latest"
   },
