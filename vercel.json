@@ -16,3 +16,9 @@
     "CSS_GLOBALS": "./styles/globals.css"
   }
 }
+
+{
+  "builds": [],
+  "rewrites": [],
+  "redirects": []
+}
