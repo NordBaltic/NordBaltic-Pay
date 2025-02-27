@@ -1,73 +1,49 @@
+/* 🔥 NordBaltic Pay – Ultimate Global Stylesheet */
 
+/* 🌍 1. IMPORT ALL STYLES */
 @import url('./theme.css');
-/* 🔥 NordBaltic Pay – Prabangus Neon & Glassmorphism UI */
+@import url('./navbar.css');
+@import url('./buttons.css');
+@import url('./dashboard.css');
+@import url('./animations.css');
 
-/
-* {
-  margin: 0;
+/* 🎯 2. NEXT.JS RESET – UŽTIKRINA SUDERINAMUMĄ */
+html, body {
   padding: 0;
-  box-sizing: border-box;
+  margin: 0;
   font-family: 'Inter', sans-serif;
-}
-
-body {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
   background: var(--bg-color);
   color: var(--text-color);
   transition: var(--transition);
   scroll-behavior: smooth;
 }
 
-/* 🎨 2. GLOBALŪS DIZAINO KINTAMIEJI */
-:root {
-  --primary-color: #FFD700; /* Auksinė */
-  --secondary-color: #2E7D32; /* Žalias akcentas */
-  --accent-color: #29B6F6; /* Neon mėlynas */
-  --bg-dark: #090E24;
-  --bg-light: #F5F5F5;
-  --text-dark: #FFFFFF;
-  --text-light: #0A1F44;
-  --glass-bg-dark: rgba(255, 255, 255, 0.1);
-  --glass-bg-light: rgba(0, 0, 0, 0.05);
-  --border-radius: 15px;
-  --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  --neon-glow: 0 0 20px rgba(255, 215, 0, 1);
-  --transition: all 0.3s ease-in-out;
+/* 📏 3. FLEXIBLE CONTAINER SYSTEM */
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: auto;
 }
 
-/* 🔥 3. DARK & LIGHT MODE */
-[data-theme="dark"] {
-  --bg-color: var(--bg-dark);
-  --text-color: var(--text-dark);
-  --glass-bg: var(--glass-bg-dark);
+/* 🌟 4. RESPONSIVE GRID SYSTEM */
+.row {
+  display: flex;
+  flex-wrap: wrap;
 }
 
-[data-theme="light"] {
-  --bg-color: var(--bg-light);
-  --text-color: var(--text-light);
-  --glass-bg: var(--glass-bg-light);
+.col-50 {
+  flex: 50%;
 }
 
-/* 🌌 4. ANIMUOTAS BACKGROUND (PARALLAX) */
-@keyframes parallaxBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+.col-33 {
+  flex: 33.3%;
 }
 
-.animated-bg {
-  background: linear-gradient(-45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
-  background-size: 400% 400%;
-  animation: parallaxBG 10s ease infinite;
-  padding: 30px;
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
+.col-100 {
+  flex: 100%;
 }
 
-/* 🏦 5. NAVBAR */
+/* 🏦 5. NAVIGATION STYLES */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -93,7 +69,7 @@ body {
   transform: scale(1.08);
 }
 
-/* 💳 6. GLASSMORPHISM KORTELĖS */
+/* 🎨 6. GLASSMORPHISM CARDS */
 .glass-card {
   background: var(--glass-bg);
   backdrop-filter: blur(12px);
@@ -108,7 +84,18 @@ body {
   box-shadow: var(--neon-glow);
 }
 
-/* 💎 7. 3D PREMIUM MYGTUKAI */
+/* 📊 7. DASHBOARD COMPONENTS */
+.dashboard-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 35px;
+  background: var(--glass-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(15px);
+}
+
+/* 🚀 8. SMOOTH BUTTON STYLES */
 button {
   background: var(--primary-color);
   color: white;
@@ -131,7 +118,7 @@ button:active {
   transform: scale(0.95);
 }
 
-/* 🔥 8. LOADING ANIMACIJA */
+/* 🔄 9. LOADING ANIMATIONS */
 @keyframes glowing {
   0% { box-shadow: 0 0 14px var(--primary-color); }
   50% { box-shadow: 0 0 28px var(--primary-color); }
@@ -142,31 +129,8 @@ button:active {
   animation: glowing 1.7s infinite alternate;
 }
 
-/* 📊 9. DASHBOARD STILIUS */
-.dashboard-container {
-  max-width: 1200px;
-  margin: auto;
-  padding: 35px;
-  background: var(--glass-bg);
-  border-radius: var(--border-radius);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(15px);
-}
-
-/* 🔥 10. FOOTER */
-.footer {
-  text-align: center;
-  padding: 30px;
-  background: var(--primary-color);
-  color: white;
-  font-size: 20px;
-  font-weight: bold;
-  margin-top: 24px;
-  border-radius: var(--border-radius);
-}
-
-/* 🛠 11. RESPONSIVE DESIGN */
-@media (max-width: 768px) {
+/* 📱 10. MOBILE OPTIMIZATION */
+@media (max-width: 1024px) {
   .navbar {
     flex-direction: column;
     text-align: center;
@@ -185,5 +149,30 @@ button:active {
   button {
     width: 100%;
     margin-top: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .col-50, .col-33 {
+    flex: 100%;
+  }
+
+  .glass-card {
+    width: 90%;
+    margin: auto;
+  }
+
+  .navbar {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  .glass-card {
+    padding: 15px;
   }
 }
