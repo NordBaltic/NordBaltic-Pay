@@ -4,7 +4,7 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 import CoinbaseWalletSDK from "@coinbase/wallet-sdk";
 import QRCode from "qrcode.react";
 import { createClient } from "@supabase/supabase-js";
-import { Button, Card, CardContent, Typography, Grid, IconButton, Alert } from "@mui/material";
+import { Button, Card, CardContent, Typography, Grid, IconButton, Alert, CircularProgress } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import TrustWalletIcon from "@mui/icons-material/VerifiedUser";
@@ -141,6 +141,7 @@ export default function WalletConnectButton({ onConnect }) {
                   fullWidth
                   onClick={connectMetaMask}
                   disabled={loading}
+                  startIcon={loading && walletType === "MetaMask" ? <CircularProgress size={24} /> : <AccountBalanceWalletIcon />}
                 >
                   🦊 MetaMask
                 </Button>
@@ -152,8 +153,9 @@ export default function WalletConnectButton({ onConnect }) {
                   fullWidth
                   onClick={connectWalletConnect}
                   disabled={loading}
+                  startIcon={loading && walletType === "WalletConnect" ? <CircularProgress size={24} /> : "🔗"}
                 >
-                  🔗 WalletConnect
+                  WalletConnect
                 </Button>
               </Grid>
               <Grid item xs={6}>
@@ -163,8 +165,9 @@ export default function WalletConnectButton({ onConnect }) {
                   fullWidth
                   onClick={connectCoinbaseWallet}
                   disabled={loading}
+                  startIcon={loading && walletType === "Coinbase Wallet" ? <CircularProgress size={24} /> : "🏦"}
                 >
-                  🏦 Coinbase
+                  Coinbase
                 </Button>
               </Grid>
               <Grid item xs={6}>
@@ -174,8 +177,9 @@ export default function WalletConnectButton({ onConnect }) {
                   fullWidth
                   onClick={connectTrustWallet}
                   disabled={loading}
+                  startIcon={loading && walletType === "Trust Wallet" ? <CircularProgress size={24} /> : <TrustWalletIcon />}
                 >
-                  <TrustWalletIcon /> Trust Wallet
+                  Trust Wallet
                 </Button>
               </Grid>
             </Grid>
@@ -184,4 +188,4 @@ export default function WalletConnectButton({ onConnect }) {
       </CardContent>
     </Card>
   );
-        }
+}
