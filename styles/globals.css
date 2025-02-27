@@ -1,4 +1,39 @@
-/* === ✅ CENTRUOTAS UI (TOBULAS IŠDĖSTYMAS) === */
+/* === 💎 GLOBAL LUXURY UI STYLES === */
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+  --primary-color: #071A33; /* Tamsiai mėlynas */
+  --secondary-color: #C8963E; /* Tamsesnė auksinė */
+  --text-color: #ffffff;
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --border-color: rgba(255, 215, 0, 0.2);
+  --shadow-color: rgba(0, 0, 0, 0.6);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, var(--primary-color) 0%, #0E274F 100%);
+  color: var(--text-color);
+}
+
+/* === 🔥 GLASSMORPHISM EFFECT === */
+.glass {
+  background: var(--glass-bg);
+  border-radius: 15px;
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--border-color);
+  padding: 20px;
+  box-shadow: 0 10px 25px var(--shadow-color);
+}
+
+/* === ⚡ LUXURY CONTAINER === */
 .center-container {
   display: flex;
   justify-content: center;
@@ -9,82 +44,8 @@
   padding: 20px;
 }
 
-/* === 🌟 ULTRA 3D FLOATING EFEKTAS KORTELEI === */
-.glass {
-  background: var(--glass-bg);
-  border-radius: 20px;
-  box-shadow: 0 12px 30px var(--shadow-color);
-  backdrop-filter: blur(25px);
-  border: 1px solid var(--border-color);
-  padding: 30px;
-  transition: transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
-}
-
-.glass:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
-}
-
-/* === 🔥 ULTRA LUXURY BORDER GLOW === */
-.glowing-border {
-  border: 2px solid var(--secondary-color);
-  box-shadow: 0 0 15px var(--secondary-color), 0 0 30px rgba(200, 150, 62, 0.5);
-}
-
-/* === 💎 ULTIMATE GOLD SHINE MYGTUKAMS === */
-@keyframes goldShine {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.button {
-  background: linear-gradient(270deg, #C8963E, #E5B76E);
-  background-size: 400% 400%;
-  color: #000;
-  padding: 15px 35px;
-  border-radius: 50px;
-  font-size: 20px;
-  font-weight: 700;
-  box-shadow: 0px 5px 25px rgba(200, 150, 62, 0.6);
-  transition: all 0.4s ease-in-out;
-  animation: goldShine 5s infinite ease-in-out;
-}
-
-.button:hover {
-  transform: scale(1.1);
-  box-shadow: 0px 10px 40px rgba(200, 150, 62, 1);
-}
-
-/* === 💎 LIQUID GOLD ANIMACIJA === */
-@keyframes liquidGold {
-  0% { text-shadow: 0 0 5px var(--secondary-color), 0 0 10px rgba(200, 150, 62, 0.5); }
-  50% { text-shadow: 0 0 20px var(--secondary-color), 0 0 30px rgba(200, 150, 62, 0.8); }
-  100% { text-shadow: 0 0 5px var(--secondary-color), 0 0 10px rgba(200, 150, 62, 0.5); }
-}
-
+/* === 🏆 ULTRA-PREMIUM TEXT === */
 .gold-text {
   color: var(--secondary-color);
-  animation: liquidGold 3s infinite ease-in-out;
-}
-
-/* === ⚡ SMOOTH FADE IN (NUO APAČIOS) === */
-@keyframes smoothEntrance {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.fade-in {
-  animation: smoothEntrance 1.2s ease-in-out;
-}
-
-/* === 🔥 ŠVYTINTI ATMOSFERA === */
-@keyframes glowingBackground {
-  0% { background: radial-gradient(circle, rgba(10, 31, 68, 0.4) 0%, transparent 70%); }
-  50% { background: radial-gradient(circle, rgba(10, 31, 68, 0.6) 0%, transparent 70%); }
-  100% { background: radial-gradient(circle, rgba(10, 31, 68, 0.4) 0%, transparent 70%); }
-}
-
-body {
-  animation: glowingBackground 5s infinite ease-in-out;
+  text-shadow: 0px 0px 20px var(--secondary-color);
 }
