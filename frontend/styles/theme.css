@@ -1,19 +1,19 @@
-/* 🔥 NordBaltic Pay – Theme Stylesheet */
+/* 🔥 NordBaltic Pay – Premium Theme Stylesheet */
 
-/* 🌟 1. TEMOS KINTAMIEJI */
+/* 🎨 1. GLOBALŪS TEMOS KINTAMIEJI */
 :root {
-  /* Pagrindinės spalvos */
+  /* Spalvos */
   --primary-color: #FFD700; /* Auksinė */
   --secondary-color: #2E7D32; /* Žalias akcentas */
   --accent-color: #29B6F6; /* Neon mėlynas */
 
-  /* Background & Teksto spalvos */
+  /* Background ir Tekstas */
   --bg-dark: #090E24;
   --bg-light: #F5F5F5;
   --text-dark: #FFFFFF;
   --text-light: #0A1F44;
 
-  /* Glassmorphism efektai */
+  /* Glassmorphism */
   --glass-bg-dark: rgba(255, 255, 255, 0.1);
   --glass-bg-light: rgba(0, 0, 0, 0.05);
   --glass-blur: 12px;
@@ -41,7 +41,28 @@
   --button-glow: 0 0 15px rgba(41, 182, 246, 0.8);
 }
 
-/* 🔥 4. THEME SWITCHER */
+/* 🎭 4. TEMOS PEREJIMAS */
+.theme-transition {
+  transition: background 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+/* 🔥 5. PARALLAX ANIMACIJA */
+@keyframes parallaxBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-bg {
+  background: linear-gradient(-45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+  background-size: 400% 400%;
+  animation: parallaxBG 10s ease infinite;
+  padding: 30px;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+}
+
+/* 🏦 6. THEME SWITCHER */
 .theme-switcher {
   display: flex;
   align-items: center;
@@ -63,13 +84,65 @@
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
 }
 
-/* 🏦 5. NEON GLOW EFEKTAI */
-@keyframes neonGlow {
-  0% { box-shadow: 0 0 14px var(--primary-color); }
-  50% { box-shadow: 0 0 28px var(--primary-color); }
-  100% { box-shadow: 0 0 14px var(--primary-color); }
+/* 🔥 7. NEON TEKSTAS */
+.neon-text {
+  text-shadow: 0 0 5px var(--primary-color), 0 0 10px var(--primary-color), 0 0 15px var(--primary-color);
 }
 
-.neon {
-  animation: neonGlow 1.7s infinite alternate;
+/* 🔥 8. NEON BORDER */
+.neon-border {
+  border: 3px solid var(--primary-color);
+  box-shadow: 0 0 15px var(--primary-color);
+  transition: var(--transition);
+}
+
+.neon-border:hover {
+  box-shadow: 0 0 25px var(--primary-color);
+}
+
+/* 💳 9. GLASSMORPHISM KORTELĖS */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border-radius: var(--border-radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.glass-card:hover {
+  transform: scale(1.05);
+  box-shadow: var(--neon-glow);
+}
+
+/* 🚀 10. RESPONSIVE DESIGN */
+@media (max-width: 1024px) {
+  .theme-switcher {
+    padding: 12px 18px;
+  }
+}
+
+@media (max-width: 768px) {
+  .glass-card {
+    width: 90%;
+    margin: auto;
+  }
+
+  .theme-switcher {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  .glass-card {
+    padding: 15px;
+  }
+
+  .theme-switcher {
+    padding: 10px 15px;
+  }
 }
