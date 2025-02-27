@@ -1,40 +1,68 @@
-import "../styles/globals.css";
-import { useEffect } from "react";
-import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
 import Head from "next/head";
+import Image from "next/image";
+import styles from "../styles/Home.module.css";
 
-function MyApp({ Component, pageProps }) {
-  const router = useRouter();
+export default function Home() {
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // ✅ Automatinis scroll-to-top keičiant puslapį
+  // 🚀 Automatinis dashboard duomenų gavimas
   useEffect(() => {
-    const handleRouteChange = () => window.scrollTo(0, 0);
-    router.events.on("routeChangeComplete", handleRouteChange);
-    return () => {
-      router.events.off("routeChangeComplete", handleRouteChange);
-    };
-  }, [router]);
+    async function fetchDashboardData() {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/dashboard`);
+        const data = await response.json();
+        setDashboardData(data);
+      } catch (error) {
+        console.error("❌ Klaida gaunant dashboard duomenis:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
 
   return (
     <>
-      {/* ✅ Favicon + SEO tag'ai Next.js ir Vercel optimizacijai */}
+      {/* ✅ SEO ir Favicon optimizacija */}
       <Head>
-        <title>NordBaltic Pay</title>
-        <meta charSet="UTF-8" />
+        <title>NordBaltic Pay Dashboard</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="NordBaltic Pay - Web3 Financial Ecosystem" />
-        <meta name="keywords" content="Web3, Crypto, Finance, NordBaltic Pay" />
-        <meta name="author" content="NordBaltic Pay" />
+        <meta name="description" content="NordBaltic Pay - Web3 Financial Dashboard" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      {/* ✅ Struktūra, kad veiktų be klaidų Vercel */}
-      <div id="app-container">
-        <Component {...pageProps} />
+      {/* ✅ Pagrindinis UI su mobiliuoju pritaikymu */}
+      <div className={styles.container}>
+        <header className={styles.header}>
+          <Image src="/logo.png" alt="NordBaltic Pay" width={120} height={40} />
+          <h1>Dashboard</h1>
+        </header>
+
+        {/* ✅ Rodo įkrovimo indikatorių kol gaunami duomenys */}
+        {loading ? (
+          <p className={styles.loading}>🔄 Kraunama...</p>
+        ) : (
+          <main className={styles.main}>
+            {dashboardData ? (
+              <>
+                <section className={styles.card}>
+                  <h2>Balansas</h2>
+                  <p>{dashboardData.balance} EUR</p>
+                </section>
+                <section className={styles.card}>
+                  <h2>Transakcijos</h2>
+                  <p>{dashboardData.transactions} vykdomos</p>
+                </section>
+              </>
+            ) : (
+              <p className={styles.error}>⚠️ Nepavyko gauti duomenų</p>
+            )}
+          </main>
+        )}
       </div>
     </>
   );
 }
-
-// ✅ Užtikriname, kad komponentas bus eksportuojamas kaip Next.js page
-export default MyApp;
