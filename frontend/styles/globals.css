@@ -1,10 +1,11 @@
-/* 🔥 Premium Glassmorphism & Neon UI Design */
+/* 🔥 NordBaltic Pay – Prabangus Neon & Glassmorphism UI */
 
-/* GLOBAL SETTINGS */
+/* 🌟 1. RESET & FONT SETUP */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: 'Inter', sans-serif;
 }
 
 body {
@@ -12,14 +13,13 @@ body {
   justify-content: center;
   align-items: center;
   height: 100vh;
-  background: linear-gradient(135deg, #0A1F44 0%, #001A33 100%);
-  font-family: 'Inter', sans-serif;
+  background: var(--bg-color);
   color: var(--text-color);
   transition: var(--transition);
   scroll-behavior: smooth;
 }
 
-/* 🌟 GLOBAL VARIABLES – ULTRA LUXURY DESIGN */
+/* 🎨 2. GLOBALŪS DIZAINO KINTAMIEJI */
 :root {
   --primary-color: #FFD700; /* Auksinė */
   --secondary-color: #2E7D32; /* Žalias akcentas */
@@ -30,57 +30,42 @@ body {
   --text-light: #0A1F44;
   --glass-bg-dark: rgba(255, 255, 255, 0.1);
   --glass-bg-light: rgba(0, 0, 0, 0.05);
-  --border-radius: 20px;
-  --shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+  --border-radius: 15px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   --neon-glow: 0 0 20px rgba(255, 215, 0, 1);
   --transition: all 0.3s ease-in-out;
 }
 
-/* 🔥 Glassmorphism Card */
-.glass-card {
-  background: var(--glass-bg-dark);
-  border-radius: var(--border-radius);
+/* 🔥 3. DARK & LIGHT MODE */
+[data-theme="dark"] {
+  --bg-color: var(--bg-dark);
+  --text-color: var(--text-dark);
+  --glass-bg: var(--glass-bg-dark);
+}
+
+[data-theme="light"] {
+  --bg-color: var(--bg-light);
+  --text-color: var(--text-light);
+  --glass-bg: var(--glass-bg-light);
+}
+
+/* 🌌 4. ANIMUOTAS BACKGROUND (PARALLAX) */
+@keyframes parallaxBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animated-bg {
+  background: linear-gradient(-45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+  background-size: 400% 400%;
+  animation: parallaxBG 10s ease infinite;
   padding: 30px;
-  text-align: center;
-  backdrop-filter: blur(12px);
+  border-radius: var(--border-radius);
   box-shadow: var(--shadow);
-  max-width: 400px;
 }
 
-h1 {
-  font-size: 2rem;
-  font-weight: bold;
-  text-transform: uppercase;
-  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-p {
-  font-size: 1.2rem;
-  margin-top: 10px;
-  opacity: 0.8;
-}
-
-.button {
-  display: inline-block;
-  margin-top: 20px;
-  padding: 10px 25px;
-  border-radius: 5px;
-  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-  color: #000;
-  font-weight: bold;
-  text-transform: uppercase;
-  text-decoration: none;
-  transition: var(--transition);
-}
-
-.button:hover {
-  transform: scale(1.05);
-  box-shadow: var(--neon-glow);
-}
-
-/* 🏦 NAVBAR */
+/* 🏦 5. NAVBAR */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -96,9 +81,9 @@ p {
   text-decoration: none;
   font-size: 20px;
   font-weight: bold;
-  transition: var(--transition);
   padding: 14px;
   border-radius: var(--border-radius);
+  transition: var(--transition);
 }
 
 .navbar a:hover {
@@ -106,18 +91,22 @@ p {
   transform: scale(1.08);
 }
 
-/* 🔥 GLASSMORPHISM DASHBOARD */
-.dashboard-container {
-  max-width: 1200px;
-  margin: auto;
-  padding: 35px;
-  background: var(--glass-bg-dark);
+/* 💳 6. GLASSMORPHISM KORTELĖS */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
   border-radius: var(--border-radius);
+  padding: 24px;
   box-shadow: var(--shadow);
-  backdrop-filter: blur(15px);
+  transition: var(--transition);
 }
 
-/* 💎 3D PREMIUM BUTTONS */
+.glass-card:hover {
+  transform: scale(1.05);
+  box-shadow: var(--neon-glow);
+}
+
+/* 💎 7. 3D PREMIUM MYGTUKAI */
 button {
   background: var(--primary-color);
   color: white;
@@ -140,7 +129,7 @@ button:active {
   transform: scale(0.95);
 }
 
-/* 💠 LOADING ANIMATION */
+/* 🔥 8. LOADING ANIMACIJA */
 @keyframes glowing {
   0% { box-shadow: 0 0 14px var(--primary-color); }
   50% { box-shadow: 0 0 28px var(--primary-color); }
@@ -151,7 +140,18 @@ button:active {
   animation: glowing 1.7s infinite alternate;
 }
 
-/* 💡 FOOTER */
+/* 📊 9. DASHBOARD STILIUS */
+.dashboard-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 35px;
+  background: var(--glass-bg);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(15px);
+}
+
+/* 🔥 10. FOOTER */
 .footer {
   text-align: center;
   padding: 30px;
@@ -163,7 +163,7 @@ button:active {
   border-radius: var(--border-radius);
 }
 
-/* 🛠 RESPONSIVE DESIGN */
+/* 🛠 11. RESPONSIVE DESIGN */
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;
