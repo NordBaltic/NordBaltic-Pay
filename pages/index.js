@@ -1,4 +1,4 @@
-import styles from "../styles/Home.module.css"; // ✅ Turi būti frontend/styles/Home.module.css
+import styles from "../styles/Home.module.css"; // ✅ Pakeisk pagal failų vietą!
 
 export default function Home() {
   return (
