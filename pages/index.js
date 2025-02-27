@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <div className="center-container">
+    <div className="container">
       <nav className="navbar">
         <a href="#">Home</a>
         <a href="#">Dashboard</a>
