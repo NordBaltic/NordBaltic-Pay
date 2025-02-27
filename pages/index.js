@@ -1,7 +1,9 @@
-import "../styles/globals.css"; // ✅ Turi būti frontend/styles/globals.css
+import styles from "../styles/Home.module.css"; // ✅ Turi būti frontend/styles/Home.module.css
 
-function MyApp({ Component, pageProps }) {
-  return <Component {...pageProps} />;
+export default function Home() {
+  return (
+    <div className={styles.container}>
+      <h1>Welcome to NordBaltic Pay</h1>
+    </div>
+  );
 }
-
-export default MyApp;
