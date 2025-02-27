@@ -1,14 +1,14 @@
-/* === 💎 ULTIMATE LUXURY UI STYLES === */
+/* === 💎 ULTIMATE LUXURY GLOBAL STYLES === */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 :root {
-  --primary-color: #071A33; /* Tamsiai mėlyna */
+  --primary-color: #050F26; /* DAR Tamsesnė karališka mėlyna */
   --secondary-color: #C8963E; /* Tamsesnė auksinė */
   --text-color: #ffffff;
-  --glass-bg: rgba(255, 255, 255, 0.12);
+  --glass-bg: rgba(255, 255, 255, 0.1);
   --border-color: rgba(255, 215, 0, 0.2);
-  --shadow-color: rgba(0, 0, 0, 0.6);
+  --shadow-color: rgba(0, 0, 0, 0.7);
 }
 
 /* === 🚀 BODY & GLOBAL SETTINGS === */
@@ -20,19 +20,34 @@
 }
 
 body {
-  background: linear-gradient(135deg, var(--primary-color) 0%, #0E274F 100%);
+  background: linear-gradient(135deg, var(--primary-color) 20%, #091A38 100%);
   color: var(--text-color);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-/* === 💎 GLASSMORPHISM + NEON GLOW === */
+/* === 📱 RESPONSIVE UI FIX === */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  text-align: center;
+  padding: 20px;
+}
+
+/* === 💎 GLASSMORPHISM + SMOOTH SHADOW === */
 .glass {
   background: var(--glass-bg);
-  border-radius: 15px;
-  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  backdrop-filter: blur(25px);
   border: 1px solid var(--border-color);
-  padding: 20px;
+  padding: 25px;
   box-shadow: 0 10px 25px var(--shadow-color);
-  transition: all 0.3s ease-in-out;
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 
 .glass:hover {
@@ -40,8 +55,8 @@ body {
   box-shadow: 0 15px 35px var(--shadow-color);
 }
 
-/* === 🎯 ULTIMATE TEXT EFFECTS === */
+/* === ✨ GOLD TEXT EFFECT === */
 .gold-text {
   color: var(--secondary-color);
-  text-shadow: 0px 0px 25px var(--secondary-color);
+  text-shadow: 0px 0px 20px var(--secondary-color);
 }
