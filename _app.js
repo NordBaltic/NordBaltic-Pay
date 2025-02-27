@@ -1,23 +1,13 @@
-import { createTheme, ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
+import "../styles/globals.css";
+import ThemeSwitcher from "../components/ThemeSwitcher";
 
-const theme = createTheme({
-  palette: {
-    mode: "dark", // arba "light"
-    primary: {
-      main: "#FFD700", // Auksinė spalva
-    },
-    background: {
-      default: "#0A1F44", // Tamsiai mėlyna, kaip tavo brandas
-    },
-  },
-});
-
-export default function MyApp({ Component, pageProps }) {
+function MyApp({ Component, pageProps }) {
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
+    <>
+      <ThemeSwitcher />
       <Component {...pageProps} />
-    </ThemeProvider>
+    </>
   );
 }
+
+export default MyApp;
