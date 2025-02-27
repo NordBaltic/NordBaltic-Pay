@@ -1,3 +1,24 @@
+/* 🔥 Premium Glassmorphism & Neon UI Design */
+
+/* GLOBAL SETTINGS */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, #0A1F44 0%, #001A33 100%);
+  font-family: 'Inter', sans-serif;
+  color: var(--text-color);
+  transition: var(--transition);
+  scroll-behavior: smooth;
+}
+
 /* 🌟 GLOBAL VARIABLES – ULTRA LUXURY DESIGN */
 :root {
   --primary-color: #FFD700; /* Auksinė */
@@ -13,50 +34,50 @@
   --shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
   --neon-glow: 0 0 20px rgba(255, 215, 0, 1);
   --transition: all 0.3s ease-in-out;
-  --parallax-speed: 10s;
 }
 
-/* 🌙 DARK MODE */
-[data-theme="dark"] {
-  --bg-color: var(--bg-dark);
-  --text-color: var(--text-dark);
-  --glass-bg: var(--glass-bg-dark);
-  --button-glow: var(--neon-glow);
-}
-
-/* ☀️ LIGHT MODE */
-[data-theme="light"] {
-  --bg-color: var(--bg-light);
-  --text-color: var(--text-light);
-  --glass-bg: var(--glass-bg-light);
-  --button-glow: 0 0 15px rgba(41, 182, 246, 0.8);
-}
-
-/* 🔥 PARALLAX BACKGROUND */
-@keyframes parallaxBG {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.animated-bg {
-  background: linear-gradient(-45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
-  background-size: 400% 400%;
-  animation: parallaxBG var(--parallax-speed) ease infinite;
-  padding: 30px;
+/* 🔥 Glassmorphism Card */
+.glass-card {
+  background: var(--glass-bg-dark);
   border-radius: var(--border-radius);
+  padding: 30px;
+  text-align: center;
+  backdrop-filter: blur(12px);
   box-shadow: var(--shadow);
+  max-width: 400px;
 }
 
-/* 🌟 BODY STYLE */
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg-color);
-  color: var(--text-color);
+h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+p {
+  font-size: 1.2rem;
+  margin-top: 10px;
+  opacity: 0.8;
+}
+
+.button {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 10px 25px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+  color: #000;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-decoration: none;
   transition: var(--transition);
-  margin: 0;
-  padding: 0;
-  scroll-behavior: smooth;
+}
+
+.button:hover {
+  transform: scale(1.05);
+  box-shadow: var(--neon-glow);
 }
 
 /* 🏦 NAVBAR */
@@ -68,7 +89,6 @@ body {
   padding: 18px 28px;
   box-shadow: var(--shadow);
   border-radius: var(--border-radius);
-  transition: var(--transition);
 }
 
 .navbar a {
@@ -86,53 +106,15 @@ body {
   transform: scale(1.08);
 }
 
-/* 🌙 THEME SWITCHER */
-.theme-switcher {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--glass-bg);
-  border: 3px solid var(--text-color);
-  padding: 16px 22px;
-  border-radius: var(--border-radius);
-  cursor: pointer;
-  font-size: 20px;
-  transition: var(--transition);
-  box-shadow: var(--button-glow);
-}
-
-.theme-switcher:hover {
-  background: var(--accent-color);
-  color: var(--bg-color);
-  transform: scale(1.1);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
-}
-
-/* 📊 DASHBOARD */
+/* 🔥 GLASSMORPHISM DASHBOARD */
 .dashboard-container {
   max-width: 1200px;
   margin: auto;
   padding: 35px;
-  background: var(--glass-bg);
+  background: var(--glass-bg-dark);
   border-radius: var(--border-radius);
   box-shadow: var(--shadow);
-  transition: var(--transition);
   backdrop-filter: blur(15px);
-}
-
-/* 🔥 GLASSMORPHISM UI */
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border-radius: var(--border-radius);
-  padding: 24px;
-  box-shadow: var(--shadow);
-  transition: var(--transition);
-}
-
-.glass-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 15px 50px rgba(255, 215, 0, 0.5);
 }
 
 /* 💎 3D PREMIUM BUTTONS */
@@ -146,28 +128,16 @@ button {
   cursor: pointer;
   transition: var(--transition);
   box-shadow: var(--neon-glow);
-  transform-style: preserve-3d;
-  perspective: 1000px;
 }
 
 button:hover {
   background: var(--accent-color);
+  transform: scale(1.1);
   box-shadow: var(--shadow);
-  transform: scale(1.1) rotateX(5deg);
 }
 
 button:active {
   transform: scale(0.95);
-}
-
-/* 🔥 MODAL STYLES */
-.modal {
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(14px);
-  padding: 28px;
-  border-radius: var(--border-radius);
-  animation: fadeIn 0.3s ease-in-out;
-  box-shadow: 0px 0px 30px rgba(255, 215, 0, 0.6);
 }
 
 /* 💠 LOADING ANIMATION */
@@ -191,23 +161,18 @@ button:active {
   font-weight: bold;
   margin-top: 24px;
   border-radius: var(--border-radius);
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 /* 🛠 RESPONSIVE DESIGN */
 @media (max-width: 768px) {
-  .navbar .menu {
+  .navbar {
     flex-direction: column;
+    text-align: center;
   }
 
   .dashboard-container {
     width: 95%;
     padding: 22px;
-  }
-
-  .navbar {
-    flex-direction: column;
-    text-align: center;
   }
 
   .navbar a {
