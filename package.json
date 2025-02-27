@@ -35,6 +35,6 @@
     "prettier": "latest"
   },
   "engines": {
-    "node": ">=18"
+    "node": "18.x"
   }
 }
