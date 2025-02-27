@@ -1,3 +1,4 @@
+// 📂 /frontend/components/Navbar.js - ULTIMATE PREMIUM NAVBAR
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Web3 from "web3";
@@ -15,6 +16,10 @@ import {
   Select,
   Tooltip,
   Divider,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
@@ -36,7 +41,7 @@ export default function Navbar() {
   const [balance, setBalance] = useState("0.00");
   const [convertedBalance, setConvertedBalance] = useState(null);
   const [currency, setCurrency] = useState("USD");
-  const [menuAnchor, setMenuAnchor] = useState(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [theme, setTheme] = useState("dark");
 
   useEffect(() => {
@@ -139,27 +144,35 @@ export default function Navbar() {
   };
 
   return (
-    <AppBar position="static" className="navbar glass-navbar">
+    <AppBar position="fixed" className="navbar glass-navbar neon-border">
       <Toolbar className="flex justify-between">
+        {/* Mobile Menu Button */}
+        <IconButton edge="start" color="inherit" onClick={() => setMobileOpen(true)} className="glow-hover">
+          <MenuIcon />
+        </IconButton>
+
+        {/* Logo */}
         <Link href="/">
-          <Typography variant="h6" className="cursor-pointer text-white font-bold tracking-widest">
+          <Typography variant="h6" className="cursor-pointer gradient-text font-bold tracking-widest">
             🏦 NordBaltic Pay
           </Typography>
         </Link>
 
-        <Box className="hidden md:flex space-x-6">
-          <Link href="/dashboard"><Button className="nav-btn">📊 Dashboard</Button></Link>
-          <Link href="/staking"><Button className="nav-btn">💸 Staking</Button></Link>
-          <Link href="/transactions"><Button className="nav-btn">📜 Transactions</Button></Link>
-          <Link href="/swap"><Button className="nav-btn">🔄 Swap</Button></Link>
-          <Link href="/donations"><Button className="nav-btn">❤️ Donations</Button></Link>
-          <Link href="/admin"><Button className="nav-btn">🛠️ Admin</Button></Link>
+        {/* Navigation Links */}
+        <Box className="hidden md:flex space-x-6 animated-links">
+          <Link href="/dashboard"><Button className="nav-btn glow-hover">📊 Dashboard</Button></Link>
+          <Link href="/staking"><Button className="nav-btn glow-hover">💸 Staking</Button></Link>
+          <Link href="/transactions"><Button className="nav-btn glow-hover">📜 Transactions</Button></Link>
+          <Link href="/swap"><Button className="nav-btn glow-hover">🔄 Swap</Button></Link>
+          <Link href="/donations"><Button className="nav-btn glow-hover">❤️ Donations</Button></Link>
+          <Link href="/admin"><Button className="nav-btn glow-hover">🛠️ Admin</Button></Link>
         </Box>
 
+        {/* Wallet & Theme Switch */}
         {account ? (
-          <Box className="flex items-center space-x-4">
+          <Box className="flex items-center space-x-4 animated-links">
             <Tooltip title="Wallet Address">
-              <Typography variant="body2" className="wallet-text">
+              <Typography variant="body2" className="wallet-text neon-glow">
                 ✅ {account.substring(0, 6)}...{account.slice(-4)}
               </Typography>
             </Tooltip>
@@ -174,17 +187,18 @@ export default function Navbar() {
               <MenuItem value="USD">💵 USD</MenuItem>
               <MenuItem value="EUR">💶 EUR</MenuItem>
             </Select>
-            <IconButton className="logout-btn" onClick={disconnectWallet}><LogoutIcon /></IconButton>
+            <IconButton className="logout-btn glow-hover" onClick={disconnectWallet}><LogoutIcon /></IconButton>
           </Box>
         ) : (
-          <Box className="flex space-x-3">
-            <Button className="connect-btn" onClick={connectWalletConnect}>🔗 WalletConnect</Button>
-            <Button className="connect-btn" onClick={connectMetaMask}>🦊 MetaMask</Button>
+          <Box className="flex space-x-3 animated-links">
+            <Button className="connect-btn glow-hover" onClick={connectWalletConnect}>🔗 WalletConnect</Button>
+            <Button className="connect-btn glow-hover" onClick={connectMetaMask}>🦊 MetaMask</Button>
           </Box>
         )}
 
-        <IconButton onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-          {theme === "dark" ? <LightModeIcon className="theme-icon" /> : <DarkModeIcon className="theme-icon" />}
+        {/* Theme Switch */}
+        <IconButton onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="glow-hover">
+          {theme === "dark" ? <LightModeIcon /> : <DarkModeIcon />}
         </IconButton>
       </Toolbar>
     </AppBar>
