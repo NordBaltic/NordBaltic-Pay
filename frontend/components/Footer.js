@@ -1,9 +1,9 @@
-// 📂 /frontend/components/Footer.js - MAX PREMIUM FOOTER
 import { useState, useEffect } from "react";
 import Web3 from "web3";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import QRCode from "qrcode.react";
 import axios from "axios";
+import "../styles/globals.css";
 
 export default function Footer() {
   const [account, setAccount] = useState(localStorage.getItem("walletAccount") || null);
@@ -36,7 +36,7 @@ export default function Footer() {
       setBalance(parseFloat(balanceEth).toFixed(4));
       fetchExchangeRates(balanceEth);
     } catch (error) {
-      console.error("Klaida gaunant balansą:", error);
+      console.error("❌ Klaida gaunant balansą:", error);
     }
   };
 
@@ -47,7 +47,7 @@ export default function Footer() {
       setUsdBalance((bnbAmount * rates.usd).toFixed(2));
       setEurBalance((bnbAmount * rates.eur).toFixed(2));
     } catch (error) {
-      console.error("Error fetching exchange rates:", error);
+      console.error("❌ Klaida gaunant valiutų kursus:", error);
     }
   };
 
@@ -62,10 +62,10 @@ export default function Footer() {
         detectNetwork(web3Instance);
         fetchBalance(web3Instance, accounts[0]);
       } catch (error) {
-        console.error("MetaMask klaida:", error);
+        console.error("❌ MetaMask klaida:", error);
       }
     } else {
-      alert("MetaMask nerastas!");
+      alert("🚨 MetaMask nerastas!");
     }
   };
 
@@ -83,7 +83,7 @@ export default function Footer() {
       detectNetwork(web3Instance);
       fetchBalance(web3Instance, accounts[0]);
     } catch (error) {
-      console.error("WalletConnect klaida:", error);
+      console.error("❌ WalletConnect klaida:", error);
     }
   };
 
@@ -102,12 +102,12 @@ export default function Footer() {
       <p>© 2025 NordBaltic Pay. All rights reserved.</p>
       <div className="footer-wallet">
         {account ? (
-          <div className="wallet-info">
+          <div className="wallet-info glass-card">
             <p>✅ {account.substring(0, 6)}...{account.slice(-4)}</p>
             <p>🌍 {network}</p>
             <p>💰 {balance} BNB</p>
             <p>💵 USD: ${usdBalance} | 💶 EUR: €{eurBalance}</p>
-            <QRCode value={account} size={60} />
+            <QRCode value={account} size={70} className="qr-code" />
             <button className="wallet-disconnect-btn" onClick={disconnectWallet}>
               ❌ Disconnect
             </button>
