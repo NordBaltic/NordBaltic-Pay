@@ -1,18 +1,18 @@
-/* 🎨 ULTRA PREMIUM GLOBAL STYLES */
+/* 🌟 GLOBAL VARIABLES – ULTRA LUXURY DESIGN */
 :root {
   --primary-color: #FFD700; /* Auksinė */
-  --secondary-color: #2E7D32;
+  --secondary-color: #2E7D32; /* Žalias akcentas */
   --accent-color: #29B6F6; /* Neon mėlynas */
-  --bg-dark: #090E24; /* Dark mode background */
-  --bg-light: #F5F5F5; /* Light mode background */
+  --bg-dark: #090E24;
+  --bg-light: #F5F5F5;
   --text-dark: #FFFFFF;
   --text-light: #0A1F44;
-  --glass-bg-dark: rgba(255, 255, 255, 0.08);
+  --glass-bg-dark: rgba(255, 255, 255, 0.1);
   --glass-bg-light: rgba(0, 0, 0, 0.05);
   --border-radius: 20px;
-  --shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+  --shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
   --neon-glow: 0 0 20px rgba(255, 215, 0, 1);
-  --transition: all 0.4s ease-in-out;
+  --transition: all 0.3s ease-in-out;
 }
 
 /* 🌙 DARK MODE */
@@ -20,7 +20,7 @@
   --bg-color: var(--bg-dark);
   --text-color: var(--text-dark);
   --glass-bg: var(--glass-bg-dark);
-  --button-glow: 0 0 25px rgba(255, 215, 0, 1);
+  --button-glow: var(--neon-glow);
 }
 
 /* ☀️ LIGHT MODE */
@@ -55,21 +55,6 @@ body {
   transition: var(--transition);
   margin: 0;
   padding: 0;
-}
-
-/* 🔥 GLASSMORPHISM UI */
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border-radius: var(--border-radius);
-  padding: 24px;
-  box-shadow: var(--shadow);
-  transition: var(--transition);
-}
-
-.glass-card:hover {
-  transform: scale(1.03);
-  box-shadow: 0 15px 40px rgba(255, 215, 0, 0.4);
 }
 
 /* 🏦 NAVBAR */
@@ -132,6 +117,21 @@ body {
   backdrop-filter: blur(15px);
 }
 
+/* 🔥 GLASSMORPHISM UI */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border-radius: var(--border-radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.glass-card:hover {
+  transform: scale(1.03);
+  box-shadow: 0 15px 40px rgba(255, 215, 0, 0.4);
+}
+
 /* 💎 PREMIUM BUTTONS */
 button {
   background: var(--primary-color);
@@ -153,6 +153,32 @@ button:hover {
 
 button:active {
   transform: scale(0.95);
+}
+
+/* 📜 TRANSACTION HISTORY */
+.transaction-history {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+.transaction-history th, .transaction-history td {
+  padding: 14px;
+  text-align: center;
+  border-bottom: 1px solid var(--glass-bg);
+}
+
+.transaction-history th {
+  background: var(--primary-color);
+  color: white;
+  font-weight: bold;
+}
+
+.transaction-history tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transition: var(--transition);
 }
 
 /* 🔥 MODAL STYLES */
