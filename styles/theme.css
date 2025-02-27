@@ -1,21 +1,21 @@
-/* === ULTIMATE THEME (3D NEON, GLASS) === */
+/* === ULTIMATE THEME STYLES === */
 
 :root {
-  --gradient-bg: linear-gradient(145deg, #071A33, #0E274F);
-  --glass-white: rgba(255, 255, 255, 0.15);
-  --deep-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+  --gradient-bg: linear-gradient(145deg, #050F26, #091A38);
+  --glass-white: rgba(255, 255, 255, 0.1);
+  --deep-shadow: 0 15px 40px rgba(0, 0, 0, 0.8);
 }
 
-/* === 🌟 3D CARD DESIGN === */
+/* === 🌟 3D CARD DESIGN (PATOBULINTA) === */
 .card {
   background: var(--glass-white);
   box-shadow: var(--deep-shadow);
   border-radius: 25px;
-  padding: 35px;
+  padding: 30px;
   transition: transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
 }
 
 .card:hover {
   transform: translateY(-10px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9);
 }
