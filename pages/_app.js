@@ -1,12 +1,12 @@
 import "../styles/globals.css";
-import Head from "next/head";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import Head from "next/head";
 
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
 
-  // 🚀 Automatinis scroll to top keičiant puslapį
+  // ✅ Automatinis scroll-to-top keičiant puslapį
   useEffect(() => {
     const handleRouteChange = () => window.scrollTo(0, 0);
     router.events.on("routeChangeComplete", handleRouteChange);
@@ -17,7 +17,7 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <>
-      {/* ✅ SEO ir favicon palaikymas */}
+      {/* ✅ Favicon + SEO tag'ai Next.js ir Vercel optimizacijai */}
       <Head>
         <title>NordBaltic Pay</title>
         <meta charSet="UTF-8" />
@@ -28,7 +28,7 @@ function MyApp({ Component, pageProps }) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      {/* ✅ Globalus Layout, jei reikia */}
+      {/* ✅ Struktūra, kad veiktų be klaidų Vercel */}
       <div id="app-container">
         <Component {...pageProps} />
       </div>
@@ -36,4 +36,5 @@ function MyApp({ Component, pageProps }) {
   );
 }
 
+// ✅ Užtikriname, kad komponentas bus eksportuojamas kaip Next.js page
 export default MyApp;
