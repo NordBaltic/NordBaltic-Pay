@@ -28,20 +28,9 @@
       ]
     }
   ],
-  "redirects": [
-    {
-      "source": "/old-route",
-      "destination": "/new-route",
-      "permanent": true
-    }
-  ],
-  "rewrites": [],
   "functions": {
     "api/**/*.js": {
       "runtime": "nodejs18.x"
     }
-  },
-  "env": {
-    "CSS_GLOBALS": "./styles/globals.css"
   }
 }
