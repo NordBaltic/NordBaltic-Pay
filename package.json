@@ -1,25 +1,40 @@
 {
   "name": "NordBaltic Pay",
-  "version": "1.0.1",
+  "version": "1.0.0",
+  "description": "The ultimate Web3 financial ecosystem built with Next.js.",
+  "type": "module",
+  "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "next lint",
+    "export": "next export"
   },
   "dependencies": {
-    "ethers": "latest",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest",
     "tailwindcss": "latest",
-    "react-toastify": "latest",
+    "postcss": "latest",
+    "autoprefixer": "latest",
+    "ethers": "latest",
+    "web3": "latest",
+    "swr": "latest",
     "lucide-react": "latest",
-    "recharts": "latest",
-    "tsconfig-paths": "latest"
+    "react-toastify": "latest",
+    "framer-motion": "latest",
+    "dotenv": "latest"
   },
   "devDependencies": {
-    "@types/react": "latest",
     "@types/node": "latest",
-    "typescript": "latest"
+    "@types/react": "latest",
+    "typescript": "latest",
+    "eslint": "latest",
+    "eslint-config-next": "latest",
+    "prettier": "latest"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
