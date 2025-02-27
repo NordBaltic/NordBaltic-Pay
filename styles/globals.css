@@ -1,17 +1,17 @@
-/* === MAXIMUM LUXURY STYLES === */
+/* === COSMOS LUXURY STYLES === */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 :root {
-  --primary-color: #0A1F44;
-  --secondary-color: #FFD700;
+  --primary-color: #071A33; /* DAR Tamsesnė karališka mėlyna */
+  --secondary-color: #C8963E; /* Prabangesnė, gilesnė auksinė */
   --text-color: #ffffff;
-  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.06);
   --border-color: rgba(255, 255, 255, 0.2);
-  --shadow-color: rgba(0, 0, 0, 0.5);
-  --neon-blue: #00d1ff;
-  --neon-glow: 0 0 15px var(--neon-blue), 0 0 25px var(--neon-blue);
-  --gold-glow: 0 0 10px var(--secondary-color), 0 0 20px var(--secondary-color);
+  --shadow-color: rgba(0, 0, 0, 0.6);
+  --neon-blue: #009DFF;
+  --neon-glow: 0 0 20px var(--neon-blue), 0 0 30px var(--neon-blue);
+  --gold-glow: 0 0 15px var(--secondary-color), 0 0 25px var(--secondary-color);
 }
 
 * {
@@ -22,22 +22,22 @@
 }
 
 body {
-  background: linear-gradient(135deg, var(--primary-color) 0%, #1C3A70 100%);
+  background: linear-gradient(135deg, var(--primary-color) 0%, #0E274F 100%);
   color: var(--text-color);
   transition: all 0.3s ease-in-out;
 }
 
-/* === LUXURY GLASSMORPHISM === */
+/* === GLASSMORPHISM (PRABANGUS BANKINIS UI) === */
 .glass {
   background: var(--glass-bg);
-  border-radius: 15px;
-  box-shadow: 0 10px 25px var(--shadow-color);
+  border-radius: 20px;
+  box-shadow: 0 12px 30px var(--shadow-color);
   backdrop-filter: blur(20px);
   border: 1px solid var(--border-color);
-  padding: 25px;
+  padding: 30px;
 }
 
-/* === ULTRA NEON GLOW EFFECT === */
+/* === NEON TEKSTAI SU MEGA GLOW === */
 .neon-text {
   color: var(--neon-blue);
   text-shadow: var(--neon-glow);
@@ -48,31 +48,42 @@ body {
   text-shadow: var(--gold-glow);
 }
 
-/* === ULTRA LUXURY BUTTON === */
+/* === HYPER-3D ULTRA-PREMIUM BUTTON === */
 .button {
   background: var(--secondary-color);
   color: #000;
   border: none;
-  padding: 15px 30px;
+  padding: 15px 35px;
   border-radius: 50px;
   cursor: pointer;
   font-size: 20px;
   font-weight: 700;
-  box-shadow: 0px 4px 20px rgba(255, 215, 0, 0.6);
-  transition: all 0.3s ease-in-out;
+  box-shadow: 0px 5px 25px rgba(200, 150, 62, 0.6);
+  transition: all 0.4s ease-in-out;
 }
 
 .button:hover {
-  transform: scale(1.08);
-  box-shadow: 0px 8px 30px rgba(255, 215, 0, 0.9);
+  transform: scale(1.1);
+  box-shadow: 0px 10px 35px rgba(200, 150, 62, 1);
 }
 
 /* === SMOOTH FADE ANIMATION === */
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
+  from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
 .fade-in {
   animation: fadeIn 1s ease-in-out;
+}
+
+/* === PULSE ANIMATION (NAUJAS EFEKTAS) === */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.pulse {
+  animation: pulse 1.5s infinite ease-in-out;
 }
