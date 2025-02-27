@@ -1,17 +1,16 @@
-/* 🌟 GLOBAL THEME VARIABLES – ULTRA LUXURY DESIGN */
+/* 🌟 GLOBAL THEME VARIABLES – LUXURY DESIGN */
 :root {
   --primary-color: #FFD700; /* Auksinė */
-  --secondary-color: #2E7D32; /* Žalias akcentas */
+  --secondary-color: #2E7D32; /* Prabangus žalias */
   --accent-color: #29B6F6; /* Neon mėlynas */
-  --bg-dark: #090E24;
+  --bg-dark: #0A1F44;
   --bg-light: #F5F5F5;
   --text-dark: #FFFFFF;
   --text-light: #0A1F44;
-  --glass-bg-dark: rgba(255, 255, 255, 0.1);
-  --glass-bg-light: rgba(0, 0, 0, 0.05);
-  --border-radius: 20px;
+  --card-glass-bg: rgba(255, 255, 255, 0.1);
+  --card-border: rgba(255, 255, 255, 0.2);
   --shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-  --neon-glow: 0 0 20px rgba(255, 215, 0, 1);
+  --glow-effect: 0 0 20px rgba(255, 215, 0, 0.8);
   --transition: all 0.3s ease-in-out;
 }
 
@@ -19,20 +18,20 @@
 [data-theme="dark"] {
   --bg-color: var(--bg-dark);
   --text-color: var(--text-dark);
-  --glass-bg: var(--glass-bg-dark);
-  --button-glow: var(--neon-glow);
+  --card-bg: var(--card-glass-bg);
+  --button-glow: var(--glow-effect);
 }
 
 /* ☀️ LIGHT MODE */
 [data-theme="light"] {
   --bg-color: var(--bg-light);
   --text-color: var(--text-light);
-  --glass-bg: var(--glass-bg-light);
+  --card-bg: rgba(0, 0, 0, 0.05);
   --button-glow: 0 0 15px rgba(41, 182, 246, 0.8);
 }
 
-/* 🔥 BACKGROUND ANIMATION */
-@keyframes backgroundGlow {
+/* 🔄 BACKGROUND GRADIENT ANIMATION */
+@keyframes gradientBG {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
@@ -41,9 +40,8 @@
 .animated-bg {
   background: linear-gradient(-45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
   background-size: 400% 400%;
-  animation: backgroundGlow 10s ease infinite;
-  padding: 30px;
-  border-radius: var(--border-radius);
+  animation: gradientBG 12s ease infinite;
+  border-radius: 16px;
   box-shadow: var(--shadow);
 }
 
@@ -63,24 +61,24 @@ body {
   justify-content: space-between;
   align-items: center;
   background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-  padding: 18px 28px;
+  padding: 16px 24px;
   box-shadow: var(--shadow);
-  border-radius: var(--border-radius);
+  border-radius: 16px;
 }
 
 .navbar a {
   color: white;
   text-decoration: none;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
   transition: var(--transition);
-  padding: 14px;
-  border-radius: var(--border-radius);
+  padding: 10px;
+  border-radius: 16px;
 }
 
 .navbar a:hover {
   background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
 /* 🌙 THEME SWITCHER */
@@ -88,12 +86,12 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--glass-bg);
-  border: 3px solid var(--text-color);
-  padding: 16px 22px;
-  border-radius: var(--border-radius);
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  padding: 12px 18px;
+  border-radius: 16px;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 18px;
   transition: var(--transition);
   box-shadow: var(--button-glow);
 }
@@ -102,57 +100,56 @@ body {
   background: var(--accent-color);
   color: var(--bg-color);
   transform: scale(1.1);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
 }
 
 /* 📊 DASHBOARD */
 .dashboard-container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: auto;
-  padding: 35px;
-  background: var(--glass-bg);
-  border-radius: var(--border-radius);
+  padding: 24px;
+  background: var(--card-bg);
+  border-radius: 16px;
   box-shadow: var(--shadow);
   transition: var(--transition);
-  backdrop-filter: blur(15px);
+  backdrop-filter: blur(10px);
 }
 
-/* 🔥 GLASSMORPHISM UI */
+/* 💎 PREMIUM CARDS */
 .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  border-radius: var(--border-radius);
-  padding: 24px;
+  background: var(--card-bg);
+  border: 2px solid var(--card-border);
+  padding: 20px;
+  border-radius: 16px;
   box-shadow: var(--shadow);
   transition: var(--transition);
 }
 
 .glass-card:hover {
-  transform: scale(1.03);
-  box-shadow: 0 15px 40px rgba(255, 215, 0, 0.4);
+  transform: scale(1.02);
+  box-shadow: 0 12px 25px rgba(255, 215, 0, 0.3);
 }
 
 /* 💎 PREMIUM BUTTONS */
 button {
   background: var(--primary-color);
   color: white;
-  font-size: 18px;
-  padding: 14px 24px;
-  border-radius: var(--border-radius);
+  font-size: 16px;
+  padding: 12px 20px;
+  border-radius: 16px;
   border: none;
   cursor: pointer;
   transition: var(--transition);
-  box-shadow: var(--neon-glow);
+  box-shadow: var(--button-glow);
 }
 
 button:hover {
   background: var(--accent-color);
   box-shadow: var(--shadow);
-  transform: scale(1.1);
 }
 
 button:active {
-  transform: scale(0.95);
+  transform: scale(0.98);
 }
 
 /* 📜 TRANSACTION HISTORY */
@@ -160,14 +157,14 @@ button:active {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
-  border-radius: var(--border-radius);
+  border-radius: 16px;
   overflow: hidden;
 }
 
 .transaction-history th, .transaction-history td {
   padding: 14px;
   text-align: center;
-  border-bottom: 1px solid var(--glass-bg);
+  border-bottom: 1px solid var(--card-border);
 }
 
 .transaction-history th {
@@ -183,10 +180,10 @@ button:active {
 
 /* 🔥 MODAL STYLES */
 .modal {
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(14px);
-  padding: 28px;
-  border-radius: var(--border-radius);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  padding: 24px;
+  border-radius: 16px;
   animation: fadeIn 0.3s ease-in-out;
 }
 
@@ -197,25 +194,24 @@ button:active {
 
 /* 💠 LOADING ANIMATION */
 @keyframes glowing {
-  0% { box-shadow: 0 0 14px var(--primary-color); }
-  50% { box-shadow: 0 0 28px var(--primary-color); }
-  100% { box-shadow: 0 0 14px var(--primary-color); }
+  0% { box-shadow: 0 0 10px var(--primary-color); }
+  50% { box-shadow: 0 0 20px var(--primary-color); }
+  100% { box-shadow: 0 0 10px var(--primary-color); }
 }
 
 .loading {
-  animation: glowing 1.7s infinite alternate;
+  animation: glowing 1.5s infinite alternate;
 }
 
-/* 💡 FOOTER */
+/* 🔥 FOOTER */
 .footer {
   text-align: center;
-  padding: 30px;
+  padding: 24px;
   background: var(--primary-color);
   color: white;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: bold;
-  margin-top: 24px;
-  border-radius: var(--border-radius);
+  margin-top: 20px;
 }
 
 /* 🛠 RESPONSIVE DESIGN */
@@ -224,8 +220,12 @@ button:active {
     flex-direction: column;
   }
 
+  .transaction-history th, .transaction-history td {
+    font-size: 14px;
+  }
+
   .dashboard-container {
-    width: 95%;
-    padding: 22px;
+    width: 90%;
+    padding: 18px;
   }
 }
