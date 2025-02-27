@@ -1,3 +1,6 @@
+import { resolve } from "path";
+
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   compiler: {
@@ -18,7 +21,7 @@ const nextConfig = {
   webpack: (config, { isServer }) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      "@": require("path").resolve(import.meta.url),
+      "@": resolve(import.meta.url)
     };
 
     if (!isServer) {
@@ -40,5 +43,5 @@ const nextConfig = {
   }
 };
 
-// ✅ FIX: Naudok `export default` vietoje `module.exports`, jei `type: "module"`
+// ✅ FIX: Naudok `export default` vietoje `module.exports`, nes tai yra ESM failas
 export default nextConfig;
