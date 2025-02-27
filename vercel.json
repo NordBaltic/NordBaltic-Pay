@@ -1,36 +1,23 @@
 {
   "version": 2,
-  "framework": "nextjs",
-  "public": true,
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD ./",
-  "cleanUrls": true,
-  "trailingSlash": false,
-  "headers": [
+  "builds": [
     {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Referrer-Policy",
-          "value": "strict-origin-when-cross-origin"
-        }
-      ]
+      "src": "next.config.js",
+      "use": "@vercel/next"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/"
     }
   ],
   "functions": {
     "api/**/*.js": {
       "runtime": "nodejs18.x"
     }
+  },
+  "env": {
+    "NODE_VERSION": "18"
   }
 }
