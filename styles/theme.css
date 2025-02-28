@@ -1,99 +1,32 @@
-/* === 💎 ULTIMATE BANKING & CRYPTO THEME === */
-
-:root {
-  --primary-color: #010A17; /* BANKINĖ mėlyna */
-  --gold-color: #9C7400; /* IDENTIŠKAS auksinis visiems UI elementams */
-  --text-color: #ffffff;
-  --glass-bg: rgba(255, 255, 255, 0.04);
-  --border-color: var(--gold-color);
-  --shadow-color: rgba(0, 0, 0, 1);
-}
-
-/* === 🌟 PREMIUM UI BACKGROUND === */
-body {
-  background: radial-gradient(circle at 50% 50%, var(--primary-color) 10%, #020D1F 90%);
-  color: var(--text-color);
-}
-
-/* === 🌟 3D FLOATING CARDS (VISOS LENTELĖS & BLOKAI) === */
-.card {
-  background: var(--glass-bg);
-  border-radius: 30px;
-  padding: 40px;
-  border: 2px solid var(--gold-color);
-  box-shadow: 0 15px 50px rgba(156, 116, 0, 0.5);
-  transition: transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
-}
-
-.card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 25px 55px rgba(156, 116, 0, 0.7);
-}
-
-/* === ✨ GOLDEN TEXT EFFECT === */
-.gold-text {
-  color: var(--gold-color);
-  text-shadow: 0px 0px 20px var(--gold-color);
-}
-
-/* === 🔥 BUTTON STYLE (SAME AS GLOBALS) === */
-.button {
-  background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
-  padding: 10px 20px;
-  border-radius: 50px;
-  font-size: 16px;
-  font-weight: bold;
-  color: var(--gold-color);
-  text-transform: uppercase;
-  display: block;
-  margin: 15px auto 0;
-  transition: all 0.3s ease-in-out;
-  box-shadow: none;
-  backdrop-filter: blur(15px);
-}
-
-.button:hover {
-  transform: scale(1.05);
-  box-shadow: 0px 10px 25px var(--gold-color);
-}
-
-.button:focus,
-.button:active {
-  box-shadow: 0px 12px 35px var(--gold-color);
-}
-
-/* === 🌟 TABLE DESIGN (IF USED) === */
-.table {
+.table-container {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 15px;
+  overflow-x: auto;
+  padding: 20px;
+  background: var(--glass-bg);
+  border-radius: 15px;
+  box-shadow: 0px 10px 25px rgba(156, 116, 0, 0.3);
+  border: 2px solid var(--border-color);
+  backdrop-filter: blur(10px);
 }
 
+/* === 🌟 TABLE DESIGN === */
 .table th,
 .table td {
-  padding: 12px;
+  padding: 15px;
   text-align: left;
-  border: 2px solid var(--gold-color);
+  font-size: 16px;
 }
 
 .table th {
   background: rgba(255, 255, 255, 0.08);
   color: var(--gold-color);
+  font-weight: bold;
+  border-bottom: 2px solid var(--gold-color);
 }
 
 .table td {
   background: var(--glass-bg);
   color: var(--text-color);
-}
-
-/* === 📱 MOBILE OPTIMIZATION === */
-@media (max-width: 768px) {
-  .card {
-    padding: 30px;
-  }
-
-  .button {
-    font-size: 14px;
-    padding: 8px 16px;
-  }
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(156, 116, 0, 0.2);
 }
