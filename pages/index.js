@@ -1,6 +1,6 @@
 export default function Home() {
   return (
-    <div className="container">
+    <div className="container fade-in">
       <nav className="navbar">
         <a href="#">Home</a>
         <a href="#">Dashboard</a>
