@@ -1,4 +1,4 @@
-/* === 🌟 TRANSACTIONS TABLE === */
+/* === 💎 PREMIUM TABLE DESIGN === */
 .table-container {
   width: 100%;
   overflow-x: auto;
@@ -10,14 +10,7 @@
   backdrop-filter: blur(10px);
 }
 
-.table th,
-.table td {
-  padding: 15px;
-  text-align: left;
-  font-size: 16px;
-  transition: background 0.3s ease-in-out, transform 0.3s ease-in-out;
-}
-
+/* === 🌟 TABLE HEADERS === */
 .table th {
   background: rgba(255, 255, 255, 0.08);
   color: var(--gold-color);
@@ -25,6 +18,7 @@
   border-bottom: 2px solid var(--gold-color);
 }
 
+/* === 🔥 TABLE CELLS === */
 .table td {
   background: var(--glass-bg);
   color: var(--text-color);
