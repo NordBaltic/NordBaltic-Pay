@@ -1,0 +1,113 @@
+/* === 💎 GLOBAL ANIMATIONS === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes glowingFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* === 🌟 BUTTON HOVER EFFECT === */
+@keyframes buttonHover {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* === 🔥 LIQUID GOLD LOADING ANIMATION === */
+@keyframes liquidGold {
+  0% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0.5;
+    transform: scale(0.9);
+  }
+}
+
+.loading-animation {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #9C7400, #FFD700);
+  box-shadow: 0px 0px 30px rgba(156, 116, 0, 0.8);
+  animation: liquidGold 2s infinite ease-in-out;
+}
+
+/* === 🟡 CARD HOVER FLOAT EFFECT === */
+@keyframes cardFloat {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+/* === 💎 UI COMPONENT ANIMATIONS === */
+.fade-in {
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+.fade-in-scale {
+  animation: fadeInScale 0.8s ease-in-out;
+}
+
+.glow-fade-in {
+  animation: glowingFadeIn 1s ease-in-out;
+}
+
+.button-hover-effect {
+  animation: buttonHover 0.5s ease-in-out;
+}
+
+.card-3d {
+  animation: cardFloat 3s infinite ease-in-out;
+}
+
+/* === 💡 RESPONSIVE OPTIMIZATIONS === */
+@media (max-width: 768px) {
+  .loading-animation {
+    width: 50px;
+    height: 50px;
+  }
+}
