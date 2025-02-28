@@ -1,28 +1,38 @@
+/* === 🌟 GLOBAL SETTINGS (VISI PAGRINDINIAI STILIAI) === */
+
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 :root {
-  --primary-color: #010A17; /* BANKINĖ mėlyna */
-  --gold-color: #9C7400; /* AUKSINIS AKCENTAS */
+  --primary-color: #010A17; /* BANKINĖ MĖLYNA */
+  --gold-color: #9C7400; /* PREMIUM AUKSINIS AKCENTAS */
   --text-color: #ffffff;
-  --glass-bg: rgba(255, 255, 255, 0.04);
+  --glass-bg: rgba(255, 255, 255, 0.04); /* Stiklo efektas */
   --border-color: var(--gold-color);
 }
 
-/* === 🌟 BODY SETTINGS === */
+/* === 🌟 BODY SETTINGS (PAGRINDINIS FONAS) === */
 body {
   background: radial-gradient(circle at 50% 50%, var(--primary-color) 10%, #020D1F 90%);
   color: var(--text-color);
   font-family: 'Poppins', sans-serif;
 }
 
-/* === 💎 NAVBAR FIX === */
+/* === 💎 NAVIGATION BAR STYLES === */
 .navbar {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   padding: 15px 40px;
   background: rgba(1, 10, 23, 0.95);
   border-bottom: 3px solid var(--gold-color);
   backdrop-filter: blur(30px);
+  box-shadow: 0px 8px 25px var(--gold-color);
+  border-radius: 15px;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999;
 }
 
 .navbar a {
@@ -33,5 +43,87 @@ body {
 }
 
 .navbar a:hover {
-  text-shadow: 0 0 15px var(--gold-color);
+  text-shadow: 0px 0px 12px var(--gold-color);
+}
+
+/* === 🟡 TABLE STYLES (TRANSAKCIJŲ LENTELĖS) === */
+.table-container {
+  width: 100%;
+  overflow-x: auto;
+  padding: 20px;
+  background: var(--glass-bg);
+  border-radius: 15px;
+  box-shadow: 0px 10px 25px rgba(156, 116, 0, 0.3);
+  border: 2px solid var(--border-color);
+  backdrop-filter: blur(10px);
+}
+
+/* === 🌟 TABLE DESIGN === */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 12px;
+}
+
+.table th,
+.table td {
+  padding: 15px;
+  text-align: left;
+  border: none;
+  font-size: 16px;
+  transition: background 0.3s ease-in-out, transform 0.3s ease-in-out;
+}
+
+.table th {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--gold-color);
+  text-transform: uppercase;
+  font-weight: bold;
+  border-bottom: 2px solid var(--gold-color);
+}
+
+.table td {
+  background: var(--glass-bg);
+  color: var(--text-color);
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(156, 116, 0, 0.2);
+}
+
+/* === ✨ ROW HOVER EFFECT (EFEKTAS KAI PELYTĖ ANT EILUTĖS) === */
+.table tbody tr:hover td {
+  background: rgba(156, 116, 0, 0.15);
+  transform: scale(1.02);
+  box-shadow: 0px 6px 15px rgba(156, 116, 0, 0.3);
+}
+
+/* === ✅ TRANSACTION STATUS COLORS (SPALVOS LENTELĖS STATUSUI) === */
+.status.completed {
+  color: #00ff00;
+  font-weight: bold;
+}
+
+.status.pending {
+  color: #ffcc00;
+  font-weight: bold;
+}
+
+.status.active {
+  color: #ff4500;
+  font-weight: bold;
+}
+
+/* === 🔥 LIQUID GOLD LOADING ANIMATION === */
+@keyframes liquidGold {
+  0% { opacity: 0.5; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.05); }
+  100% { opacity: 0.5; transform: scale(0.9); }
+}
+
+.loading-animation {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #9C7400, #FFD700);
+  box-shadow: 0px 0px 40px rgba(156, 116, 0, 0.9);
+  animation: liquidGold 2.5s infinite ease-in-out;
 }
