@@ -5,15 +5,24 @@
   padding: 20px;
   box-shadow: 0px 8px 15px rgba(156, 116, 0, 0.2);
   border: 2px solid var(--gold-color);
-  transition: all 0.3s ease-in-out;
+  transition: all 0.4s ease-in-out;
+  position: relative;
+  overflow: hidden;
 }
 
+/* === 🟡 HOVER 3D EFFECT === */
 .card:hover {
-  transform: scale(1.03);
-  box-shadow: 0px 10px 25px rgba(156, 116, 0, 0.4);
+  transform: scale(1.03) translateY(-3px);
+  box-shadow: 0px 15px 35px rgba(156, 116, 0, 0.5);
 }
 
-/* === 🔥 TRANSACTION CARD === */
+/* === 🌟 CARD GLOW EFFECT (aktyvių kortelių) === */
+.card-active {
+  border: 2px solid var(--gold-color);
+  box-shadow: 0px 0px 20px var(--gold-color);
+}
+
+/* === 🔥 TRANSACTION CARD (OPERACIJŲ KORTELĖ) === */
 .transaction-card {
   display: flex;
   justify-content: space-between;
@@ -22,4 +31,35 @@
   background: rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   box-shadow: 0px 5px 15px rgba(156, 116, 0, 0.3);
+  transition: all 0.3s ease-in-out;
+}
+
+/* === 🟡 TRANSACTION CARD HOVER === */
+.transaction-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0px 10px 25px rgba(156, 116, 0, 0.5);
+}
+
+/* === 🏆 ELITE 3D EFFECT === */
+@keyframes cardFloat {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+  100% { transform: translateY(0px); }
+}
+
+.card-3d {
+  animation: cardFloat 3s infinite ease-in-out;
+}
+
+/* === 📱 RESPONSIVE FIXES (MOBILIEMS) === */
+@media (max-width: 768px) {
+  .card {
+    padding: 15px;
+  }
+  
+  .transaction-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 12px;
+  }
 }
