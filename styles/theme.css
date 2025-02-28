@@ -17,5 +17,5 @@
 
 .card:hover {
   transform: translateY(-12px);
-  box-shadow: 0 25px 55px rgba(255, 215, 0, 0.7);
+  box-shadow: 0 25px 55px rgba(255, 255, 255, 0.7);
 }
