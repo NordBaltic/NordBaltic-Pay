@@ -3,6 +3,8 @@ import '../styles/theme.css';
 import '../styles/buttons.css';
 import '../styles/navbar.css';
 import '../styles/tables.css';
+import '../styles/cards.css';
+import '../styles/inputs.css';
 import { playUISound } from '../utils/sounds';
 
 export default function MyApp({ Component, pageProps }) {
