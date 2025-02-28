@@ -4,7 +4,7 @@ import '../styles/buttons.css';
 import '../styles/navbar.css';
 import '../styles/tables.css';
 import '../styles/cards.css';
-import '../styles/inputs.css';  // ✅ TEISINGAS IMPORTAS
+import '../styles/inputs.css';
 import '../styles/loading.css';
 import { playUISound } from '../utils/sounds';
 
