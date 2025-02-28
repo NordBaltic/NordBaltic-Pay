@@ -1,9 +1,9 @@
-/* === 💎 PREMIUM CARD STYLES === */
+/* === 💎 PREMIUM CARD DESIGN === */
 .card {
   background: var(--glass-bg);
-  border-radius: 15px;
-  padding: 20px;
-  box-shadow: 0px 8px 15px rgba(156, 116, 0, 0.2);
+  border-radius: 18px;
+  padding: 25px;
+  box-shadow: 0px 10px 20px rgba(156, 116, 0, 0.3);
   border: 2px solid var(--gold-color);
   transition: all 0.4s ease-in-out;
   position: relative;
@@ -12,14 +12,15 @@
 
 /* === 🟡 HOVER 3D EFFECT === */
 .card:hover {
-  transform: scale(1.03) translateY(-3px);
-  box-shadow: 0px 15px 35px rgba(156, 116, 0, 0.5);
+  transform: scale(1.04) translateY(-4px);
+  box-shadow: 0px 15px 40px rgba(156, 116, 0, 0.6);
 }
 
 /* === 🌟 CARD GLOW EFFECT (aktyvių kortelių) === */
 .card-active {
   border: 2px solid var(--gold-color);
-  box-shadow: 0px 0px 20px var(--gold-color);
+  box-shadow: 0px 0px 25px var(--gold-color);
+  animation: pulseGlow 2s infinite alternate;
 }
 
 /* === 🔥 TRANSACTION CARD (OPERACIJŲ KORTELĖ) === */
@@ -28,22 +29,22 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 10px;
-  box-shadow: 0px 5px 15px rgba(156, 116, 0, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0px 6px 18px rgba(156, 116, 0, 0.35);
   transition: all 0.3s ease-in-out;
 }
 
 /* === 🟡 TRANSACTION CARD HOVER === */
 .transaction-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0px 10px 25px rgba(156, 116, 0, 0.5);
+  transform: scale(1.03);
+  box-shadow: 0px 12px 28px rgba(156, 116, 0, 0.55);
 }
 
-/* === 🏆 ELITE 3D EFFECT === */
+/* === 🏆 ELITE 3D FLOATING EFFECT === */
 @keyframes cardFloat {
   0% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
+  50% { transform: translateY(-6px); }
   100% { transform: translateY(0px); }
 }
 
@@ -51,15 +52,21 @@
   animation: cardFloat 3s infinite ease-in-out;
 }
 
+/* === 🔥 CARD PULSE EFFECT FOR ACTIVE CARDS === */
+@keyframes pulseGlow {
+  0% { box-shadow: 0px 0px 10px var(--gold-color); }
+  100% { box-shadow: 0px 0px 30px var(--gold-color); }
+}
+
 /* === 📱 RESPONSIVE FIXES (MOBILIEMS) === */
 @media (max-width: 768px) {
   .card {
-    padding: 15px;
+    padding: 18px;
   }
   
   .transaction-card {
     flex-direction: column;
     align-items: flex-start;
-    padding: 12px;
+    padding: 14px;
   }
 }
