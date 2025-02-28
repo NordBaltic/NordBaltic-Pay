@@ -19,11 +19,24 @@
   color: var(--text-color);
   text-decoration: none;
   font-weight: 700;
-  font-size: 20px;
-  margin: 0 20px;
+  font-size: 18px;
+  margin: 0 15px;
   transition: color 0.3s ease-in-out;
 }
 
 .navbar a:hover {
   color: var(--secondary-color);
+}
+
+/* === 📱 Mobile Optimization === */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .navbar a {
+    font-size: 16px;
+    margin: 5px 0;
+  }
 }
