@@ -7,7 +7,7 @@
   --secondary-color: #9C7400; /* PRABANGUS tikras auksas */
   --text-color: #ffffff;
   --glass-bg: rgba(255, 255, 255, 0.04);
-  --border-color: rgba(156, 116, 0, 0.3);
+  --border-color: rgba(255, 255, 255, 0.3); /* Baltas akcentas */
   --shadow-color: rgba(0, 0, 0, 1);
 }
 
@@ -42,13 +42,13 @@ body {
 
 .glass:hover {
   transform: scale(1.05);
-  box-shadow: 0 20px 50px rgba(255, 215, 0, 0.6);
+  box-shadow: 0 20px 50px rgba(255, 255, 255, 0.6);
 }
 
-/* === ✨ REACTIVE GOLD TEXT EFFECT === */
+/* === ✨ REACTIVE WHITE TEXT GLOW EFFECT === */
 .gold-text {
   color: var(--text-color);
-  text-shadow: 0px 0px 35px var(--secondary-color);
+  text-shadow: 0px 0px 35px var(--text-color);
 }
 
 /* === 🔥 BLOCKCHAIN CONNECTION EFFECT (MINIMALISTIC) === */
@@ -58,9 +58,9 @@ body {
   right: 10px;
   width: 12px;
   height: 12px;
-  background: var(--secondary-color);
+  background: var(--text-color);
   border-radius: 50%;
-  box-shadow: 0px 0px 15px var(--secondary-color);
+  box-shadow: 0px 0px 15px var(--text-color);
   animation: blockchainPulse 2s infinite ease-in-out;
 }
 
