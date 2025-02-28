@@ -1,21 +1,21 @@
-/* === ULTIMATE THEME STYLES === */
+/* === ULTIMATE BANKING UI STYLES === */
 
 :root {
-  --gradient-bg: linear-gradient(145deg, #040D22, #091A38);
-  --glass-white: rgba(255, 255, 255, 0.07);
-  --deep-shadow: 0 15px 40px rgba(0, 0, 0, 0.9);
+  --gradient-bg: linear-gradient(145deg, #010A17, #020D1F);
+  --glass-white: rgba(255, 255, 255, 0.04);
+  --deep-shadow: 0 15px 50px rgba(0, 0, 0, 1);
 }
 
-/* === 🌟 3D CARD DESIGN (PATOBULINTAS) === */
+/* === 🌟 3D FLOATING CARDS === */
 .card {
   background: var(--glass-white);
   box-shadow: var(--deep-shadow);
-  border-radius: 25px;
-  padding: 30px;
+  border-radius: 30px;
+  padding: 40px;
   transition: transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
 }
 
 .card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 50px rgba(255, 215, 0, 0.6);
+  transform: translateY(-12px);
+  box-shadow: 0 25px 55px rgba(255, 215, 0, 0.7);
 }
