@@ -1,4 +1,4 @@
-/* === 💎 MODERN BUTTON DESIGN === */
+/* === 🌟 PREMIUM BUTTON STYLES === */
 .button {
   padding: 12px 25px;
   border-radius: 8px;
@@ -7,7 +7,7 @@
   color: #000;
   background: linear-gradient(145deg, #9C7400, #FFD700);
   border: none;
-  box-shadow: 0px 5px 15px rgba(156, 116, 0, 0.5);
+  box-shadow: 0px 5px 15px rgba(156, 116, 0, 0.6);
   transition: all 0.3s ease-in-out;
 }
 
@@ -16,9 +16,6 @@
   box-shadow: 0px 10px 30px rgba(156, 116, 0, 1);
 }
 
-/* === 🔥 DISABLED STATE === */
-.button:disabled {
-  background: rgba(255, 215, 0, 0.4);
-  cursor: not-allowed;
-  box-shadow: none;
+.button:active {
+  transform: scale(0.98);
 }
