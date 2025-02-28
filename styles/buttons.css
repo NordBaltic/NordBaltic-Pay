@@ -40,6 +40,16 @@
   transition: transform 0.4s ease-in-out, opacity 0.2s ease-in-out;
 }
 
+/* === 💎 PREMIUM GOLDEN BORDER EFFECT === */
+.button-golden {
+  border: 2px solid var(--gold-color);
+  box-shadow: 0px 0px 20px rgba(255, 215, 0, 0.8);
+}
+
+.button-golden:hover {
+  box-shadow: 0px 0px 30px rgba(255, 215, 0, 1);
+}
+
 /* === 🔥 WALLETCONNECT & EMAIL BUTTON STYLES === */
 .wallet-button, .email-button {
   width: 100%;
@@ -92,6 +102,11 @@
   transform: scale(1);
   opacity: 0;
   transition: transform 0.4s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+/* === ✨ PULSING EFFECT FOR ACTIVE BUTTONS === */
+.button-active {
+  animation: goldPulse 1.5s infinite ease-in-out;
 }
 
 /* === 📱 RESPONSIVE FIXES (MOBILIEMS) === */
