@@ -1,21 +1,29 @@
 export default function Home() {
   return (
-    <div className="login-container">
-      <h1 className="nordbaltic-title">NORD<b>BALTIC PAY</b></h1>
-      <div className="login-box glass-morph">
-        <h2 className="subheading">Sign in to your wallet</h2>
+    <div className="login-container fade-in-scale">
+      {/* 🔥 Prabangus NORD BALTIC PAY titulas */}
+      <h1 className="nordbaltic-title glow-text">
+        NORD<b>BALTIC PAY</b>
+      </h1>
 
+      {/* 🔥 Login box su Glassmorphism efektu */}
+      <div className="login-box glass-morph">
+        <h2 className="subheading fade-in">Sign in to your wallet</h2>
+
+        {/* 🔥 WalletConnect mygtukas */}
         <button className="wallet-button neon-glow">
           <img src="/icons/walletconnect.svg" className="button-icon" alt="WalletConnect" />
-          Connect with WalletConnect
+          <span>Connect with WalletConnect</span>
         </button>
 
+        {/* 🔥 Email login mygtukas */}
         <button className="email-button neon-glow">
           <img src="/icons/email.svg" className="button-icon" alt="Email Login" />
-          Login with Email
+          <span>Login with Email</span>
         </button>
 
-        <div className="login-footer">
+        {/* 🔒 Secure info tekstas */}
+        <div className="login-footer fade-in">
           <p className="info-text">🔒 Secure and Encrypted</p>
         </div>
       </div>
