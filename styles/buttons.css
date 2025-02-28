@@ -1,16 +1,27 @@
+/* === 🌟 WHITE BUTTON WITH GOLDEN HOVER EFFECT === */
 .button {
   background: linear-gradient(145deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3));
-  padding: 12px 25px;
+  padding: 10px 20px;
   border-radius: 50px;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
-  color: var(--text-color);
+  color: var(--gold-color); /* AUKSINIS TEKSTAS */
+  text-transform: uppercase;
+  display: block;
+  margin: 15px auto 0; /* Centruotas mygtukas, perkelta žemiau */
   transition: all 0.3s ease-in-out;
-  box-shadow: 0px 6px 20px rgba(255, 255, 255, 0.7);
+  box-shadow: none; /* NO GLOW UNTIL HOVER */
   backdrop-filter: blur(15px);
 }
 
+/* === 🔥 GOLDEN GLOW HOVER EFFECT === */
 .button:hover {
   transform: scale(1.05);
-  box-shadow: 0px 10px 30px rgba(255, 255, 255, 0.9);
+  box-shadow: 0px 10px 25px var(--gold-color);
+}
+
+/* === 🌟 NO CONSTANT GLOW – PASIRODO TIK PALIEČIANT === */
+.button:focus,
+.button:active {
+  box-shadow: 0px 12px 35px var(--gold-color);
 }
