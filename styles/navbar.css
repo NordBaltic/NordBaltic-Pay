@@ -1,10 +1,10 @@
-/* === 🌟 NAVIGATION BAR FIXED + RESPONSIVE === */
+/* === 🌟 FIXED, RESPONSIVE NAVBAR === */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 15px 40px;
-  background: rgba(4, 13, 34, 0.9);
+  background: rgba(4, 13, 34, 0.95);
   border-bottom: 2px solid var(--secondary-color);
   backdrop-filter: blur(20px);
   box-shadow: 0px 5px 20px var(--deep-shadow);
@@ -28,7 +28,7 @@
   color: var(--secondary-color);
 }
 
-/* === 📱 MOBILE FIX === */
+/* === 📱 MOBILE RESPONSIVE FIX === */
 @media (max-width: 768px) {
   .navbar {
     flex-direction: column;
