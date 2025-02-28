@@ -69,6 +69,12 @@ body {
   border-radius: 15px;
   box-shadow: var(--shadow-glow);
   border: 2px solid var(--gold-color);
+  transition: all 0.3s ease-in-out;
+}
+
+.login-box:hover {
+  transform: scale(1.02);
+  box-shadow: 0px 0px 30px rgba(255, 215, 0, 0.5);
 }
 
 /* === 🔥 MODERN BUTTON DESIGN === */
@@ -89,6 +95,31 @@ body {
   box-shadow: 0px 10px 30px rgba(156, 116, 0, 1);
 }
 
+/* === 🔥 INPUT FIELD DESIGN === */
+.input-field {
+  width: 100%;
+  padding: 12px 15px;
+  margin: 10px 0;
+  border: 2px solid var(--border-color);
+  background: var(--glass-bg);
+  color: var(--text-color);
+  font-size: 16px;
+  border-radius: 10px;
+  box-shadow: var(--shadow-glow);
+  transition: all 0.3s ease-in-out;
+}
+
+.input-field:hover {
+  border-color: rgba(255, 215, 0, 0.8);
+  box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.5);
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--gold-color);
+  box-shadow: 0px 0px 15px var(--gold-color);
+}
+
 /* === 💎 LIQUID GOLD LOADING ANIMATION === */
 @keyframes liquidGold {
   0% { opacity: 0.5; transform: scale(0.9); }
@@ -103,4 +134,25 @@ body {
   background: linear-gradient(145deg, #9C7400, #FFD700);
   box-shadow: var(--shadow-glow);
   animation: liquidGold 2s infinite ease-in-out;
+}
+
+/* === 🌟 RESPONSIVE FIXES === */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 10px 20px;
+  }
+
+  .login-box {
+    padding: 20px;
+  }
+
+  .input-field {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .loading-animation {
+    width: 50px;
+    height: 50px;
+  }
 }
