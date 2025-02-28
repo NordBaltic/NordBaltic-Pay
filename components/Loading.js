@@ -1,3 +1,7 @@
-export default function Loading() {
-  return <div className="loading-animation"></div>;
+export default function Loading({ size = "medium", fullscreen = false }) {
+  return (
+    <div className={`loading-container ${fullscreen ? "fullscreen" : ""}`}>
+      <div className={`loading-animation ${size}`}></div>
+    </div>
+  );
 }
