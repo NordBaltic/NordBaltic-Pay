@@ -1,46 +1,105 @@
-/* === 💎 PREMIUM TABLE DESIGN === */
-.table-container {
-  width: 100%;
-  overflow-x: auto;
-  padding: 20px;
-  background: var(--glass-bg);
-  border-radius: 15px;
-  box-shadow: var(--shadow-glow);
-  border: 2px solid var(--border-color);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease-in-out;
+/* === 🌟 GLOBAL THEME SETTINGS === */
+:root {
+  --primary-color: #010A17; /* BANKINĖ MĖLYNA */
+  --gold-color: #9C7400; /* PREMIUM AUKSINIS AKCENTAS */
+  --text-color: #ffffff;
+  --glass-bg: rgba(255, 255, 255, 0.08); /* Stiklo efektas */
+  --border-color: var(--gold-color);
+  --shadow-glow: 0px 10px 25px rgba(156, 116, 0, 0.4);
+  --highlight-bg: rgba(255, 215, 0, 0.07);
+  --hover-glow: 0px 10px 30px rgba(255, 215, 0, 0.6);
 }
 
-/* === 🔥 TABLE HEADERS === */
-.table th {
-  background: rgba(255, 255, 255, 0.08);
+/* === 💎 GLOBAL BACKGROUND STYLE === */
+body {
+  background: radial-gradient(circle at 50% 50%, var(--primary-color) 10%, #020D1F 90%);
+  color: var(--text-color);
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* === 🌟 GLOBAL CONTAINER WRAPPER === */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* === 💡 HEADERS STYLES === */
+h1, h2, h3, h4, h5, h6 {
   color: var(--gold-color);
   font-weight: bold;
-  border-bottom: 2px solid var(--gold-color);
-  padding: 12px;
-  text-align: left;
+  text-shadow: 0px 0px 12px rgba(255, 215, 0, 0.4);
+}
+
+h1 {
+  font-size: 36px;
+  letter-spacing: 1.5px;
+}
+
+h2 {
+  font-size: 28px;
+}
+
+h3 {
+  font-size: 24px;
+}
+
+/* === 🔥 PREMIUM BUTTON DESIGN === */
+.button {
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-size: 17px;
+  font-weight: bold;
+  color: #000;
+  background: linear-gradient(145deg, #9C7400, #FFD700);
+  border: none;
+  box-shadow: var(--shadow-glow);
+  transition: all 0.3s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.button:hover {
+  transform: scale(1.06);
+  box-shadow: var(--hover-glow);
+}
+
+/* === 🟡 BUTTON INNER LIGHT EFFECT === */
+.button::after {
+  content: "";
+  width: 150%;
+  height: 150%;
+  background: rgba(255, 215, 0, 0.2);
+  position: absolute;
+  top: -25%;
+  left: -25%;
+  border-radius: 50%;
+  transition: all 0.4s ease-in-out;
+  transform: scale(0);
+}
+
+.button:active::after {
+  transform: scale(1);
+  opacity: 0;
+  transition: transform 0.4s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+/* === 💎 PREMIUM GLASS EFFECT CONTAINERS === */
+.glass-container {
+  background: var(--glass-bg);
+  backdrop-filter: blur(15px);
+  border-radius: 15px;
+  padding: 25px;
+  box-shadow: var(--shadow-glow);
+  border: 2px solid var(--gold-color);
   transition: all 0.3s ease-in-out;
 }
 
-.table th:hover {
-  background: rgba(255, 215, 0, 0.1);
-  box-shadow: 0px 5px 10px rgba(255, 215, 0, 0.3);
-}
-
-/* === 🔥 TABLE CELLS === */
-.table td {
-  background: var(--glass-bg);
-  color: var(--text-color);
-  border-radius: 10px;
-  box-shadow: var(--shadow-glow);
-  padding: 10px;
-  transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
-}
-
-.table tr:hover td {
-  background: rgba(255, 215, 0, 0.05);
-  box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.3);
-  transform: scale(1.02);
+.glass-container:hover {
+  box-shadow: var(--hover-glow);
 }
 
 /* === 🔥 FORM INPUTS (PRISIJUNGIMO LAUKAI) === */
@@ -57,80 +116,67 @@
   transition: all 0.3s ease-in-out;
 }
 
-/* === ✨ INPUT FIELD HOVER === */
 .input-field:hover {
   border-color: rgba(255, 215, 0, 0.8);
   box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.5);
+  transform: scale(1.02);
 }
 
-/* === ✨ INPUT FIELD FOCUS (AKTYVUS) === */
 .input-field:focus {
   outline: none;
   border-color: var(--gold-color);
   box-shadow: 0px 0px 15px var(--gold-color);
+  transform: scale(1.03);
 }
 
-/* === 🟡 MODERN TABLE ROW EFFECT === */
-@keyframes rowHighlight {
-  0% { background-color: rgba(255, 215, 0, 0.08); }
-  50% { background-color: rgba(255, 215, 0, 0.12); }
-  100% { background-color: rgba(255, 215, 0, 0.08); }
+/* === 💎 LIQUID GOLD LOADING ANIMATION === */
+@keyframes liquidGold {
+  0% { opacity: 0.4; transform: scale(0.95); box-shadow: 0px 0px 15px rgba(156, 116, 0, 0.6); }
+  50% { opacity: 1; transform: scale(1.1); box-shadow: 0px 0px 40px rgba(255, 215, 0, 0.9); }
+  100% { opacity: 0.4; transform: scale(0.95); box-shadow: 0px 0px 15px rgba(156, 116, 0, 0.6); }
 }
 
-.table tr.highlight {
-  animation: rowHighlight 2s infinite ease-in-out;
+.loading-animation {
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #9C7400, #FFD700);
+  box-shadow: 0px 0px 20px rgba(156, 116, 0, 0.8);
+  animation: liquidGold 2.5s infinite ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.loading-animation::after {
+  content: "";
+  width: 80%;
+  height: 80%;
+  background: linear-gradient(145deg, #FFD700, #9C7400);
+  border-radius: 50%;
+  position: absolute;
+  animation: liquidGold 3s infinite reverse ease-in-out;
 }
 
 /* === 🌟 RESPONSIVE FIXES === */
 @media (max-width: 768px) {
-  .navbar {
-    padding: 10px 20px;
-  }
-
-  .login-box {
-    padding: 20px;
-  }
-
-  .table-container {
+  .container {
     padding: 15px;
   }
 
-  .table th,
-  .table td {
-    font-size: 14px;
-    padding: 8px;
+  .button {
+    font-size: 15px;
+    padding: 12px 24px;
   }
 
   .input-field {
     font-size: 14px;
     padding: 10px;
   }
-}
 
-/* === 💎 LIQUID GOLD LOADING ANIMATION === */
-@keyframes liquidGold {
-  0% { opacity: 0.5; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.05); }
-  100% { opacity: 0.5; transform: scale(0.9); }
-}
-
-.loading-animation {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #9C7400, #FFD700);
-  box-shadow: var(--shadow-glow);
-  animation: liquidGold 2s infinite ease-in-out;
-}
-
-/* === 🌟 ULTRA PREMIUM HOVER EFFECTS === */
-@keyframes ultraHover {
-  0% { box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.3); }
-  50% { box-shadow: 0px 0px 25px rgba(255, 215, 0, 0.5); }
-  100% { box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.3); }
-}
-
-.premium-hover:hover {
-  animation: ultraHover 2s infinite ease-in-out;
-  transform: scale(1.05);
+  .loading-animation {
+    width: 50px;
+    height: 50px;
+  }
 }
