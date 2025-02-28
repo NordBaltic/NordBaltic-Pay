@@ -3,12 +3,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 :root {
-  --primary-color: #040D22; /* DAR Tamsesnė karališka mėlyna */
-  --secondary-color: #C8963E; /* Tobula auksinė */
+  --primary-color: #040D22; /* Tamsiai mėlyna */
+  --secondary-color: #C8963E; /* Auksinė */
   --text-color: #ffffff;
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --border-color: rgba(255, 215, 0, 0.2);
-  --shadow-color: rgba(0, 0, 0, 0.7);
+  --glass-bg: rgba(255, 255, 255, 0.07);
+  --border-color: rgba(255, 215, 0, 0.3);
+  --shadow-color: rgba(0, 0, 0, 0.8);
 }
 
 /* === 🚀 BODY & GLOBAL SETTINGS === */
@@ -20,15 +20,16 @@
 }
 
 body {
-  background: linear-gradient(135deg, var(--primary-color) 20%, #091A38 100%);
+  background: radial-gradient(circle at 50% 50%, rgba(4, 13, 34, 1) 0%, rgba(9, 26, 56, 1) 100%);
   color: var(--text-color);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
-/* === 💎 GLASSMORPHISM + 3D SHADOW === */
+/* === 💎 GLASSMORPHISM + 3D EFFECT === */
 .glass {
   background: var(--glass-bg);
   border-radius: 20px;
@@ -36,16 +37,32 @@ body {
   border: 1px solid var(--border-color);
   padding: 25px;
   box-shadow: 0 10px 25px var(--shadow-color);
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+  transition: all 0.3s ease-in-out;
 }
 
 .glass:hover {
   transform: scale(1.02);
-  box-shadow: 0 15px 35px var(--shadow-color);
+  box-shadow: 0 15px 35px rgba(255, 215, 0, 0.5);
 }
 
 /* === ✨ GOLD TEXT EFFECT === */
 .gold-text {
   color: var(--secondary-color);
   text-shadow: 0px 0px 25px var(--secondary-color);
+}
+
+/* === 🌟 SMOOTH PAGE FADE-IN EFFECT === */
+.fade-in {
+  animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
