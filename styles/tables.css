@@ -1,4 +1,4 @@
-/* === 💎 PREMIUM TABLE CONTAINER === */
+/* === 💎 PREMIUM TABLE DESIGN === */
 .table-container {
   width: 100%;
   overflow-x: auto;
@@ -11,11 +11,13 @@
   transition: all 0.3s ease-in-out;
 }
 
-/* === 🌟 TABLE STYLES === */
+/* === 🔥 TABLE STYLES === */
 .table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
+  font-size: 16px;
+  transition: all 0.3s ease-in-out;
 }
 
 /* === 🔥 TABLE HEADERS === */
@@ -29,10 +31,10 @@
   transition: all 0.3s ease-in-out;
 }
 
+/* === 🔥 HEADER HOVER EFFECT === */
 .table th:hover {
   background: rgba(255, 215, 0, 0.1);
-  box-shadow: 0px 5px 15px rgba(255, 215, 0, 0.4);
-  transform: scale(1.02);
+  box-shadow: 0px 5px 10px rgba(255, 215, 0, 0.3);
 }
 
 /* === 🔥 TABLE CELLS === */
@@ -47,14 +49,14 @@
 
 /* === ✨ HOVER EFFECT TABLE ROWS === */
 .table tr:hover td {
-  background: rgba(255, 215, 0, 0.07);
-  box-shadow: 0px 0px 12px rgba(255, 215, 0, 0.5);
+  background: rgba(255, 215, 0, 0.05);
+  box-shadow: 0px 0px 12px rgba(255, 215, 0, 0.4);
   transform: scale(1.02);
 }
 
 /* === 🔥 TABLE STRIPED ROWS === */
 .table tr:nth-child(even) td {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 /* === 🔥 TABLE BORDERS === */
@@ -77,42 +79,30 @@
   animation: rowHighlight 2s infinite ease-in-out;
 }
 
-/* === 🔥 ULTRA PREMIUM HOVER EFFECTS === */
-@keyframes ultraHover {
-  0% { box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.3); }
-  50% { box-shadow: 0px 0px 25px rgba(255, 215, 0, 0.5); }
-  100% { box-shadow: 0px 0px 15px rgba(255, 215, 0, 0.3); }
-}
-
-.premium-hover:hover {
-  animation: ultraHover 2s infinite ease-in-out;
-  transform: scale(1.05);
-}
-
-/* === 💎 LIQUID GOLD LOADING ANIMATION === */
-@keyframes liquidGold {
-  0% { opacity: 0.5; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.05); }
-  100% { opacity: 0.5; transform: scale(0.9); }
-}
-
-.loading-animation {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #9C7400, #FFD700);
-  box-shadow: var(--shadow-glow);
-  animation: liquidGold 2s infinite ease-in-out;
-}
-
 /* === 🌟 RESPONSIVE FIXES === */
 @media (max-width: 768px) {
   .table-container {
     padding: 15px;
   }
 
+  .table {
+    font-size: 14px;
+  }
+
   .table th, .table td {
     font-size: 14px;
     padding: 10px;
   }
+}
+
+/* === 💎 LIQUID GOLD HIGHLIGHT ANIMATION === */
+@keyframes liquidGoldGlow {
+  0% { box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.3); }
+  50% { box-shadow: 0px 0px 25px rgba(255, 215, 0, 0.5); }
+  100% { box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.3); }
+}
+
+.table tr:hover {
+  animation: liquidGoldGlow 1.5s infinite ease-in-out;
+  transform: scale(1.02);
 }
