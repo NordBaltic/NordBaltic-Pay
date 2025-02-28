@@ -4,18 +4,19 @@
   padding: 12px 15px;
   margin: 10px 0;
   border: 2px solid var(--border-color);
-  background: var(--glass-bg);
+  background: rgba(255, 255, 255, 0.05); /* Subtilus stiklo efektas */
   color: var(--text-color);
   font-size: 16px;
   border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(156, 116, 0, 0.3);
+  box-shadow: 0px 4px 12px rgba(156, 116, 0, 0.35);
   transition: all 0.3s ease-in-out;
+  backdrop-filter: blur(10px);
 }
 
 /* === ✨ INPUT FIELD HOVER EFFECT === */
 .input-field:hover {
-  border-color: rgba(255, 215, 0, 0.8);
-  box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.5);
+  border-color: rgba(255, 215, 0, 0.9);
+  box-shadow: 0px 0px 12px rgba(255, 215, 0, 0.6);
   transform: scale(1.02);
 }
 
@@ -23,7 +24,7 @@
 .input-field:focus {
   outline: none;
   border-color: var(--gold-color);
-  box-shadow: 0px 0px 15px var(--gold-color);
+  box-shadow: 0px 0px 18px var(--gold-color);
   transform: scale(1.03);
 }
 
@@ -45,6 +46,29 @@
 /* === ✨ PLACEHOLDER FOCUS EFFECT === */
 .input-field:focus::placeholder {
   color: rgba(255, 215, 0, 0.9);
+}
+
+/* === 🔥 SUCCESS & ERROR STATE STYLES === */
+.input-field.success {
+  border-color: #28a745;
+  box-shadow: 0px 0px 15px rgba(40, 167, 69, 0.6);
+}
+
+.input-field.error {
+  border-color: #dc3545;
+  box-shadow: 0px 0px 15px rgba(220, 53, 69, 0.6);
+}
+
+/* === 🔥 ERROR SHAKE ANIMATION === */
+@keyframes inputShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+}
+
+.input-field.error:focus {
+  animation: inputShake 0.3s ease-in-out;
 }
 
 /* === 💎 RESPONSIVE FIXES === */
