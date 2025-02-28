@@ -1,4 +1,4 @@
-/* === 🔥 FORM INPUTS (PRISIJUNGIMO LAUKAI) === */
+/* === 💎 PREMIUM FORM INPUT DESIGN === */
 .input-field {
   width: 100%;
   padding: 12px 15px;
@@ -9,9 +9,48 @@
   font-size: 16px;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(156, 116, 0, 0.3);
+  transition: all 0.3s ease-in-out;
 }
 
+/* === ✨ INPUT FIELD HOVER EFFECT === */
+.input-field:hover {
+  border-color: rgba(255, 215, 0, 0.8);
+  box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.5);
+  transform: scale(1.02);
+}
+
+/* === ✨ INPUT FIELD FOCUS (AKTYVUS) === */
 .input-field:focus {
   outline: none;
+  border-color: var(--gold-color);
   box-shadow: 0px 0px 15px var(--gold-color);
+  transform: scale(1.03);
+}
+
+/* === 🔥 DISABLED INPUT STATE === */
+.input-field:disabled {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* === 🔥 PLACEHOLDER STYLES === */
+.input-field::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+  font-style: italic;
+  transition: all 0.3s ease-in-out;
+}
+
+/* === ✨ PLACEHOLDER FOCUS EFFECT === */
+.input-field:focus::placeholder {
+  color: rgba(255, 215, 0, 0.9);
+}
+
+/* === 💎 RESPONSIVE FIXES === */
+@media (max-width: 768px) {
+  .input-field {
+    font-size: 14px;
+    padding: 10px;
+  }
 }
