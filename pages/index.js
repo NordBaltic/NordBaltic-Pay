@@ -1,7 +1,7 @@
 export default function Home() {
   return (
     <div className="login-container">
-      <h1 className="gold-text fade-in">Welcome to NordBaltic Pay</h1>
+      <h1 className="nordbaltic-title">NORD<b>BALTIC PAY</b></h1>
       <div className="login-box glass-morph">
         <h2 className="subheading">Sign in to your wallet</h2>
 
@@ -16,7 +16,7 @@ export default function Home() {
         </button>
 
         <div className="login-footer">
-          <p className="info-text">Secure & Encrypted. Your keys, your crypto.</p>
+          <p className="info-text">🔒 Secure and Encrypted</p>
         </div>
       </div>
     </div>
