@@ -9,6 +9,19 @@
   animation: glowingFadeIn 1.5s ease-in-out;
 }
 
+/* === 🔥 TITULINIS TEKSTAS (NORD BALTIC PAY) === */
+.nordbaltic-title {
+  font-size: 36px;
+  font-weight: bold;
+  color: var(--gold-color);
+  text-shadow: 0px 0px 15px rgba(255, 215, 0, 0.7);
+  letter-spacing: 2px;
+}
+
+.nordbaltic-title b {
+  color: #fff;
+}
+
 /* === 🔥 LOGIN BOX STYLING === */
 .login-box {
   background: rgba(255, 255, 255, 0.1);
@@ -27,13 +40,6 @@
 }
 
 /* === 🔥 ANIMATED HEADERS === */
-.gold-text {
-  font-size: 32px;
-  font-weight: bold;
-  color: var(--gold-color);
-  text-shadow: 0px 0px 15px rgba(255, 215, 0, 0.7);
-}
-
 .subheading {
   font-size: 20px;
   color: var(--text-color);
@@ -59,8 +65,8 @@
 }
 
 .wallet-button img, .email-button img {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
   margin-right: 10px;
 }
 
@@ -76,9 +82,10 @@
 }
 
 .info-text {
-  font-size: 14px;
-  color: var(--text-color);
-  opacity: 0.8;
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--gold-color);
+  text-shadow: 0px 0px 10px rgba(255, 215, 0, 0.5);
 }
 
 /* === 💎 GLASSMORPHISM EFFECT === */
