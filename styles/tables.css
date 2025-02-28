@@ -1,21 +1,32 @@
-/* === 💎 PREMIUM TABLE DESIGN === */
+/* === 💎 PREMIUM TABLE CONTAINER === */
 .table-container {
   width: 100%;
   overflow-x: auto;
   padding: 20px;
   background: var(--glass-bg);
   border-radius: 15px;
-  box-shadow: 0px 10px 25px rgba(156, 116, 0, 0.3);
+  box-shadow: 0px 10px 25px rgba(156, 116, 0, 0.4);
   border: 2px solid var(--border-color);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease-in-out;
 }
 
-/* === 🌟 TABLE HEADERS === */
+/* === 🌟 TABLE STYLES === */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+/* === 🔥 TABLE HEADERS === */
 .table th {
   background: rgba(255, 255, 255, 0.08);
   color: var(--gold-color);
   font-weight: bold;
   border-bottom: 2px solid var(--gold-color);
+  padding: 14px;
+  text-align: left;
+  transition: all 0.3s ease-in-out;
 }
 
 /* === 🔥 TABLE CELLS === */
@@ -24,4 +35,39 @@
   color: var(--text-color);
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(156, 116, 0, 0.2);
+  padding: 12px;
+  transition: background 0.3s ease-in-out, transform 0.2s ease-in-out;
+}
+
+/* === ✨ HOVER EFFECT TABLE ROWS === */
+.table tr:hover td {
+  background: rgba(255, 215, 0, 0.05);
+  box-shadow: 0px 0px 12px rgba(255, 215, 0, 0.4);
+  transform: scale(1.02);
+}
+
+/* === 🔥 TABLE STRIPED ROWS === */
+.table tr:nth-child(even) td {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* === 🔥 TABLE BORDERS === */
+.table th, .table td {
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.table th:first-child, .table td:first-child {
+  border-left: none;
+}
+
+/* === 🌟 RESPONSIVE FIXES === */
+@media (max-width: 768px) {
+  .table-container {
+    padding: 15px;
+  }
+
+  .table th, .table td {
+    font-size: 14px;
+    padding: 10px;
+  }
 }
