@@ -1,40 +1,15 @@
-import Loading from '../components/Loading';
+import '../styles/globals.css';
 
 export default function Home() {
   return (
-    <div className="container">
-      {/* === LOADING ANIMATION TEST === */}
-      <h1 className="gold-text">NordBaltic Pay ULTRA PREMIUM UI</h1>
-      <Loading />
-
-      {/* === TESTINĖ LENTELĖ === */}
-      <div className="table-container">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>Transaction</th>
-              <th>Amount</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Deposit BTC</td>
-              <td>+0.005 BTC</td>
-              <td className="status completed">✅ Completed</td>
-            </tr>
-            <tr>
-              <td>Withdraw USDT</td>
-              <td>-100 USDT</td>
-              <td className="status pending">⏳ Pending</td>
-            </tr>
-            <tr>
-              <td>Stake ETH</td>
-              <td>+1.2 ETH</td>
-              <td className="status active">🔥 Active</td>
-            </tr>
-          </tbody>
-        </table>
+    <div className="login-container">
+      <h1 className="gold-text">Welcome to NordBaltic Pay</h1>
+      <div className="login-box">
+        <h2>Sign in to your wallet</h2>
+        <button className="wallet-button">🔗 Connect with MetaMask</button>
+        <button className="wallet-button">🦊 Connect with Trust Wallet</button>
+        <button className="wallet-button">📱 Login with Email</button>
+        <button className="wallet-button">💳 Use Credit Card</button>
       </div>
     </div>
   );
