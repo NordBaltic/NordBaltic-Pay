@@ -8,14 +8,17 @@
   box-shadow: var(--shadow-glow);
   border: 2px solid var(--border-color);
   backdrop-filter: blur(10px);
+  transition: all 0.3s ease-in-out;
 }
 
-/* === 🌟 TABLE HEADERS === */
+/* === 🔥 TABLE HEADERS === */
 .table th {
   background: rgba(255, 255, 255, 0.08);
   color: var(--gold-color);
   font-weight: bold;
   border-bottom: 2px solid var(--gold-color);
+  padding: 12px;
+  text-align: left;
 }
 
 /* === 🔥 TABLE CELLS === */
@@ -24,6 +27,14 @@
   color: var(--text-color);
   border-radius: 10px;
   box-shadow: var(--shadow-glow);
+  padding: 10px;
+  transition: background 0.3s ease-in-out;
+}
+
+/* === ✨ HOVER EFFECT TABLE CELLS === */
+.table tr:hover td {
+  background: rgba(255, 215, 0, 0.05);
+  box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.3);
 }
 
 /* === 🔥 FORM INPUTS (PRISIJUNGIMO LAUKAI) === */
@@ -37,14 +48,23 @@
   font-size: 16px;
   border-radius: 10px;
   box-shadow: var(--shadow-glow);
+  transition: all 0.3s ease-in-out;
 }
 
+/* === ✨ INPUT FIELD HOVER === */
+.input-field:hover {
+  border-color: rgba(255, 215, 0, 0.8);
+  box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.5);
+}
+
+/* === ✨ INPUT FIELD FOCUS (AKTYVUS) === */
 .input-field:focus {
   outline: none;
+  border-color: var(--gold-color);
   box-shadow: 0px 0px 15px var(--gold-color);
 }
 
-/* === 🌟 RESPONSIVE FIXES === */
+/* === 💎 RESPONSIVE FIXES === */
 @media (max-width: 768px) {
   .navbar {
     padding: 10px 20px;
@@ -56,5 +76,16 @@
 
   .table-container {
     padding: 15px;
+  }
+
+  .table th,
+  .table td {
+    font-size: 14px;
+    padding: 8px;
+  }
+
+  .input-field {
+    font-size: 14px;
+    padding: 10px;
   }
 }
