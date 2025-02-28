@@ -1,29 +1,18 @@
-/* === 🌟 FIXED NAVBAR === */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 50px;
-  background: rgba(1, 10, 23, 0.95);
-  border-bottom: 3px solid var(--secondary-color);
-  backdrop-filter: blur(30px);
-  box-shadow: 0px 10px 30px var(--deep-shadow);
-  border-radius: 20px;
-  width: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-}
+export default function Home() {
+  return (
+    <div className="container fade-in">
+      <nav className="navbar">
+        <a href="#">Home</a>
+        <a href="#">Dashboard</a>
+        <a href="#">Settings</a>
+      </nav>
 
-.navbar a {
-  color: var(--text-color);
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 20px;
-  margin: 0 20px;
-  transition: color 0.3s ease-in-out;
-}
+      <div className="glass fade-in card">
+        <h1 className="gold-text">NordBaltic Pay ULTRA PREMIUM UI</h1>
+        <button className="button">Let's Go</button>
+      </div>
 
-.navbar a:hover {
-  color: var(--secondary-color);
+      <div className="blockchain-visual"></div> {/* REAL-TIME BLOCKCHAIN CONNECTION EFFECT */}
+    </div>
+  );
 }
