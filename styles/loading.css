@@ -17,9 +17,16 @@
   }
 }
 
+/* === 🔥 LOADING CONTAINER === */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* === 🌟 LOADING CIRCLE DESIGN === */
 .loading-animation {
-  width: 65px;
-  height: 65px;
   border-radius: 50%;
   background: linear-gradient(145deg, #9C7400, #FFD700);
   box-shadow: 0px 0px 20px rgba(156, 116, 0, 0.8);
@@ -67,9 +74,39 @@
   animation: loadingRing 2s linear infinite;
 }
 
-/* === 💡 RESPONSIVE OPTIMIZATIONS === */
+/* === 🔥 LOADING SIZE VARIANTS === */
+.loading-animation.small {
+  width: 40px;
+  height: 40px;
+}
+
+.loading-animation.medium {
+  width: 60px;
+  height: 60px;
+}
+
+.loading-animation.large {
+  width: 80px;
+  height: 80px;
+}
+
+/* === 🔥 FULLSCREEN LOADING === */
+.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* === 🌟 RESPONSIVE OPTIMIZATIONS === */
 @media (max-width: 768px) {
-  .loading-animation {
+  .loading-animation.medium {
     width: 50px;
     height: 50px;
   }
