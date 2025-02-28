@@ -11,6 +11,8 @@ export default function Home() {
         <h1 className="gold-text">NordBaltic Pay ULTRA PREMIUM UI</h1>
         <button className="button">Let's Go</button>
       </div>
+
+      <div className="blockchain-visual"></div> {/* REAL-TIME BLOCKCHAIN CONNECTION EFFECT */}
     </div>
   );
 }
