@@ -1,14 +1,14 @@
-/* === 🌟 FIXED, RESPONSIVE NAVBAR === */
+/* === 🌟 FIXED NAVBAR === */
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 40px;
-  background: rgba(4, 13, 34, 0.95);
-  border-bottom: 2px solid var(--secondary-color);
-  backdrop-filter: blur(20px);
-  box-shadow: 0px 5px 20px var(--deep-shadow);
-  border-radius: 15px;
+  padding: 20px 50px;
+  background: rgba(1, 10, 23, 0.95);
+  border-bottom: 3px solid var(--secondary-color);
+  backdrop-filter: blur(30px);
+  box-shadow: 0px 10px 30px var(--deep-shadow);
+  border-radius: 20px;
   width: 100%;
   position: fixed;
   top: 0;
@@ -18,25 +18,12 @@
 .navbar a {
   color: var(--text-color);
   text-decoration: none;
-  font-weight: 600;
-  font-size: 18px;
-  margin: 0 15px;
+  font-weight: 700;
+  font-size: 20px;
+  margin: 0 20px;
   transition: color 0.3s ease-in-out;
 }
 
 .navbar a:hover {
   color: var(--secondary-color);
-}
-
-/* === 📱 MOBILE RESPONSIVE FIX === */
-@media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    padding: 10px;
-  }
-
-  .navbar a {
-    font-size: 16px;
-    margin: 8px 0;
-  }
 }
