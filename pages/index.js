@@ -6,11 +6,13 @@ export default function Home() {
         <h2>Sign in to your wallet</h2>
 
         <button className="wallet-button">
-          🔗 Connect with WalletConnect
+          <img src="/icons/walletconnect.svg" className="button-icon" alt="WalletConnect" />
+          Connect with WalletConnect
         </button>
 
-        <button className="wallet-button">
-          📩 Login with Email
+        <button className="email-button">
+          <img src="/icons/email.svg" className="button-icon" alt="Email Login" />
+          Login with Email
         </button>
       </div>
     </div>
