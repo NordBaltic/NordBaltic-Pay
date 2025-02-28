@@ -1,13 +1,13 @@
-/* === 💎 ULTRA PREMIUM GLOBAL STYLES === */
+/* === 💎 ULTRA PREMIUM GLOBAL UI STYLES === */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 :root {
   --primary-color: #010A17; /* BANKINĖ mėlyna */
-  --secondary-color: #8B6F29; /* Tamsesnis prabangus auksas */
+  --gold-color: #9C7400; /* IDENTIŠKAS aukso atspalvis visiems akcentams */
   --text-color: #ffffff;
   --glass-bg: rgba(255, 255, 255, 0.04);
-  --border-color: rgba(139, 111, 41, 0.6); /* Tamsaus aukso švytėjimas */
+  --border-color: var(--gold-color); /* VISUR TO PATIES AUKSO APVADAI */
   --shadow-color: rgba(0, 0, 0, 1);
 }
 
@@ -35,13 +35,13 @@ body {
 
 .glass:hover {
   transform: scale(1.02);
-  box-shadow: 0px 20px 45px rgba(139, 111, 41, 0.5);
+  box-shadow: 0px 20px 45px rgba(156, 116, 0, 0.5);
 }
 
 /* === 🔥 GOLDEN TEXT EFFECT === */
 .gold-text {
-  color: var(--text-color);
-  text-shadow: 0px 0px 25px var(--secondary-color);
+  color: var(--gold-color);
+  text-shadow: 0px 0px 25px var(--gold-color);
 }
 
 /* === 🔥 BLOCKCHAIN CONNECTION EFFECT (SUBTILUS) === */
@@ -51,9 +51,9 @@ body {
   right: 10px;
   width: 10px;
   height: 10px;
-  background: var(--secondary-color);
+  background: var(--gold-color);
   border-radius: 50%;
-  box-shadow: 0px 0px 10px var(--secondary-color);
+  box-shadow: 0px 0px 10px var(--gold-color);
   animation: blockchainPulse 2s infinite ease-in-out;
 }
 
