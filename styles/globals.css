@@ -1,13 +1,14 @@
-/* === 🌟 GLOBAL SETTINGS (VISI PAGRINDINIAI STILIAI) === */
+/* === 💎 GLOBAL SETTINGS (VISI PAGRINDINIAI STILIAI) === */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 :root {
   --primary-color: #010A17; /* BANKINĖ MĖLYNA */
   --gold-color: #9C7400; /* PREMIUM AUKSINIS AKCENTAS */
   --text-color: #ffffff;
-  --glass-bg: rgba(255, 255, 255, 0.04); /* Stiklo efektas */
+  --glass-bg: rgba(255, 255, 255, 0.05); /* Stiklo efektas */
   --border-color: var(--gold-color);
-  --shadow-glow: 0px 10px 25px rgba(156, 116, 0, 0.4);
+  --shadow-glow: 0px 10px 25px rgba(156, 116, 0, 0.5);
+  --gradient-gold: linear-gradient(145deg, #9C7400, #FFD700);
 }
 
 /* === 🌟 BODY SETTINGS (PAGRINDINIS FONAS) === */
@@ -40,17 +41,20 @@ body {
   top: 0;
   left: 0;
   z-index: 999;
+  transition: all 0.3s ease-in-out;
 }
 
+/* === 🔥 NAVBAR LINKS === */
 .navbar a {
   font-size: 16px;
   font-weight: bold;
   color: var(--gold-color);
-  transition: text-shadow 0.3s ease-in-out;
+  transition: text-shadow 0.3s ease-in-out, transform 0.2s ease-in-out;
 }
 
 .navbar a:hover {
   text-shadow: 0px 0px 12px var(--gold-color);
+  transform: scale(1.05);
 }
 
 /* === ✅ FIX: LOGIN UI PRITAIKYMAS === */
@@ -63,62 +67,76 @@ body {
   text-align: center;
 }
 
+/* === 🔥 NORD BALTIC PAY BRANDING === */
+.nordbaltic-title {
+  font-size: 40px;
+  font-weight: bold;
+  color: var(--gold-color);
+  text-shadow: 0px 0px 18px rgba(255, 215, 0, 0.8);
+  letter-spacing: 2px;
+}
+
+.nordbaltic-title b {
+  color: #fff;
+}
+
+/* === 🔥 LOGIN BOX STYLING === */
 .login-box {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  padding: 30px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+  padding: 40px;
   border-radius: 15px;
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0px 0px 30px rgba(255, 215, 0, 0.5);
   border: 2px solid var(--gold-color);
   transition: all 0.3s ease-in-out;
 }
 
 .login-box:hover {
   transform: scale(1.02);
-  box-shadow: 0px 0px 30px rgba(255, 215, 0, 0.5);
+  box-shadow: 0px 0px 35px rgba(255, 215, 0, 0.6);
 }
 
 /* === 🔥 MODERN BUTTON DESIGN === */
 .button {
-  padding: 12px 25px;
-  border-radius: 8px;
-  font-size: 16px;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-size: 17px;
   font-weight: bold;
   color: #000;
-  background: linear-gradient(145deg, #9C7400, #FFD700);
+  background: var(--gradient-gold);
   border: none;
   box-shadow: var(--shadow-glow);
   transition: all 0.3s ease-in-out;
 }
 
 .button:hover {
-  transform: scale(1.05);
-  box-shadow: 0px 10px 30px rgba(156, 116, 0, 1);
+  transform: scale(1.06);
+  box-shadow: 0px 10px 35px rgba(156, 116, 0, 1);
 }
 
 /* === 🔥 INPUT FIELD DESIGN === */
 .input-field {
   width: 100%;
-  padding: 12px 15px;
+  padding: 14px 16px;
   margin: 10px 0;
   border: 2px solid var(--border-color);
   background: var(--glass-bg);
   color: var(--text-color);
   font-size: 16px;
-  border-radius: 10px;
+  border-radius: 12px;
   box-shadow: var(--shadow-glow);
   transition: all 0.3s ease-in-out;
 }
 
 .input-field:hover {
   border-color: rgba(255, 215, 0, 0.8);
-  box-shadow: 0px 0px 10px rgba(255, 215, 0, 0.5);
+  box-shadow: 0px 0px 12px rgba(255, 215, 0, 0.6);
 }
 
 .input-field:focus {
   outline: none;
   border-color: var(--gold-color);
-  box-shadow: 0px 0px 15px var(--gold-color);
+  box-shadow: 0px 0px 18px var(--gold-color);
 }
 
 /* === 💎 LIQUID GOLD LOADING ANIMATION === */
@@ -129,12 +147,24 @@ body {
 }
 
 .loading-animation {
-  width: 60px;
-  height: 60px;
+  width: 65px;
+  height: 65px;
   border-radius: 50%;
-  background: linear-gradient(145deg, #9C7400, #FFD700);
+  background: var(--gradient-gold);
   box-shadow: var(--shadow-glow);
   animation: liquidGold 2s infinite ease-in-out;
+}
+
+/* === 🔥 LOGIN FOOTER TEXT === */
+.login-footer {
+  margin-top: 15px;
+}
+
+.info-text {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--gold-color);
+  text-shadow: 0px 0px 12px rgba(255, 215, 0, 0.6);
 }
 
 /* === 💎 RESPONSIVE FIXES === */
@@ -144,16 +174,20 @@ body {
   }
 
   .login-box {
-    padding: 20px;
+    padding: 30px;
   }
 
   .input-field {
     font-size: 14px;
-    padding: 10px;
+    padding: 12px;
   }
 
   .loading-animation {
     width: 50px;
     height: 50px;
+  }
+
+  .info-text {
+    font-size: 14px;
   }
 }
