@@ -7,7 +7,6 @@ import '../styles/cards.css';
 import '../styles/inputs.css';
 import '../styles/loading.css';
 import '../styles/login.css';
-import { playUISound } from '../utils/sounds';
 
 export default function MyApp({ Component, pageProps }) {
   return <Component {...pageProps} />;
