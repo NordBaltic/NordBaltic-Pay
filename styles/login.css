@@ -9,91 +9,90 @@
   animation: glowingFadeIn 1.5s ease-in-out;
 }
 
-/* === 🔥 LOGIN BOX DESIGN === */
+/* === 🔥 LOGIN BOX STYLING === */
 .login-box {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(15px);
-  padding: 50px 60px;
-  border-radius: 20px;
+  padding: 40px;
+  border-radius: 15px;
   box-shadow: 0px 0px 25px rgba(255, 215, 0, 0.4);
   border: 2px solid var(--gold-color);
   transition: all 0.3s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
 }
 
-/* === 🔥 LOGIN BOX HOVER EFFECT === */
+/* === ✨ HOVER EFFECT === */
 .login-box:hover {
-  transform: scale(1.03);
-  box-shadow: 0px 0px 40px rgba(255, 215, 0, 0.6);
+  transform: scale(1.02);
+  box-shadow: 0px 0px 35px rgba(255, 215, 0, 0.6);
 }
 
-/* === 🔥 BUTTON DESIGN === */
+/* === 🔥 ANIMATED HEADERS === */
+.gold-text {
+  font-size: 32px;
+  font-weight: bold;
+  color: var(--gold-color);
+  text-shadow: 0px 0px 15px rgba(255, 215, 0, 0.7);
+}
+
+.subheading {
+  font-size: 20px;
+  color: var(--text-color);
+  margin-bottom: 20px;
+}
+
+/* === 🔥 LOGIN BUTTONS === */
 .wallet-button, .email-button {
   width: 100%;
   padding: 15px;
+  margin: 10px 0;
   font-size: 18px;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 10px;
+  border-radius: 8px;
   border: none;
   background: linear-gradient(145deg, #9C7400, #FFD700);
   color: #000;
-  box-shadow: 0px 5px 20px rgba(156, 116, 0, 0.6);
+  box-shadow: 0px 5px 15px rgba(156, 116, 0, 0.5);
   transition: all 0.3s ease-in-out;
-  position: relative;
-  overflow: hidden;
 }
 
-/* === 🌟 BUTTON GLOW HOVER === */
+.wallet-button img, .email-button img {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+/* === 🔥 BUTTON HOVER EFFECT === */
 .wallet-button:hover, .email-button:hover {
   transform: scale(1.05);
   box-shadow: 0px 10px 30px rgba(156, 116, 0, 1);
 }
 
-/* === 🔥 BUTTON ICON DESIGN === */
-.wallet-button img, .email-button img {
-  width: 24px;
-  height: 24px;
-  margin-right: 12px;
+/* === 🔥 LOGIN FOOTER TEXT === */
+.login-footer {
+  margin-top: 15px;
 }
 
-/* === 🔥 BUTTON INNER GLOW EFFECT === */
-.wallet-button::after, .email-button::after {
-  content: "";
-  width: 150%;
-  height: 150%;
-  background: rgba(255, 215, 0, 0.2);
-  position: absolute;
-  top: -25%;
-  left: -25%;
-  border-radius: 50%;
-  transition: all 0.4s ease-in-out;
-  transform: scale(0);
+.info-text {
+  font-size: 14px;
+  color: var(--text-color);
+  opacity: 0.8;
 }
 
-/* === 🌟 BUTTON ACTIVE CLICK EFFECT === */
-.wallet-button:active::after, .email-button:active::after {
-  transform: scale(1);
-  opacity: 0;
-  transition: transform 0.4s ease-in-out, opacity 0.2s ease-in-out;
+/* === 💎 GLASSMORPHISM EFFECT === */
+.glass-morph {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  box-shadow: 0px 5px 20px rgba(255, 215, 0, 0.2);
 }
 
-/* === 💎 UI LOADING ANIMATION === */
-@keyframes glowingFadeIn {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* === 💎 RESPONSIVE FIXES === */
+/* === 🌟 RESPONSIVE FIXES === */
 @media (max-width: 768px) {
   .login-box {
-    padding: 40px;
-    gap: 15px;
+    padding: 30px;
   }
 
   .wallet-button, .email-button {
@@ -101,8 +100,7 @@
     padding: 12px;
   }
 
-  .wallet-button img, .email-button img {
-    width: 20px;
-    height: 20px;
+  .info-text {
+    font-size: 12px;
   }
 }
