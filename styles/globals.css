@@ -1,64 +1,37 @@
-/* === 💎 ULTRA PREMIUM GLOBAL UI STYLES === */
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 :root {
   --primary-color: #010A17; /* BANKINĖ mėlyna */
-  --gold-color: #9C7400; /* IDENTIŠKAS aukso atspalvis visiems akcentams */
+  --gold-color: #9C7400; /* AUKSINIS AKCENTAS */
   --text-color: #ffffff;
   --glass-bg: rgba(255, 255, 255, 0.04);
-  --border-color: var(--gold-color); /* VISUR TO PATIES AUKSO APVADAI */
-  --shadow-color: rgba(0, 0, 0, 1);
+  --border-color: var(--gold-color);
 }
 
-/* === 🚀 BODY & GLOBAL SETTINGS === */
+/* === 🌟 BODY SETTINGS === */
 body {
   background: radial-gradient(circle at 50% 50%, var(--primary-color) 10%, #020D1F 90%);
   color: var(--text-color);
-  min-height: 100vh;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* === 💎 NAVBAR FIX === */
+.navbar {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-/* === 💎 GOLDEN GLOW EFFECT (TIK PALIEČIANT) === */
-.glass {
-  background: var(--glass-bg);
-  border-radius: 25px;
+  justify-content: space-between;
+  padding: 15px 40px;
+  background: rgba(1, 10, 23, 0.95);
+  border-bottom: 3px solid var(--gold-color);
   backdrop-filter: blur(30px);
-  border: 2px solid var(--border-color);
-  padding: 30px;
-  box-shadow: 0 10px 35px var(--shadow-color);
-  transition: box-shadow 0.4s ease-in-out, transform 0.3s ease-in-out;
 }
 
-.glass:hover {
-  transform: scale(1.02);
-  box-shadow: 0px 20px 45px rgba(156, 116, 0, 0.5);
-}
-
-/* === 🔥 GOLDEN TEXT EFFECT === */
-.gold-text {
+.navbar a {
+  font-size: 16px;
+  font-weight: bold;
   color: var(--gold-color);
-  text-shadow: 0px 0px 25px var(--gold-color);
+  transition: text-shadow 0.3s ease-in-out;
 }
 
-/* === 🔥 BLOCKCHAIN CONNECTION EFFECT (SUBTILUS) === */
-.blockchain-visual {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  width: 10px;
-  height: 10px;
-  background: var(--gold-color);
-  border-radius: 50%;
-  box-shadow: 0px 0px 10px var(--gold-color);
-  animation: blockchainPulse 2s infinite ease-in-out;
-}
-
-@keyframes blockchainPulse {
-  0% { transform: scale(1); opacity: 0.5; }
-  50% { transform: scale(1.3); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.5; }
+.navbar a:hover {
+  text-shadow: 0 0 15px var(--gold-color);
 }
