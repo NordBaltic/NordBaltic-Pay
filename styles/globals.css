@@ -1,24 +1,17 @@
-/* === 💎 ULTRA PREMIUM GLOBAL UI STYLES === */
+/* === 💎 ULTRA PREMIUM GLOBAL STYLES === */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 :root {
   --primary-color: #010A17; /* BANKINĖ mėlyna */
-  --secondary-color: #9C7400; /* PRABANGUS tikras auksas */
+  --secondary-color: #8B6F29; /* Tamsesnis prabangus auksas */
   --text-color: #ffffff;
   --glass-bg: rgba(255, 255, 255, 0.04);
-  --border-color: rgba(255, 255, 255, 0.3); /* Baltas akcentas */
+  --border-color: rgba(139, 111, 41, 0.6); /* Tamsaus aukso švytėjimas */
   --shadow-color: rgba(0, 0, 0, 1);
 }
 
 /* === 🚀 BODY & GLOBAL SETTINGS === */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
-
 body {
   background: radial-gradient(circle at 50% 50%, var(--primary-color) 10%, #020D1F 90%);
   color: var(--text-color);
@@ -29,7 +22,7 @@ body {
   justify-content: center;
 }
 
-/* === 💎 ULTRA SMOOTH GLASS EFFECT === */
+/* === 💎 GOLDEN GLOW EFFECT (TIK PALIEČIANT) === */
 .glass {
   background: var(--glass-bg);
   border-radius: 25px;
@@ -37,35 +30,35 @@ body {
   border: 2px solid var(--border-color);
   padding: 30px;
   box-shadow: 0 10px 35px var(--shadow-color);
-  transition: transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
+  transition: box-shadow 0.4s ease-in-out, transform 0.3s ease-in-out;
 }
 
 .glass:hover {
-  transform: scale(1.05);
-  box-shadow: 0 20px 50px rgba(255, 255, 255, 0.6);
+  transform: scale(1.02);
+  box-shadow: 0px 20px 45px rgba(139, 111, 41, 0.5);
 }
 
-/* === ✨ REACTIVE WHITE TEXT GLOW EFFECT === */
+/* === 🔥 GOLDEN TEXT EFFECT === */
 .gold-text {
   color: var(--text-color);
-  text-shadow: 0px 0px 35px var(--text-color);
+  text-shadow: 0px 0px 25px var(--secondary-color);
 }
 
-/* === 🔥 BLOCKCHAIN CONNECTION EFFECT (MINIMALISTIC) === */
+/* === 🔥 BLOCKCHAIN CONNECTION EFFECT (SUBTILUS) === */
 .blockchain-visual {
   position: absolute;
   bottom: 10px;
   right: 10px;
-  width: 12px;
-  height: 12px;
-  background: var(--text-color);
+  width: 10px;
+  height: 10px;
+  background: var(--secondary-color);
   border-radius: 50%;
-  box-shadow: 0px 0px 15px var(--text-color);
+  box-shadow: 0px 0px 10px var(--secondary-color);
   animation: blockchainPulse 2s infinite ease-in-out;
 }
 
 @keyframes blockchainPulse {
-  0% { transform: scale(1); opacity: 0.7; }
-  50% { transform: scale(1.2); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.7; }
+  0% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.5; }
 }
