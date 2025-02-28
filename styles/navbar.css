@@ -1,4 +1,4 @@
-/* === 💎 NAVBAR DESIGN === */
+/* === 💎 NAVIGATION BAR STYLES === */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -16,17 +16,24 @@
   z-index: 999;
 }
 
-/* === 🔥 NAVBAR LINKS === */
 .navbar a {
   font-size: 16px;
   font-weight: bold;
   color: var(--gold-color);
-  text-decoration: none;
-  padding: 10px 15px;
-  transition: text-shadow 0.3s ease-in-out, transform 0.2s ease-in-out;
+  transition: text-shadow 0.3s ease-in-out;
 }
 
 .navbar a:hover {
   text-shadow: 0px 0px 12px var(--gold-color);
-  transform: scale(1.1);
+}
+
+/* === 🌟 RESPONSIVE FIXES === */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 10px 20px;
+  }
+
+  .navbar a {
+    font-size: 14px;
+  }
 }
