@@ -1,6 +1,3 @@
-/* === 🌟 PREMIUM THEME DESIGN === */
-
-/* TABLE CONTAINER */
 .table-container {
   width: 100%;
   overflow-x: auto;
@@ -12,7 +9,6 @@
   backdrop-filter: blur(10px);
 }
 
-/* === 🌟 TABLE DESIGN === */
 .table th,
 .table td {
   padding: 15px;
