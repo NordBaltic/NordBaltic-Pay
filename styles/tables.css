@@ -1,3 +1,4 @@
+/* === 🌟 TRANSACTIONS TABLE === */
 .table-container {
   width: 100%;
   overflow-x: auto;
@@ -9,18 +10,10 @@
   backdrop-filter: blur(10px);
 }
 
-/* === 🌟 TABLE DESIGN === */
-.table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 12px;
-}
-
 .table th,
 .table td {
   padding: 15px;
   text-align: left;
-  border: none;
   font-size: 16px;
   transition: background 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
@@ -28,7 +21,6 @@
 .table th {
   background: rgba(255, 255, 255, 0.08);
   color: var(--gold-color);
-  text-transform: uppercase;
   font-weight: bold;
   border-bottom: 2px solid var(--gold-color);
 }
@@ -38,11 +30,4 @@
   color: var(--text-color);
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(156, 116, 0, 0.2);
-}
-
-/* === ✨ ROW HOVER EFFECT === */
-.table tbody tr:hover td {
-  background: rgba(156, 116, 0, 0.15);
-  transform: scale(1.02);
-  box-shadow: 0px 6px 15px rgba(156, 116, 0, 0.3);
 }
