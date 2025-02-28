@@ -11,103 +11,144 @@
 
 /* === 🔥 TITULINIS TEKSTAS (NORD BALTIC PAY) === */
 .nordbaltic-title {
-  font-size: 36px;
+  font-size: 38px;
   font-weight: bold;
   color: var(--gold-color);
-  text-shadow: 0px 0px 15px rgba(255, 215, 0, 0.7);
+  text-shadow: 0px 0px 20px rgba(255, 215, 0, 0.9);
   letter-spacing: 2px;
+  animation: fadeInScale 1s ease-in-out;
 }
 
 .nordbaltic-title b {
   color: #fff;
 }
 
-/* === 🔥 LOGIN BOX STYLING === */
+/* === 🔥 LOGIN BOX STYLING (GLASSMORPHISM 2.0) === */
 .login-box {
   background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(15px);
-  padding: 40px;
-  border-radius: 15px;
-  box-shadow: 0px 0px 25px rgba(255, 215, 0, 0.4);
+  backdrop-filter: blur(18px);
+  padding: 45px;
+  border-radius: 18px;
+  box-shadow: 0px 0px 30px rgba(255, 215, 0, 0.5);
   border: 2px solid var(--gold-color);
   transition: all 0.3s ease-in-out;
 }
 
 /* === ✨ HOVER EFFECT === */
 .login-box:hover {
-  transform: scale(1.02);
-  box-shadow: 0px 0px 35px rgba(255, 215, 0, 0.6);
+  transform: scale(1.03);
+  box-shadow: 0px 0px 40px rgba(255, 215, 0, 0.7);
 }
 
 /* === 🔥 ANIMATED HEADERS === */
 .subheading {
-  font-size: 20px;
+  font-size: 22px;
   color: var(--text-color);
-  margin-bottom: 20px;
+  margin-bottom: 25px;
+  text-shadow: 0px 0px 15px rgba(255, 255, 255, 0.3);
 }
 
-/* === 🔥 LOGIN BUTTONS === */
+/* === 🔥 LOGIN BUTTONS (HOVER GLOW) === */
 .wallet-button, .email-button {
   width: 100%;
-  padding: 15px;
-  margin: 10px 0;
-  font-size: 18px;
+  padding: 16px;
+  margin: 12px 0;
+  font-size: 19px;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 10px;
   border: none;
   background: linear-gradient(145deg, #9C7400, #FFD700);
   color: #000;
-  box-shadow: 0px 5px 15px rgba(156, 116, 0, 0.5);
+  box-shadow: 0px 6px 18px rgba(156, 116, 0, 0.5);
   transition: all 0.3s ease-in-out;
+  position: relative;
+  overflow: hidden;
 }
 
+/* === 🔥 BUTTON ICON DESIGN === */
 .wallet-button img, .email-button img {
-  width: 24px;
-  height: 24px;
-  margin-right: 10px;
+  width: 26px;
+  height: 26px;
+  margin-right: 14px;
 }
 
-/* === 🔥 BUTTON HOVER EFFECT === */
+/* === 🔥 HOVER EFFECT === */
 .wallet-button:hover, .email-button:hover {
-  transform: scale(1.05);
-  box-shadow: 0px 10px 30px rgba(156, 116, 0, 1);
+  transform: scale(1.07);
+  box-shadow: 0px 12px 35px rgba(156, 116, 0, 1);
+}
+
+/* === 🌟 BUTTON INNER GLOW EFFECT === */
+.wallet-button::after, .email-button::after {
+  content: "";
+  width: 150%;
+  height: 150%;
+  background: rgba(255, 215, 0, 0.3);
+  position: absolute;
+  top: -30%;
+  left: -30%;
+  border-radius: 50%;
+  transition: all 0.5s ease-in-out;
+  transform: scale(0);
+}
+
+/* === 🔥 BUTTON CLICK ANIMATION === */
+.wallet-button:active::after, .email-button:active::after {
+  transform: scale(1);
+  opacity: 0;
+  transition: transform 0.4s ease-in-out, opacity 0.2s ease-in-out;
 }
 
 /* === 🔥 LOGIN FOOTER TEXT === */
 .login-footer {
-  margin-top: 15px;
+  margin-top: 18px;
 }
 
 .info-text {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: bold;
   color: var(--gold-color);
-  text-shadow: 0px 0px 10px rgba(255, 215, 0, 0.5);
+  text-shadow: 0px 0px 12px rgba(255, 215, 0, 0.7);
+}
+
+/* === 💎 NEW: "SECURE AND ENCRYPTED" LABEL === */
+.secure-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.8);
+  text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.4);
+  margin-top: 10px;
+  animation: fadeIn 1s ease-in-out;
 }
 
 /* === 💎 GLASSMORPHISM EFFECT === */
 .glass-morph {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  box-shadow: 0px 5px 20px rgba(255, 215, 0, 0.2);
+  backdrop-filter: blur(12px);
+  box-shadow: 0px 6px 22px rgba(255, 215, 0, 0.3);
 }
 
 /* === 🌟 RESPONSIVE FIXES === */
 @media (max-width: 768px) {
   .login-box {
-    padding: 30px;
+    padding: 35px;
   }
 
   .wallet-button, .email-button {
-    font-size: 16px;
-    padding: 12px;
+    font-size: 17px;
+    padding: 14px;
+  }
+
+  .wallet-button img, .email-button img {
+    width: 22px;
+    height: 22px;
   }
 
   .info-text {
-    font-size: 12px;
+    font-size: 14px;
   }
 }
