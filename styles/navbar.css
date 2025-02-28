@@ -1,4 +1,4 @@
-/* === 🌟 NAVBAR DESIGN === */
+/* === 💎 NAVBAR DESIGN === */
 .navbar {
   display: flex;
   justify-content: space-between;
@@ -16,6 +16,7 @@
   z-index: 999;
 }
 
+/* === 🔥 NAVBAR LINKS === */
 .navbar a {
   font-size: 16px;
   font-weight: bold;
@@ -28,19 +29,4 @@
 .navbar a:hover {
   text-shadow: 0px 0px 12px var(--gold-color);
   transform: scale(1.1);
-}
-
-/* === 🌓 LIGHT/DARK MODE TOGGLE === */
-.mode-toggle {
-  background: var(--glass-bg);
-  border: 2px solid var(--gold-color);
-  border-radius: 20px;
-  padding: 8px 15px;
-  cursor: pointer;
-  transition: all 0.3s ease-in-out;
-}
-
-.mode-toggle:hover {
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0px 0px 10px var(--gold-color);
 }
