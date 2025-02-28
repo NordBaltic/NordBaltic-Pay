@@ -1,3 +1,5 @@
+/* === 💎 INPUT FIELD DESIGN === */
+
 .input-field {
   width: 100%;
   padding: 12px;
@@ -9,6 +11,7 @@
   transition: all 0.3s ease-in-out;
 }
 
+/* === 🔥 INTERACTIVE EFFECT WHEN FOCUSED === */
 .input-field:focus {
   background: rgba(255, 255, 255, 0.15);
   box-shadow: 0px 0px 15px var(--gold-color);
