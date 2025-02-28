@@ -1,14 +1,14 @@
-/* === 💎 ULTIMATE LUXURY GLOBAL STYLES === */
+/* === 💎 ULTRA LUXURY GLOBAL STYLES === */
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 :root {
-  --primary-color: #040D22; /* Tamsiai mėlyna */
-  --secondary-color: #C8963E; /* Auksinė */
+  --primary-color: #010A17; /* Bankinė, gili, solidi tamsiai mėlyna */
+  --secondary-color: #9C7400; /* Tikras prabangus auksas */
   --text-color: #ffffff;
-  --glass-bg: rgba(255, 255, 255, 0.07);
-  --border-color: rgba(255, 215, 0, 0.3);
-  --shadow-color: rgba(0, 0, 0, 0.8);
+  --glass-bg: rgba(255, 255, 255, 0.04);
+  --border-color: rgba(156, 116, 0, 0.3);
+  --shadow-color: rgba(0, 0, 0, 1);
 }
 
 /* === 🚀 BODY & GLOBAL SETTINGS === */
@@ -20,7 +20,7 @@
 }
 
 body {
-  background: radial-gradient(circle at 50% 50%, rgba(4, 13, 34, 1) 0%, rgba(9, 26, 56, 1) 100%);
+  background: linear-gradient(135deg, var(--primary-color) 10%, #020D1F 90%);
   color: var(--text-color);
   min-height: 100vh;
   display: flex;
@@ -29,40 +29,43 @@ body {
   justify-content: center;
 }
 
-/* === 💎 GLASSMORPHISM + 3D EFFECT === */
+/* === 💎 ULTRA SMOOTH GLASS EFFECT === */
 .glass {
   background: var(--glass-bg);
-  border-radius: 20px;
-  backdrop-filter: blur(25px);
-  border: 1px solid var(--border-color);
-  padding: 25px;
-  box-shadow: 0 10px 25px var(--shadow-color);
-  transition: all 0.3s ease-in-out;
+  border-radius: 25px;
+  backdrop-filter: blur(30px);
+  border: 2px solid var(--border-color);
+  padding: 30px;
+  box-shadow: 0 10px 35px var(--shadow-color);
+  transition: transform 0.4s ease-in-out, box-shadow 0.4s ease-in-out;
 }
 
 .glass:hover {
-  transform: scale(1.02);
-  box-shadow: 0 15px 35px rgba(255, 215, 0, 0.5);
+  transform: scale(1.05);
+  box-shadow: 0 20px 50px rgba(255, 215, 0, 0.6);
 }
 
-/* === ✨ GOLD TEXT EFFECT === */
+/* === ✨ REALISTIC GOLD TEXT EFFECT === */
 .gold-text {
   color: var(--secondary-color);
-  text-shadow: 0px 0px 25px var(--secondary-color);
+  text-shadow: 0px 0px 35px var(--secondary-color);
 }
 
-/* === 🌟 SMOOTH PAGE FADE-IN EFFECT === */
-.fade-in {
-  animation: fadeIn 1s ease-in-out;
+/* === 🔥 BLOCKCHAIN CONNECTION EFFECT (MINIMALISTIC) === */
+.blockchain-visual {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 12px;
+  height: 12px;
+  background: var(--secondary-color);
+  border-radius: 50%;
+  box-shadow: 0px 0px 15px var(--secondary-color);
+  animation: blockchainPulse 2s infinite ease-in-out;
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes blockchainPulse {
+  0% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.7; }
 }
