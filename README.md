@@ -1,8 +1,8 @@
-# 🌍 NordBaltic Pay – The Future of Web3 Finance 🚀
+# 🌍 NordBalticum – The Future of Web3 Finance 🚀
 
-Welcome to **NordBaltic Pay**, the most advanced **Web3 financial ecosystem** built for seamless and secure transactions. Our platform redefines **crypto payments, staking, and financial management** with cutting-edge technology, **premium UX/UI**, and full decentralization. 
+Welcome to **NordBalticum**, the most advanced **Web3 financial ecosystem** built for seamless and secure transactions. Our platform redefines **crypto payments, staking, and financial management** with cutting-edge technology, **premium UX/UI**, and full decentralization. 
 
-## 🔥 Why NordBaltic Pay?
+## 🔥 Why NordBalticum?
 
 ✅ **Decentralized & Secure** – Non-custodial wallet with top-tier security.  
 ✅ **Seamless Web3 Integration** – Fully compatible with MetaMask & other wallets.  
