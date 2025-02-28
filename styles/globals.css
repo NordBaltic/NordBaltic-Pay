@@ -1,5 +1,4 @@
 /* === 🌟 GLOBAL SETTINGS (VISI PAGRINDINIAI STILIAI) === */
-
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
 
 :root {
@@ -16,6 +15,8 @@ body {
   background: radial-gradient(circle at 50% 50%, var(--primary-color) 10%, #020D1F 90%);
   color: var(--text-color);
   font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 /* === ✅ FIX: NUIMTAS MISTINIS TAŠKAS === */
@@ -136,7 +137,7 @@ body {
   animation: liquidGold 2s infinite ease-in-out;
 }
 
-/* === 🌟 RESPONSIVE FIXES === */
+/* === 💎 RESPONSIVE FIXES === */
 @media (max-width: 768px) {
   .navbar {
     padding: 10px 20px;
